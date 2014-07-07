@@ -111,7 +111,7 @@ else:
     class README_Builder(JinjaBuilder):
         def __init__(self):
             JinjaBuilder.__init__(self, FileSystemLoader('.'), context={
-                'REQUIRES': self.REQUIRES(REQUIRES),
+              'REQUIRES': self.REQUIRES(REQUIRES),
               'EXTRAS': self.EXTRAS(),
               'INSTALL': self.INSTALL(),
               })
