@@ -20,6 +20,7 @@
 import sys
 import os
 import re
+from collections import OrderedDict
 from pkg_resources import parse_requirements
 
 try:
@@ -59,9 +60,9 @@ VERSION = open('VERSION').read().strip()
 REQUIRES = Requirements(open('requirements.txt').read())
 
 # Extra requirements to use with setup's extras_require=
-EXTRAS = {}
+EXTRAS = OrderedDict()
 _re = re.compile(r'^requirements\.(?P<name>[^\.]+)\.txt$')
-for fname in os.listdir('.'):
+for fname in sorted(os.listdir('.')):
     match = _re.match(fname)
     if match:
         EXTRAS[match.group('name')] = Requirements(open(fname).read())
@@ -99,3 +100,54 @@ else:
             os.environ['PYTHONPATH'] = PATH
         else:
             os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
+
+
+try:
+    from jinja2 import FileSystemLoader
+    from jinjatools.scons import JinjaBuilder
+except ImportError:
+    pass
+else:
+    class README_Builder(JinjaBuilder):
+        def __init__(self):
+            JinjaBuilder.__init__(self, FileSystemLoader('.'), context={
+                'REQUIRES': self.REQUIRES(REQUIRES),
+              'EXTRAS': self.EXTRAS(),
+              'INSTALL': self.INSTALL(),
+              })
+
+        def REQUIRES(self, reqs):
+            return '\n'.join(
+              "* [`%s`](https://pypi.python.org/pypi/%s)" % (
+                req, req.unsafe_name)
+              for req in reqs)
+
+        def EXTRAS(self):
+            return '\n\n'.join(
+              "Extra requirements for __[%s]__:\n\n" % key
+              + self.REQUIRES(reqs)
+              for key, reqs in EXTRAS.items())
+
+        def INSTALL(self):
+            mdtext = (
+              "    python setup.py install"
+              "\n\n"
+              "Or with [pip](http://www.pip-installer.org):"
+              "\n\n"
+              "    pip install ."
+              "\n\n"
+              "Or from [PyPI](https://pypi.python.org/pypi/%s):"
+              "\n\n"
+              "    pip install %s"
+              % tuple(2 * [PROJECT]))
+            if EXTRAS:
+              mdtext += (
+                "\n\n"
+                "* With all extra features:"
+                "\n\n"
+                "        pip install %s[%s]"
+                % (PROJECT, ','.join(EXTRAS)))
+            return mdtext
+
+
+    README_BUILDER = README_Builder()
