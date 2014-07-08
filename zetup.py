@@ -105,6 +105,8 @@ class Extras(OrderedDict):
           for key, reqs in self.items()))
 
 
+SETUP_DATA = ['VERSION', 'requirements.txt']
+
 VERSION = Version(open('VERSION').read().strip())
 
 REQUIRES = Requirements(open('requirements.txt').read())
@@ -115,6 +117,8 @@ _re = re.compile(r'^requirements\.(?P<name>[^\.]+)\.txt$')
 for fname in sorted(os.listdir('.')):
     match = _re.match(fname)
     if match:
+        SETUP_DATA.append(fname)
+
         EXTRAS[match.group('name')] = Requirements(open(fname).read())
 
 
