@@ -96,12 +96,21 @@ class Requirements(str):
         return str(self)
 
 
+class Extras(OrderedDict):
+    """Package extra features/requirements manager.
+    """
+    def __repr__(self):
+        return "\n\n".join((
+          "[%s]\n" % key + '\n'.join(map(str, reqs))
+          for key, reqs in self.items()))
+
+
 VERSION = Version(open('VERSION').read().strip())
 
 REQUIRES = Requirements(open('requirements.txt').read())
 
 # Extra requirements to use with setup's extras_require=
-EXTRAS = OrderedDict()
+EXTRAS = Extras()
 _re = re.compile(r'^requirements\.(?P<name>[^\.]+)\.txt$')
 for fname in sorted(os.listdir('.')):
     match = _re.match(fname)
