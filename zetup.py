@@ -19,6 +19,7 @@
 
 import sys
 if sys.version_info[0] == 3:
+    # Just for simpler PY2/3 compatible code:
     unicode = str
 
 import os
@@ -33,14 +34,21 @@ except ImportError:
 
 
 class Version(str):
+    """Manage and compare version strings
+       using :func:`pkg_resources.parse_version`.
+    """
     @staticmethod
     def _parsed(value):
+        """Parse a version `value` if needed.
+        """
         if isinstance(value, (str, unicode)):
             value = parse_version(value)
         return value
 
     @property
     def parsed(self):
+        """The version string as parsed version tuple.
+        """
         return parse_version(self)
 
     def __eq__(self, other):
