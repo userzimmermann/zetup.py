@@ -18,15 +18,48 @@
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+if sys.version_info[0] == 3:
+    unicode = str
+
 import os
 import re
 from collections import OrderedDict
-from pkg_resources import parse_requirements
+from pkg_resources import parse_version, parse_requirements
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+
+
+class Version(str):
+    @staticmethod
+    def _parsed(value):
+        if isinstance(value, (str, unicode)):
+            value = parse_version(value)
+        return value
+
+    @property
+    def parsed(self):
+        return parse_version(self)
+
+    def __eq__(self, other):
+        return self.parsed == self._parsed(other)
+
+    def __ne__(self, other):
+        return self.parsed != self._parsed(other)
+
+    def __lt__(self, other):
+        return self.parsed < self._parsed(other)
+
+    def __le__(self, other):
+        return self.parsed <= self._parsed(other)
+
+    def __gt__(self, other):
+        return self.parsed > self._parsed(other)
+
+    def __ge__(self, other):
+        return self.parsed >= self._parsed(other)
 
 
 class Requirements(str):
@@ -55,7 +88,7 @@ class Requirements(str):
         return str(self)
 
 
-VERSION = open('VERSION').read().strip()
+VERSION = Version(open('VERSION').read().strip())
 
 REQUIRES = Requirements(open('requirements.txt').read())
 
