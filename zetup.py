@@ -99,6 +99,10 @@ class Requirements(str):
 class Extras(OrderedDict):
     """Package extra features/requirements manager.
     """
+    def __setitem__(self, name, text):
+        reqs = Requirements(text)
+        OrderedDict.__setitem__(self, name, reqs)
+
     def __repr__(self):
         return "\n\n".join((
           "[%s]\n" % key + '\n'.join(map(str, reqs))
@@ -119,7 +123,7 @@ for fname in sorted(os.listdir('.')):
     if match:
         SETUP_DATA.append(fname)
 
-        EXTRAS[match.group('name')] = Requirements(open(fname).read())
+        EXTRAS[match.group('name')] = open(fname).read()
 
 
 # If installed with pip, add all build directories and src/ subdirs
