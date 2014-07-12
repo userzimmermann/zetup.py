@@ -25,7 +25,9 @@ if sys.version_info[0] == 3:
 import os
 import re
 from collections import OrderedDict
-from pkg_resources import parse_version, parse_requirements
+from pkg_resources import (
+  parse_version, parse_requirements,
+  DistributionNotFound, VersionConflict)
 
 try:
     from setuptools import setup
@@ -100,6 +102,21 @@ class Requirements(str):
                     req.modname = modname.strip()
                 yield req
         self._list = list(reqs())
+
+    def check(self, raise_=True):
+        for req in self:
+            try:
+                mod = __import__(req.modname)
+            except:
+                if raise_:
+                    raise DistributionNotFound(str(req))
+                return False
+            if mod.__version__ not in req:
+                if raise_:
+                    raise VersionConflict(
+                      "Need %s. Found %s" % (str(req), mod.__version__))
+                return False
+        return True
 
     def __iter__(self):
         return iter(self._list)
