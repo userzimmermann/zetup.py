@@ -152,9 +152,7 @@ class Extras(OrderedDict):
           for key, reqs in self.items()))
 
 
-SETUP_DATA = ['PACKAGE', 'VERSION', 'requirements.txt']
-
-PACKAGE = Version(open('PACKAGE').read().strip())
+SETUP_DATA = ['VERSION', 'requirements.txt']
 
 VERSION = Version(open('VERSION').read().strip())
 
@@ -244,14 +242,14 @@ else:
               "  https://pypi.python.org/pypi/%s):"
               "\n\n"
               "    pip install %s"
-              % tuple(2 * [PACKAGE]))
+              % tuple(2 * [NAME]))
             if EXTRAS:
               mdtext += (
                 "\n\n"
                 "* With all extra features:"
                 "\n\n"
                 "        pip install %s[%s]"
-                % (PACKAGE, ','.join(EXTRAS)))
+                % (NAME, ','.join(EXTRAS)))
             return mdtext
 
 
