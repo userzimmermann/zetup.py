@@ -192,7 +192,7 @@ AUTHOR = re.match(r'^([^<]+)<([^>]+)>$', config['author'])
 AUTHOR, EMAIL = map(str.strip, AUTHOR.groups())
 URL = config['url']
 
-LICENSE = config['license'].split()
+LICENSE = config['license']
 
 PYTHON = config['python'].split()
 
@@ -224,6 +224,23 @@ for fname in sorted(os.listdir('.')):
         SETUP_DATA.append(fname)
 
         EXTRAS[match.group('name')] = open(fname).read()
+
+
+def zetup(**setup_options):
+    for option, value in [
+      ('name', DISTRIBUTION),
+      ('version', VERSION),
+      ('description', DESCRIPTION),
+      ('author', AUTHOR),
+      ('author_email', EMAIL),
+      ('url', URL),
+      ('license', LICENSE),
+      ('install_requires', REQUIRES),
+      ('classifiers', CLASSIFIERS),
+      ('keywords', KEYWORDS),
+      ]:
+        setup_options.setdefault(option, value)
+    return setup(**setup_options)
 
 
 # If installed with pip, add all build directories and src/ subdirs
