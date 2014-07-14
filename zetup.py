@@ -239,6 +239,7 @@ def zetup(**setup_options):
       ('url', URL),
       ('license', LICENSE),
       ('install_requires', REQUIRES),
+      ('extras_require', EXTRAS),
       ('classifiers', CLASSIFIERS),
       ('keywords', KEYWORDS),
       ]:
