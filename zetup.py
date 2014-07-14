@@ -227,6 +227,9 @@ for fname in sorted(os.listdir('.')):
 
 
 def zetup(**setup_options):
+    """Run setup() with options from zetup.cfg
+       and explicit override `setup_options`.
+    """
     for option, value in [
       ('name', DISTRIBUTION),
       ('version', VERSION),
