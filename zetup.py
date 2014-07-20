@@ -139,7 +139,7 @@ class Requirements(str):
         for req in self:
             try:
                 mod = __import__(req.modname)
-            except:
+            except ImportError:
                 if raise_:
                     raise DistributionNotFound(str(req))
                 return False
