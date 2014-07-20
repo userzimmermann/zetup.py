@@ -50,7 +50,10 @@ else:
 
 class Distribution(str):
     def find(self, modpath, raise_=True):
-        dist = get_distribution(self)
+        try:
+            dist = get_distribution(self)
+        except DistributionNotFound:
+            return None
         if os.path.realpath(dist.location) \
           != os.path.realpath(os.path.dirname(modpath)):
             return None
