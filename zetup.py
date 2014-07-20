@@ -182,6 +182,7 @@ config = ConfigParser()
 for fname in ['zetup.ini', 'zetup.cfg', 'zetuprc']:
     if config.read(fname):
         print("zetup: Using config from %s" % fname)
+        ZETUP_DATA = [fname]
         break
 else:
     raise RuntimeError("No zetup config found.")
@@ -216,7 +217,7 @@ if any(pyversion.startswith('3') for pyversion in PYTHON):
     KEYWORDS.append('python3')
 
 
-ZETUP_DATA = ['zetup.cfg', 'VERSION', 'requirements.txt']
+ZETUP_DATA += ['VERSION', 'requirements.txt']
 
 VERSION = Version(open('VERSION').read().strip())
 
