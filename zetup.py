@@ -158,6 +158,8 @@ class Requirements(str):
            with additional requirements from `text`.
         """
         return type(self)('%s\n%s' % (
+          # For simplicity:
+          #  Just create explicit modname hints for every requirement:
           '\n'.join('%s # %s' % (req, req.modname) for req in self),
           text))
 
