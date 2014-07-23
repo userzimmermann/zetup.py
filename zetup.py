@@ -249,6 +249,7 @@ for fname in sorted(os.listdir(ZETUP_DIR)):
 
         EXTRAS[match.group('name')] = open(os.path.join(ZETUP_DIR, fname)).read()
 
+
 def zetup(**setup_options):
     """Run setup() with options from zetup.cfg
        and explicit override `setup_options`.
