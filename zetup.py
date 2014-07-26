@@ -210,7 +210,7 @@ DISTRIBUTION = Distribution(NAME)
 config = dict(config.items(NAME))
 
 TITLE = config.get('title', NAME)
-DESCRIPTION = config['description'].replace('\n', ' ')
+DESCRIPTION = config['description'].strip().replace('\n', ' ')
 
 AUTHOR = re.match(r'^([^<]+)<([^>]+)>$', config['author'])
 AUTHOR, EMAIL = map(str.strip, AUTHOR.groups())
