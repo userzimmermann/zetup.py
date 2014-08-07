@@ -318,7 +318,11 @@ def zetup(**setup_options):
       ('keywords', KEYWORDS),
       ]:
         setup_options.setdefault(option, value)
-    return setup(**setup_options)
+    return setup(
+      cmdclass={
+        'conda': Conda, # defined below
+      },
+      **setup_options)
 
 
 # If installed with pip, add all build directories and src/ subdirs
@@ -353,3 +357,80 @@ else:
             os.environ['PYTHONPATH'] = PATH
         else:
             os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
+
+
+class Conda(Command):
+    """The setup.py conda command generates meta.yaml and build scripts
+       in a .conda subdir and runs conda build .conda
+
+    - Assumes an existing sdist in dist/ for the current package version
+      (just use together with sdist command to make sure).
+    """
+    # Must override options handling stuff from Command base...
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        """The actual conda command action called by Command base.
+        """
+        from path import path as Path
+        import yaml
+
+        metadir = Path('.conda')
+        metadir.mkdir_p()
+        metafile = metadir / 'meta.yaml'
+        buildfile = metadir / 'build.sh'
+
+        def conda_req(req):
+            """conda wants space between requirement name and version specs.
+            """
+            return re.sub(r'([=<>]+)', r' \1', str(req))
+
+        requirements = list(map(conda_req, REQUIRES))
+        # Also add all extra requirements
+        #  (conda doesn't seem to have such an extra features management):
+        for extra in EXTRAS.values():
+            requirements.extend(map(conda_req, extra))
+
+        meta = { # to be dumped to meta.yaml
+          'package': {
+            'name': NAME,
+            'version': str(VERSION),
+            },
+          'source': {
+            'fn': '%s-%s.tar.gz' % (NAME, VERSION),
+            # The absolute path to the sdist in dist/
+            'url': 'file://%s' % os.path.realpath(os.path.join(
+              'dist', '%s-%s.tar.gz' % (NAME, VERSION)))
+            },
+          'requirements': {
+            'build': [
+              'python',
+              'pyyaml',
+              ] + requirements,
+            'run': [
+              'python',
+              ] + requirements,
+            },
+          'about': {
+            'home': URL,
+            'summary': DESCRIPTION,
+            },
+          }
+        with open(metafile, 'w') as f:
+            yaml.dump(meta, f, default_flow_style=False)
+
+        with open(buildfile, 'w') as f:
+            f.write('#!/bin/bash'
+                    '\n\n'
+                    '$PYTHON setup.py install'
+                    '\n')
+
+        status = call(['conda', 'build', metadir])
+        if not status:
+            sys.exit(status)
