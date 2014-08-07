@@ -169,6 +169,8 @@ class Requirements(str):
                 if raise_:
                     raise DistributionNotFound(str(req))
                 return False
+            if not req.specs: # No version constraints
+                continue
             try:
                 version = mod.__version__
             except AttributeError as e:
