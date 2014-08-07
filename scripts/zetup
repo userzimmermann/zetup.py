@@ -1,0 +1,16 @@
+#!python
+
+from argparse import ArgumentParser
+
+from zetup import COMMANDS
+
+
+ap = ArgumentParser()
+ap.add_argument(
+  'cmd', choices=COMMANDS,
+  help="command",
+  )
+
+args = ap.parse_args()
+cmdfunc = getattr(zetup, args.cmd)
+cmdfunc()
