@@ -322,7 +322,7 @@ else:
                 markdown)
 
 
-        class ExportTemplateLoader(BaseLoader):
+        class ExtraTemplateLoader(BaseLoader):
             templates = {
               'bitbucket_rst': dedent("""
                 {%- extends 'rst.tpl' -%}
@@ -403,29 +403,63 @@ else:
               'github_markdown_links': github_markdown_links,
               }
 
-            EXTRA_LOADER = ExportTemplateLoader()
+            EXTRA_LOADER = ExtraTemplateLoader()
 
             def to_bitbucket_rst(self):
+                """Export the notebook to Bitbucket optimized reST.
+
+                - Prepends 'rst-header-' to link targets.
+                  ('#some-section' --> '#rst-header-some-section')
+                """
                 rst = nbconvert.export_rst(self,
                   filters=self.EXTRA_FILTERS,
                   extra_loaders=[self.EXTRA_LOADER],
+                  # Not a real file, will be loaded from string by EXTRA_LOADER:
                   template_file='bitbucket_rst',
                   )[0]
-                # Remove empty lines between code cell input and output:
+                # bitbucket_rst template puts code cell input and output
+                #  in single blocks, but can't prevent empty lines in between
+                #==> Remove them:
                 return re.sub(
+                  # .. code:: python
+                  #
+                  #     >>> input
+                  #
+                  #     output
                   r'(\n    >>> .+\n)\s*\n(    [^>])',
+                  # .. code:: python
+                  #
+                  #     >>> input
+                  #     output
                   r'\1\2',
                   rst)
 
             def to_github_markdown(self):
+                """Export the notebook to Github optimized Markdown.
+
+                - Removes header enumeration prefixes from link targets.
+                  ('#1.-section-one' --> '#section-one')
+                """
                 markdown = nbconvert.export_markdown(self,
                   filters=self.EXTRA_FILTERS,
                   extra_loaders=[self.EXTRA_LOADER],
+                  # Not a real file, will be loaded from string by EXTRA_LOADER:
                   template_file='github_markdown',
                   )[0]
-                # Remove empty lines between code cell input and output:
+                # github_markdown template puts code cell input and output
+                #  in single blocks, but can't prevent empty lines in between
+                #==> Remove them:
                 return re.sub(
+                  # ```python
+                  # >>> input
+                  #
+                  # output
+                  # ```
                   r'(\n>>> .+\n)\s*\n([^>`])',
+                  # ```python
+                  # >>> input
+                  # output
+                  # ```
                   r'\1\2',
                   markdown)
 
@@ -441,7 +475,9 @@ else:
         for name, member in getmembers(nbconvert):
             if name.startswith('export_'):
                 name = name.split('_', 1)[1]
-                setattr(Notebook, 'to_' + name, _exportmethod(name, member))
+                if name != 'by_name':
+                    setattr(Notebook, 'to_' + name,
+                            _exportmethod(name, member))
 
 
 # Is there a README notebook?
