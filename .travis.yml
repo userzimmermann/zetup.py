@@ -4,5 +4,8 @@ python:
   - '3.3'
   - '3.4'
 
-install: pip install .
+install:
+  - pip install .
+  - pip install pytest
+
 script: pytest py.test
