@@ -289,10 +289,166 @@ for fname in sorted(os.listdir(ZETUP_DIR)):
 
         EXTRAS[match.group('name')] = open(os.path.join(ZETUP_DIR, fname)).read()
 
+
+try:
+    from path import path as Path
+except ImportError:
+    class Notebook(str):
+        pass
+else:
+    try:
+        from IPython import nbconvert
+        from jinja2 import BaseLoader, TemplateNotFound
+    except ImportError:
+        class Notebook(Path):
+            pass
+    else:
+        from inspect import getmembers
+        from textwrap import dedent
+
+
+        def bitbucket_rst_links(rst):
+            return re.sub(
+              r'<#[0-9.-]+([^>]+)>',
+              lambda match: '<#rst-header-%s>' % match.group(1).lower(),
+              rst)
+
+
+        def github_markdown_links(markdown):
+            return re.sub(
+              r'\[([^\]]+)\]: #(.+)',
+              lambda match: '[%s]: #%s' % (
+                match.group(1), match.group(2).replace('.', '').lower()),
+                markdown)
+
+
+        class ExportTemplateLoader(BaseLoader):
+            templates = {
+              'bitbucket_rst': dedent("""
+                {%- extends 'rst.tpl' -%}
+
+
+                {% block input %}
+                {%- if cell.input.strip() -%}
+
+                .. code:: python
+
+                {% if cell.outputs %}
+                {{ cell.input | add_prompts(cont='>>> ') | indent }}
+                {% else %}
+                {{ cell.input | indent }}
+                {% endif %}
+                {%- endif -%}
+                {% endblock input %}
+
+
+                {% block stream %}
+                {{ output.text | indent }}
+                {% endblock stream %}
+
+
+                {% block data_text scoped %}
+                {{ output.text | indent }}
+                {% endblock data_text %}
+
+
+                {% block markdowncell scoped %}
+                {{ super() | bitbucket_rst_links }}
+                {% endblock markdowncell %}
+                """),
+
+              'github_markdown': dedent("""
+                {%- extends 'markdown.tpl' -%}
+
+
+                {% block input %}
+                ```python
+                {% if cell.outputs %}
+                {{ cell.input | add_prompts(cont='>>> ') }}
+                {% else %}
+                {{ cell.input }}
+                ```
+                {% endif %}
+                {% endblock input %}
+
+
+                {% block stream %}
+                {{ output.text }}
+                ```
+                {% endblock stream %}
+
+
+                {% block data_text scoped %}
+                {{ output.text }}
+                ```
+                {% endblock data_text %}
+
+
+                {% block markdowncell scoped %}
+                {{ super() | github_markdown_links }}
+                {% endblock markdowncell %}
+                """),
+              }
+
+            def get_source(self, env, template):
+                try:
+                    return self.templates[template], template, True
+                except KeyError:
+                    raise TemplateNotFound(template)
+
+
+        class Notebook(Path):
+            EXTRA_FILTERS = {
+              'bitbucket_rst_links': bitbucket_rst_links,
+              'github_markdown_links': github_markdown_links,
+              }
+
+            EXTRA_LOADER = ExportTemplateLoader()
+
+            def to_bitbucket_rst(self):
+                rst = nbconvert.export_rst(self,
+                  filters=self.EXTRA_FILTERS,
+                  extra_loaders=[self.EXTRA_LOADER],
+                  template_file='bitbucket_rst',
+                  )[0]
+                # Remove empty lines between code cell input and output:
+                return re.sub(
+                  r'(\n    >>> .+\n)\s*\n(    [^>])',
+                  r'\1\2',
+                  rst)
+
+            def to_github_markdown(self):
+                markdown = nbconvert.export_markdown(self,
+                  filters=self.EXTRA_FILTERS,
+                  extra_loaders=[self.EXTRA_LOADER],
+                  template_file='github_markdown',
+                  )[0]
+                # Remove empty lines between code cell input and output:
+                return re.sub(
+                  r'(\n>>> .+\n)\s*\n([^>`])',
+                  r'\1\2',
+                  markdown)
+
+
+        def _exportmethod(name, func):
+            def method(self):
+                return func(self)
+
+            method.__name__ = 'to_' + name
+            return method
+
+
+        for name, member in getmembers(nbconvert):
+            if name.startswith('export_'):
+                name = name.split('_', 1)[1]
+                setattr(Notebook, 'to_' + name, _exportmethod(name, member))
+
+
 # Is there a README notebook?
 NOTEBOOK = os.path.join(ZETUP_DIR, 'README.ipynb')
 if os.path.exists(NOTEBOOK):
     ZETUP_DATA.append('README.ipynb')
+    NOTEBOOK = Notebook(NOTEBOOK)
 else:
     NOTEBOOK = None
 
