@@ -1,0 +1,10 @@
+~$
+\.orig$
+
+\.pyc$
+
+^\.ipynb
+^\.tox/
+
+\.egg-info/
+dist/
