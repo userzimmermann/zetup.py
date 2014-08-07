@@ -449,7 +449,7 @@ else:
                 # github_markdown template puts code cell input and output
                 #  in single blocks, but can't prevent empty lines in between
                 #==> Remove them:
-                return re.sub(
+                markdown = re.sub(
                   # ```python
                   # >>> input
                   #
@@ -462,6 +462,10 @@ else:
                   # ```
                   r'\1\2',
                   markdown)
+                # And also remove newlines after ```python and before ```:
+                markdown = re.sub(r'(\n```python.*\n)\s*', r'\1', markdown)
+                markdown = re.sub(r'\n\s*(```\s*\n)', r'\n\1', markdown)
+                return markdown
 
 
         def _exportmethod(name, func):
