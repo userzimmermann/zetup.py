@@ -238,15 +238,22 @@ class Extras(OrderedDict):
     """Package extra features/requirements manager.
 
     - Stores :class:`Requirements` instances by extra feature name keys.
+    - Provides an implicit 'all' key, returning a dynamically created
+      combined :class:`Requirements` instance with all extra requirements.
     """
     def __setitem__(self, name, text):
         reqs = Requirements(text)
         OrderedDict.__setitem__(self, name, reqs)
 
+    def __getitem__(self, name):
+        if name == 'all':
+            return Requirements(chain(*self.values()))
+        return OrderedDict.__getitem__(self, name)
+
     def __repr__(self):
         return "\n\n".join((
           "[%s]\n" % key + '\n'.join(map(str, reqs))
-          for key, reqs in self.items()))
+            for key, reqs in self.items() if key != 'all'))
 
 
 # Read the zetup config...
