@@ -20,11 +20,12 @@
 import sys
 import os
 import re
+from itertools import chain
 from collections import OrderedDict
 from subprocess import call
 from pkg_resources import (
   get_distribution, parse_version, parse_requirements,
-  DistributionNotFound, VersionConflict)
+  Requirement, DistributionNotFound, VersionConflict)
 
 if sys.version_info[0] == 3:
     from configparser import ConfigParser
@@ -126,33 +127,54 @@ class Version(str):
 class Requirements(str):
     """Package requirements manager.
     """
-    def __new__(cls, text):
-        reqs = parse_requirements(text)
-        return str.__new__(cls, '\n'.join(map(str, reqs)))
-
-    def __init__(self, text):
-        """Parse a requirements `text` and store a list
-           of pkg_reqsources.Requirement instances.
+    @staticmethod
+    def _parse(text):
+        """ Generate parsed requirements from `text`,
+            which should contain newline separated requirement specs.
 
         - Additionally looks for "# modname" comments after requirement lines
           (the actual root module name of the required package)
           and stores them as .modname attrs on the Requirement instances.
         """
-        def reqs(): # Generate the parsed requirements from text:
-            for line in text.split('\n'):
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    req, modname = line.split('#')
-                except ValueError:
-                    req = next(parse_requirements(line))
-                    req.modname = req.key
+        for line in text.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                req, modname = line.split('#')
+            except ValueError:
+                req = next(parse_requirements(line))
+                req.modname = req.key
+            else:
+                req = next(parse_requirements(req))
+                req.modname = modname.strip()
+            yield req
+
+    def __new__(cls, reqs):
+        """Store a list of :class:`pkg_resources.Requirement` instances
+           from the given requirement specs
+           and additionally store them newline separated
+           in the :class:`str` base.
+
+        :param reqs: Either a single string of requirement specs
+          or a sequence of strings and/or
+          :class:`pkg_resources.Requirement` instances.
+        """
+        if isinstance(reqs, (str, unicode)):
+            reqlist = list(cls._parse(reqs))
+        else:
+            reqlist = []
+            for req in reqs:
+                if isinstance(req, (str, unicode)):
+                    reqlist.extend(cls._parse(req))
+                elif isinstance(req, Requirement):
+                    reqlist.append(req)
                 else:
-                    req = next(parse_requirements(req))
-                    req.modname = modname.strip()
-                yield req
-        self._list = list(reqs())
+                    raise TypeError(type(req))
+
+        obj = str.__new__(cls, '\n'.join(map(str, reqlist)))
+        obj._list = reqlist
+        return obj
 
     def check(self, raise_=True):
         """Check that all requirements are available (importable)
