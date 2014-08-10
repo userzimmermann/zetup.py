@@ -7,6 +7,10 @@ zetup.py
    :alt: 
 
 
+
+**Zimmermann's `Python <http://python.org>`__ package setup**
+
+
 .. code:: python
 
 
@@ -15,11 +19,10 @@ zetup.py
     0.0.1
 
 
-.. code:: python
 
+https://bitbucket.org/userzimmermann/zetup.py
 
-    >>> print(zetup.__description__)
-    zimmermann's python package setup
+https://github.com/userzimmermann/zetup.py
 
 
 0. zetup's own setup :)

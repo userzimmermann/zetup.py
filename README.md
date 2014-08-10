@@ -6,6 +6,10 @@
 
 
 
+__Zimmermann's [Python](http://python.org) package setup__
+
+
+
 ```python
 >>> import zetup
 >>> print(zetup.__version__)
@@ -13,9 +17,9 @@
 ```
 
 
-```python
->>> print(zetup.__description__)
-zimmermann's python package setup
-```
+<https://bitbucket.org/userzimmermann/zetup.py>
+
+<https://github.com/userzimmermann/zetup.py>
+
 
 # 0. zetup's own setup :)
