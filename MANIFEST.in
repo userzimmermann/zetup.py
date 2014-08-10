@@ -1,4 +1,4 @@
-zetuprc
+include zetuprc
 
-VERSION
-requirements.txt
+include VERSION
+include requirements.txt
