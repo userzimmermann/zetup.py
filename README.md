@@ -5,9 +5,7 @@
 ![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)
 
 
-
-__Zimmermann's [Python](http://python.org) package setup__
-
+## Zimmermann's [Python](http://python.org) package setup
 
 
 ```python

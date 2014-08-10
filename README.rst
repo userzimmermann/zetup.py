@@ -7,9 +7,8 @@ zetup.py
    :alt: 
 
 
-
-**Zimmermann's `Python <http://python.org>`__ package setup**
-
+Zimmermann's `Python <http://python.org>`__ package setup
+---------------------------------------------------------
 
 .. code:: python
 
