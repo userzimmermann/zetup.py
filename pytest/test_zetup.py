@@ -6,17 +6,17 @@ import zetup
 
 
 def test_zetup():
-    from zetup.zetup import NAME, DISTRIBUTION, VERSION, REQUIRES
+    from zetup import zetup as z
 
     path = Path(zetup.__path__[0])
 
-    assert(NAME == 'zetup')
+    assert(z.NAME == 'zetup')
 
-    assert(zetup.__distribution__ == DISTRIBUTION.find(zetup.__path__[0])
+    assert(zetup.__distribution__ == z.DISTRIBUTION.find(zetup.__path__[0])
            == get_distribution('zetup'))
 
-    assert(zetup.__version__ == VERSION
+    assert(zetup.__version__ == z.VERSION
            == (path / 'VERSION').text().strip())
 
-    ## assert(str(zetup.__requires__) == str(REQUIRES)
+    ## assert(str(zetup.__requires__) == str(z.REQUIRES)
     ##        == (path / 'requirements.txt').text())
