@@ -3,3 +3,8 @@ include zetuprc
 
 include VERSION
 include requirements.txt
+
+recursive-include pytest *.py
+
+include tox.ini
+include .travis.yml
