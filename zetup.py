@@ -287,11 +287,12 @@ LICENSE = config['license']
 
 PYTHON = config['python'].split()
 
-PACKAGES = config.get('packages')
+PACKAGES = config.get('packages', [])
 if PACKAGES:
     # First should be the root package
     PACKAGES = PACKAGES.split()
-else: # Just assume distribution name == root package name
+elif os.isdir(NAME):
+    # Just assume distribution name == root package name
     PACKAGES = [NAME]
 
 CLASSIFIERS = config['classifiers'].strip() \
