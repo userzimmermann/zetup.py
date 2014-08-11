@@ -8,7 +8,7 @@ import zetup
 def test_zetup():
     from zetup import zetup as z
 
-    path = Path(zetup.__path__[0])
+    path = Path(z.ZETUP_DIR)
 
     assert(z.NAME == 'zetup')
 
