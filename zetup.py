@@ -291,7 +291,7 @@ PACKAGES = config.get('packages', [])
 if PACKAGES:
     # First should be the root package
     PACKAGES = PACKAGES.split()
-elif os.isdir(NAME):
+elif os.path.isdir(NAME):
     # Just assume distribution name == root package name
     PACKAGES = [NAME]
 
@@ -307,7 +307,8 @@ if any(pyversion.startswith('3') for pyversion in PYTHON):
 
 
 # The default pkg.zetup package for installing this script and ZETUP_DATA:
-ZETUP_PACKAGE = PACKAGES[0] + '.zetup'
+if PACKAGES:
+    ZETUP_PACKAGE = PACKAGES[0] + '.zetup'
 
 
 # Extend PACKAGES with all their subpackages:
@@ -326,7 +327,7 @@ else:
 ZETUP_DATA += ['VERSION', 'requirements.txt']
 
 VERSION = Version(open(os.path.join(ZETUP_DIR, 'VERSION')).read().strip())
-DISTRIBUTION = Distribution(NAME, PACKAGES[0], VERSION)
+DISTRIBUTION = Distribution(NAME, PACKAGES and PACKAGES[0] or NAME, VERSION)
 
 REQUIRES = Requirements(open(os.path.join(ZETUP_DIR, 'requirements.txt')).read())
 
@@ -552,23 +553,27 @@ def zetup(**setup_options):
       - ``conda``:
         conda package builder (with build config generator)
     """
-    for option, value in [
-      ('name', NAME),
-      ('version', str(VERSION)),
-      ('description', DESCRIPTION),
-      ('author', AUTHOR),
-      ('author_email', EMAIL),
-      ('url', URL),
-      ('license', LICENSE),
-      ('install_requires', str(REQUIRES)),
-      ('extras_require',
-       {name: str(reqs) for name, reqs in EXTRAS.items()}),
-      ('package_dir', {ZETUP_PACKAGE: ZETUP_DIR}),
-      ('packages', PACKAGES + [ZETUP_PACKAGE]),
-      ('package_data', {ZETUP_PACKAGE: ZETUP_DATA}),
-      ('classifiers', CLASSIFIERS),
-      ('keywords', KEYWORDS),
-      ]:
+    defaults = {
+      'name': NAME,
+      'version': str(VERSION),
+      'description': DESCRIPTION,
+      'author': AUTHOR,
+      'author_email': EMAIL,
+      'url': URL,
+      'license': LICENSE,
+      'install_requires': str(REQUIRES),
+      'extras_require':
+        {name: str(reqs) for name, reqs in EXTRAS.items()},
+      'classifiers': CLASSIFIERS,
+      'keywords': KEYWORDS,
+      }
+    if PACKAGES:
+        defaults.update({
+          'package_dir': {ZETUP_PACKAGE: ZETUP_DIR},
+          'packages': PACKAGES + [ZETUP_PACKAGE],
+          'package_data': {ZETUP_PACKAGE: ZETUP_DATA},
+          })
+    for option, value in defaults.items():
         setup_options.setdefault(option, value)
     return setup(
       cmdclass={
