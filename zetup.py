@@ -327,9 +327,11 @@ else:
 ZETUP_DATA += ['VERSION', 'requirements.txt']
 
 VERSION = Version(open(os.path.join(ZETUP_DIR, 'VERSION')).read().strip())
-DISTRIBUTION = Distribution(NAME, PACKAGES and PACKAGES[0] or NAME, VERSION)
+DISTRIBUTION = Distribution(
+  NAME, PACKAGES and PACKAGES[0] or NAME, VERSION)
 
-REQUIRES = Requirements(open(os.path.join(ZETUP_DIR, 'requirements.txt')).read())
+REQUIRES = Requirements(
+  open(os.path.join(ZETUP_DIR, 'requirements.txt')).read())
 
 # Look for optional extra requirements to use with setup's extras_require=
 EXTRAS = Extras()
@@ -339,7 +341,8 @@ for fname in sorted(os.listdir(ZETUP_DIR)):
     if match:
         ZETUP_DATA.append(fname)
 
-        EXTRAS[match.group('name')] = open(os.path.join(ZETUP_DIR, fname)).read()
+        EXTRAS[match.group('name')] \
+          = open(os.path.join(ZETUP_DIR, fname)).read()
 
 
 try:
@@ -466,7 +469,8 @@ else:
                 rst = nbconvert.export_rst(self,
                   filters=self.EXTRA_FILTERS,
                   extra_loaders=[self.EXTRA_LOADER],
-                  # Not a real file, will be loaded from string by EXTRA_LOADER:
+                  # Not a real file,
+                  #  will be loaded from string by EXTRA_LOADER:
                   template_file='bitbucket_rst',
                   )[0]
                 # bitbucket_rst template puts code cell input and output
@@ -495,7 +499,8 @@ else:
                 markdown = nbconvert.export_markdown(self,
                   filters=self.EXTRA_FILTERS,
                   extra_loaders=[self.EXTRA_LOADER],
-                  # Not a real file, will be loaded from string by EXTRA_LOADER:
+                  # Not a real file,
+                  #  will be loaded from string by EXTRA_LOADER:
                   template_file='github_markdown',
                   )[0]
                 # github_markdown template puts code cell input and output
