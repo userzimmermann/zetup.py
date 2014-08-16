@@ -542,13 +542,14 @@ else:
                             _exportmethod(name, member))
 
 
-# Is there a README notebook?
-NOTEBOOK = os.path.join(ZETUP_DIR, 'README.ipynb')
-if os.path.exists(NOTEBOOK):
-    ZETUP_DATA.append('README.ipynb')
-    NOTEBOOK = Notebook(NOTEBOOK)
-else:
-    NOTEBOOK = None
+# Are there IPython notebooks?
+NOTEBOOKS = OrderedDict()
+for fname in sorted(os.listdir(ZETUP_DIR)):
+    name, ext = os.path.splitext(fname)
+    if ext == '.ipynb':
+        if name == 'README':
+            ZETUP_DATA.append(fname)
+        NOTEBOOKS[name] = Notebook(os.path.join(ZETUP_DIR, 'README.ipynb'))
 
 
 def zetup(**setup_options):
