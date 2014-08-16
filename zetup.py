@@ -260,7 +260,8 @@ class Extras(OrderedDict):
 # Read the zetup config...
 config = ConfigParser()
 for fname in ['zetup.ini', 'zetup.cfg', 'zetuprc']:
-    if config.read(os.path.join(ZETUP_DIR, fname)):
+    ZETUP_FILE = os.path.join(ZETUP_DIR, fname)
+    if config.read(ZETUP_FILE):
         ##TODO: No print if run from installed package (under pkg/zetup/):
         ## print("zetup: Using config from %s" % fname)
 
