@@ -10,7 +10,7 @@ __description__ = zetup.DESCRIPTION
 __version__ = zetup.VERSION
 __requires__ = zetup.REQUIRES.checked
 
-__notebook__ = zetup.NOTEBOOK
+__notebook__ = zetup.NOTEBOOKS['README']
 
 import os
 
