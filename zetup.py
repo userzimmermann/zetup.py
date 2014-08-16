@@ -573,6 +573,7 @@ def zetup(**setup_options):
         {name: str(reqs) for name, reqs in EXTRAS.items()},
       'classifiers': CLASSIFIERS,
       'keywords': KEYWORDS,
+      'cmdclass': SETUP_COMMANDS, # defined below
       }
     if PACKAGES:
         defaults.update({
@@ -582,12 +583,7 @@ def zetup(**setup_options):
           })
     for option, value in defaults.items():
         setup_options.setdefault(option, value)
-    return setup(
-      cmdclass={
-        'pytest': PyTest, # defined below
-        'conda': Conda, # defined below
-      },
-      **setup_options)
+    return setup(**setup_options)
 
 
 # If installed with pip, add all build directories and src/ subdirs
@@ -724,6 +720,12 @@ class Conda(Command):
         status = call(['conda', 'build', metadir])
         if not status:
             sys.exit(status)
+
+
+SETUP_COMMANDS = {
+  'pytest': PyTest,
+  'conda': Conda,
+  }
 
 
 # If this is a locally imported zetup.py in zetup's own repo...
