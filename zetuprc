@@ -1,7 +1,7 @@
 [zetup]
 
 description =
-    zimmermann's python package setup
+    Zimmermann's Python package setup
 
 author = Stefan Zimmermann <zimmermann.code@gmail.com>
 url = https://bitbucket.org/userzimmermann/zetup.py
