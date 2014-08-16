@@ -1,4 +1,6 @@
 include COPYING
+include COPYING.LESSER
+
 include README.ipynb
 
 include VERSION
