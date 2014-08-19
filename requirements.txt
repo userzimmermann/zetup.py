@@ -1,2 +1,2 @@
 setuptools
-path.py # path
+path.py #import path

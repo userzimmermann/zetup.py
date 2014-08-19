@@ -133,8 +133,9 @@ class Requirements(str):
         """ Generate parsed requirements from `text`,
             which should contain newline separated requirement specs.
 
-        - Additionally looks for "# modname" comments after requirement lines
-          (the actual root module name of the required package)
+        - Additionally looks for "#import modname" comments
+          after requirement lines (the actual root module name
+          of the required package to use for runtime dependency checks)
           and stores them as .modname attrs on the Requirement instances.
         """
         for line in text.split('\n'):
@@ -142,7 +143,7 @@ class Requirements(str):
             if not line:
                 continue
             try:
-                req, modname = line.split('#')
+                req, modname = line.split('#import')
             except ValueError:
                 req = next(parse_requirements(line))
                 req.modname = req.key
