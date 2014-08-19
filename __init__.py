@@ -8,7 +8,9 @@ __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
 __description__ = zetup.DESCRIPTION
 
 __version__ = zetup.VERSION
+
 __requires__ = zetup.REQUIRES.checked
+__extras__ = zetup.EXTRAS
 
 __notebook__ = zetup.NOTEBOOKS['README']
 
