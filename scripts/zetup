@@ -1,10 +1,16 @@
 #!python
 
+from textwrap import dedent
 from argparse import ArgumentParser
+import distutils.command
+
+from path import path as Path
 
 import zetup
 from zetup import COMMANDS
 
+
+COMMANDS += distutils.command.__all__
 
 ap = ArgumentParser()
 ap.add_argument(
@@ -13,5 +19,19 @@ ap.add_argument(
   )
 
 args = ap.parse_args()
-cmdfunc = getattr(zetup, args.cmd)
-cmdfunc()
+try:
+    cmdfunc = getattr(zetup, args.cmd)
+except AttributeError:
+    setup_py = Path('setup.py')
+    create_setup_py = not setup_py.exists()
+    if create_setup_py:
+        setup_py.write_text(dedent("""
+          from zetup import zetup
+
+          zetup()
+          """))
+    zetup.zetup()
+    if create_setup_py:
+        setup_py.remove()
+else:
+    cmdfunc()
