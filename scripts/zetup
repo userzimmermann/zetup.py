@@ -26,8 +26,9 @@ except AttributeError:
     create_setup_py = not setup_py.exists()
     if create_setup_py:
         setup_py.write_text(dedent("""
-          from zetup import zetup
+          from zetup import Zetup
 
+          zetup = Zetup()
           zetup()
           """))
     zetup = zetup.Zetup()
