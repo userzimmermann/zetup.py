@@ -5,7 +5,7 @@ __all__ = ['COMMANDS'] + COMMANDS
 # Import zetup script to get zetup's own setup data:
 from . import zetup
 
-__distribution__ = zetup.DISTRIBUTION.find(__path__[0])
+## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
 __description__ = zetup.DESCRIPTION
 
 __version__ = zetup.VERSION
