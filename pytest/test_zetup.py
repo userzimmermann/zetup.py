@@ -8,14 +8,14 @@ import zetup
 def test_zetup():
     from zetup import zetup as z
 
-    path = Path(z.config.ZETUP_DIR)
+    path = Path(z.ZETUP_DIR)
 
-    assert(z.config.NAME == 'zetup')
+    assert(z.NAME == 'zetup')
 
     ## assert(zetup.__distribution__ == z.DISTRIBUTION.find(zetup.__path__[0])
     ##        == get_distribution('zetup'))
 
-    assert(zetup.__version__ == z.config.VERSION
+    assert(zetup.__version__ == z.VERSION
            == (path / 'VERSION').text().strip())
 
     ## assert(str(zetup.__requires__) == str(z.REQUIRES)
