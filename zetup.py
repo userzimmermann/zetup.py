@@ -755,6 +755,7 @@ if (NAME == 'zetup' #==> is in zetup's own package/repo
     #... then fake the interface of the installed zetup package...
     import zetup # import itself as faked subpackage
 
-    __path__ = [os.path.join(ZETUP_DIR, 'zetup')]
+    ## __path__ = [os.path.join(ZETUP_DIR, 'zetup')]
+    __path__ = [ZETUP_DIR]
     # Exec the __init__ which gets installed in top level zetup package:
     exec(open('__init__.py').read().replace('from . import zetup', ''))
