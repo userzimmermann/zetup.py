@@ -30,7 +30,8 @@ except AttributeError:
 
           zetup()
           """))
-    zetup.zetup()
+    zetup = zetup.Zetup()
+    zetup()
     if create_setup_py:
         setup_py.remove()
 else:
