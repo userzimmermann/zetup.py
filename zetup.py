@@ -41,14 +41,17 @@ except ImportError: # fallback
     from distutils.core import setup, Command
 
 
-# Try to get the directory of this script,
-#  to correctly access VERSION, requirements.txt, ...
 try:
-    __file__
-except: # Happens if exec()'d from SConstruct
-    ZETUP_DIR = '.'
-else:
-    ZETUP_DIR = os.path.realpath(os.path.dirname(__file__))
+    ZETUP_DIR
+except NameError:
+    # Try to get the directory of this script,
+    #  to correctly access VERSION, requirements.txt, ...
+    try:
+        __file__
+    except: # Happens if exec()'d from SConstruct
+        ZETUP_DIR = '.'
+    else:
+        ZETUP_DIR = os.path.realpath(os.path.dirname(__file__))
 
 
 class Distribution(str):
