@@ -328,7 +328,18 @@ else:
 #  and add them to pkg.zetup package_data...
 ZETUP_DATA += ['VERSION', 'requirements.txt']
 
-VERSION = Version(open(os.path.join(ZETUP_DIR, 'VERSION')).read().strip())
+VERSION_FILE = os.path.join(ZETUP_DIR, 'VERSION')
+if os.path.exists(VERSION_FILE):
+    VERSION = Version(open(VERSION_FILE).read().strip())
+else:
+    VERSION_FILE = None
+    try:
+        import hgdistver
+    except ImportError:
+        VERSION = '0.0.0'
+    else:
+        VERSION = hgdistver.get_version()
+
 DISTRIBUTION = Distribution(
   NAME, PACKAGES and PACKAGES[0] or NAME, VERSION)
 
