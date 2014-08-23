@@ -187,7 +187,7 @@ class Requirements(str):
 
         :param raise_: Raise DistributionNotFound if ImportError
           or VersionConflict if version doesn't match?
-          If false just return None.
+          If False just return False in that case.
         """
         for req in self:
             try:
