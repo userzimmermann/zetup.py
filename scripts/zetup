@@ -1,7 +1,9 @@
 #!python
 
+import sys
 from textwrap import dedent
 from argparse import ArgumentParser
+from subprocess import call
 import distutils.command
 
 from path import path as Path
@@ -10,6 +12,9 @@ import zetup
 from zetup import COMMANDS
 
 
+EXTERNAL_COMMANDS = ['tox']
+
+COMMANDS += EXTERNAL_COMMANDS
 COMMANDS += distutils.command.__all__
 
 ap = ArgumentParser()
@@ -19,6 +24,8 @@ ap.add_argument(
   )
 
 args = ap.parse_args()
+
+exit_status = 0
 try:
     cmdfunc = getattr(zetup, args.cmd)
 except AttributeError:
@@ -31,9 +38,14 @@ except AttributeError:
           zetup = Zetup()
           zetup()
           """))
-    zetup = zetup.Zetup()
-    zetup()
+    if args.cmd in EXTERNAL_COMMANDS:
+        exit_status = call([args.cmd])
+    else:
+        zetup = zetup.Zetup()
+        zetup()
     if create_setup_py:
         setup_py.remove()
 else:
     cmdfunc()
+
+sys.exit(exit_status)
