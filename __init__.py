@@ -2,6 +2,7 @@ COMMANDS = ['init']
 
 __all__ = ['COMMANDS'] + COMMANDS
 
+# Import zetup script to get zetup's own setup data:
 from . import zetup
 
 __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
@@ -34,3 +35,10 @@ def init(name, path=None):
           ])))
     with open(path / 'VERSION', 'w') as f:
         f.write("0.0.0\n")
+
+
+class zetup(object):
+    from . import config
+
+    def __init__(self, **setup_options):
+        self.setup = self.config.zetup(**setup_options)
