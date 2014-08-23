@@ -2,7 +2,7 @@ exec(open('zetup.py').read())
 
 
 zetup(
-  package_dir={'zetup': ZETUP_DIR},
+  package_dir={'zetup': '.'},
   packages=['zetup'],
   package_data={'zetup': ZETUP_DATA},
 
