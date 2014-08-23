@@ -37,8 +37,10 @@ def init(name, path=None):
         f.write("0.0.0\n")
 
 
-class zetup(object):
-    from . import config
-
+class Zetup(object):
     def __init__(self, **setup_options):
+        from . import config
+        self.config = config
+
+    def __call__(self, **setup_options):
         self.setup = self.config.zetup(**setup_options)
