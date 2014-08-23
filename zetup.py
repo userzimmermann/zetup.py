@@ -310,6 +310,8 @@ KEYWORDS = config['keywords'].split()
 if any(pyversion.startswith('3') for pyversion in PYTHON):
     KEYWORDS.append('python3')
 
+del config
+
 
 # The default pkg.zetup package for installing this script and ZETUP_DATA:
 if PACKAGES:
