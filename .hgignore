@@ -5,6 +5,8 @@
 
 ^\.ipynb
 ^\.tox/
+^\.env/
+^\.cache/
 
 \.egg-info/
 dist/
