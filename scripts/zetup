@@ -12,10 +12,11 @@ import zetup
 from zetup import COMMANDS
 
 
-EXTERNAL_COMMANDS = ['tox']
+EXTERNAL_COMMANDS = []
 
-COMMANDS += EXTERNAL_COMMANDS
 COMMANDS += distutils.command.__all__
+COMMANDS += zetup.Zetup.COMMANDS
+COMMANDS += EXTERNAL_COMMANDS
 
 ap = ArgumentParser()
 ap.add_argument(
@@ -25,27 +26,35 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-exit_status = 0
+# Generate setup.py if not existing
+# (and delete after running commands in that case):
+setup_py = Path('setup.py')
+create_setup_py = not setup_py.exists()
+if create_setup_py:
+    setup_py.write_text(dedent("""
+      from zetup import Zetup
+
+      zetup = Zetup()
+      zetup()
+      """))
+
+exit_status = 0 # exit status of this script
 try:
     cmdfunc = getattr(zetup, args.cmd)
 except AttributeError:
-    setup_py = Path('setup.py')
-    create_setup_py = not setup_py.exists()
-    if create_setup_py:
-        setup_py.write_text(dedent("""
-          from zetup import Zetup
-
-          zetup = Zetup()
-          zetup()
-          """))
     if args.cmd in EXTERNAL_COMMANDS:
         exit_status = call([args.cmd])
     else:
         zetup = zetup.Zetup()
-        zetup()
-    if create_setup_py:
-        setup_py.remove()
+        if args.cmd in zetup.COMMANDS:
+            getattr(zetup, args.cmd)()
+        else: # ==> standard setup command
+            zetup()
 else:
-    cmdfunc()
+    exit_status = cmdfunc()
 
-sys.exit(exit_status)
+# Delete setup.py if generated before:
+if create_setup_py:
+    setup_py.remove()
+
+sys.exit(exit_status or 0)

@@ -5,17 +5,21 @@ __all__ = ['COMMANDS'] + COMMANDS
 # Import zetup script to get zetup's own setup data:
 from . import zetup
 
+
+z = zetup.Zetup()
+
 ## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
-__description__ = zetup.DESCRIPTION
+__description__ = z.DESCRIPTION
 
-__version__ = zetup.VERSION
+__version__ = z.VERSION
 
-__requires__ = zetup.REQUIRES.checked
-__extras__ = zetup.EXTRAS
+__requires__ = z.REQUIRES.checked
+__extras__ = z.EXTRAS
 
-__notebook__ = zetup.NOTEBOOKS['README']
+__notebook__ = z.NOTEBOOKS['README']
 
 import os
+from subprocess import call
 
 from path import path as Path
 
@@ -37,10 +41,13 @@ def init(name, path=None):
         f.write("0.0.0\n")
 
 
-class Zetup(object):
-    def __init__(self, **setup_options):
-        from . import config
-        self.config = config
+class Zetup(zetup.Zetup):
+    def __init__(self):
+        zetup.Zetup.__init__(self, '.')
 
-    def __call__(self, **setup_options):
-        self.setup = self.config.zetup(**setup_options)
+    # def __init__(self):
+    #     from . import config
+    #     self.config = config
+
+    # def __call__(self, **setup_options):
+    #     self.setup = self.config.zetup(**setup_options)
