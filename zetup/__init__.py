@@ -6,17 +6,17 @@ __all__ = ['COMMANDS'] + COMMANDS
 from . import zetup
 
 
-z = zetup.Zetup()
+# z = zetup.Zetup()
 
-## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
-__description__ = z.DESCRIPTION
+# ## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
+# __description__ = z.DESCRIPTION
 
-__version__ = z.VERSION
+# __version__ = z.VERSION
 
-__requires__ = z.REQUIRES.checked
-__extras__ = z.EXTRAS
+# __requires__ = z.REQUIRES.checked
+# __extras__ = z.EXTRAS
 
-__notebook__ = z.NOTEBOOKS['README']
+# __notebook__ = z.NOTEBOOKS['README']
 
 import os
 from subprocess import call
