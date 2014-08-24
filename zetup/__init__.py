@@ -23,6 +23,8 @@ from subprocess import call
 
 from path import path as Path
 
+from .zetup import Zetup
+
 
 def init(name, path=None):
     path = Path(path or os.getcwd())
@@ -39,15 +41,3 @@ def init(name, path=None):
           ])))
     with open(path / 'VERSION', 'w') as f:
         f.write("0.0.0\n")
-
-
-class Zetup(zetup.Zetup):
-    def __init__(self):
-        zetup.Zetup.__init__(self, '.')
-
-    # def __init__(self):
-    #     from . import config
-    #     self.config = config
-
-    # def __call__(self, **setup_options):
-    #     self.setup = self.config.zetup(**setup_options)

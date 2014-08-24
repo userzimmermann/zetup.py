@@ -46,16 +46,16 @@ from .notebook import Notebook
 
 
 class Zetup(object):
-    def __init__(self, ZETUP_DIR=None):
-        if not ZETUP_DIR:
-            # Try to get the directory of this script,
-            #  to correctly access VERSION, requirements.txt, ...
-            try:
-                __file__
-            except: # Happens if exec()'d from SConstruct
-                ZETUP_DIR = '.'
-            else:
-                ZETUP_DIR = os.path.realpath(os.path.dirname(__file__))
+    def __init__(self, ZETUP_DIR='.'):
+        # if not ZETUP_DIR:
+        #     # Try to get the directory of this script,
+        #     #  to correctly access VERSION, requirements.txt, ...
+        #     try:
+        #         __file__
+        #     except: # Happens if exec()'d from SConstruct
+        #         ZETUP_DIR = '.'
+        #     else:
+        #         ZETUP_DIR = os.path.realpath(os.path.dirname(__file__))
         self.ZETUP_DIR = ZETUP_DIR
 
 
