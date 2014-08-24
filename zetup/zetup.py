@@ -192,7 +192,7 @@ class Zetup(object):
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
           'classifiers': self.CLASSIFIERS,
           'keywords': self.KEYWORDS,
-          'cmdclass': SETUP_COMMANDS, # defined below
+          # 'cmdclass': SETUP_COMMANDS, # defined below
           }
         if self.PACKAGES:
             defaults.update({
@@ -204,7 +204,7 @@ class Zetup(object):
             setup_options.setdefault(option, value)
         return setup(**setup_options)
 
-    COMMANDS = ['tox']
+    COMMANDS = ['tox', 'pytest', 'conda']
 
     def tox(self):
         tox_ini = 'tox.ini'
@@ -225,6 +225,114 @@ class Zetup(object):
         if create_tox_ini:
             os.path.remove(tox_ini)
         return status
+
+
+# class PyTest(Command):
+#     """The setup.py pytest command runs py.test
+#        with current dir prepended to PYTHONPATH,
+#        to test package from repo.
+#     """
+#     # Must override options handling stuff from Command base...
+#     user_options = []
+
+#     def initialize_options(self):
+#         pass
+
+#     def finalize_options(self):
+#         pass
+
+    def pytest(self):
+        """The actual pytest command action called by Command base.
+        """
+        env = dict(os.environ)
+        env['PYTHONPATH'] = os.pathsep.join([
+          os.getcwd(), env.get('PYTHONPATH', '')])
+        status = call(['py.test'], env=env)
+        if not status:
+            sys.exit(status)
+
+
+# class Conda(Command):
+#     """The setup.py conda command generates meta.yaml and build scripts
+#        in a .conda subdir and runs conda build .conda
+
+#     - Assumes an existing sdist in dist/ for the current package version
+#       (just use together with sdist command to make sure).
+#     """
+#     # Must override options handling stuff from Command base...
+#     user_options = []
+
+#     def initialize_options(self):
+#         pass
+
+#     def finalize_options(self):
+#         pass
+
+    def conda(self):
+        """The actual conda command action called by Command base.
+        """
+        from path import path as Path
+        import yaml
+
+        metadir = Path('.conda')
+        metadir.mkdir_p()
+        metafile = metadir / 'meta.yaml'
+        buildfile = metadir / 'build.sh'
+
+        def conda_req(req):
+            """conda wants space between requirement name and version specs.
+            """
+            return re.sub(r'([=<>]+)', r' \1', str(req))
+
+        requirements = list(map(conda_req, self.REQUIRES))
+        # Also add all extra requirements
+        #  (conda doesn't seem to have such an extra features management):
+        for extra in self.EXTRAS.values():
+            requirements.extend(map(conda_req, extra))
+
+        meta = { # to be dumped to meta.yaml
+          'package': {
+            'name': self.NAME,
+            'version': str(self.VERSION),
+            },
+          'source': {
+            'fn': '%s-%s.tar.gz' % (self.NAME, self.VERSION),
+            # The absolute path to the sdist in dist/
+            'url': 'file://%s' % os.path.realpath(os.path.join(
+              'dist', '%s-%s.tar.gz' % (self.NAME, self.VERSION)))
+            },
+          'requirements': {
+            'build': [
+              'python',
+              'pyyaml',
+              ] + requirements,
+            'run': [
+              'python',
+              ] + requirements,
+            },
+          'about': {
+            'home': self.URL,
+            'summary': self.DESCRIPTION,
+            },
+          }
+        with open(metafile, 'w') as f:
+            yaml.dump(meta, f, default_flow_style=False)
+
+        with open(buildfile, 'w') as f:
+            f.write('#!/bin/bash'
+                    '\n\n'
+                    '$PYTHON setup.py install'
+                    '\n')
+
+        status = call(['conda', 'build', metadir])
+        if not status:
+            sys.exit(status)
+
+
+# SETUP_COMMANDS = {
+#   'pytest': PyTest,
+#   'conda': Conda,
+#   }
 
 
 # If installed with pip, add all build directories and src/ subdirs
@@ -259,114 +367,6 @@ else:
             os.environ['PYTHONPATH'] = PATH
         else:
             os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
-
-
-class PyTest(Command):
-    """The setup.py pytest command runs py.test
-       with current dir prepended to PYTHONPATH,
-       to test package from repo.
-    """
-    # Must override options handling stuff from Command base...
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """The actual pytest command action called by Command base.
-        """
-        env = dict(os.environ)
-        env['PYTHONPATH'] = os.pathsep.join([
-          os.getcwd(), env.get('PYTHONPATH', '')])
-        status = call(['py.test'], env=env)
-        if not status:
-            sys.exit(status)
-
-
-class Conda(Command):
-    """The setup.py conda command generates meta.yaml and build scripts
-       in a .conda subdir and runs conda build .conda
-
-    - Assumes an existing sdist in dist/ for the current package version
-      (just use together with sdist command to make sure).
-    """
-    # Must override options handling stuff from Command base...
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        """The actual conda command action called by Command base.
-        """
-        from path import path as Path
-        import yaml
-
-        metadir = Path('.conda')
-        metadir.mkdir_p()
-        metafile = metadir / 'meta.yaml'
-        buildfile = metadir / 'build.sh'
-
-        def conda_req(req):
-            """conda wants space between requirement name and version specs.
-            """
-            return re.sub(r'([=<>]+)', r' \1', str(req))
-
-        requirements = list(map(conda_req, REQUIRES))
-        # Also add all extra requirements
-        #  (conda doesn't seem to have such an extra features management):
-        for extra in EXTRAS.values():
-            requirements.extend(map(conda_req, extra))
-
-        meta = { # to be dumped to meta.yaml
-          'package': {
-            'name': NAME,
-            'version': str(VERSION),
-            },
-          'source': {
-            'fn': '%s-%s.tar.gz' % (NAME, VERSION),
-            # The absolute path to the sdist in dist/
-            'url': 'file://%s' % os.path.realpath(os.path.join(
-              'dist', '%s-%s.tar.gz' % (NAME, VERSION)))
-            },
-          'requirements': {
-            'build': [
-              'python',
-              'pyyaml',
-              ] + requirements,
-            'run': [
-              'python',
-              ] + requirements,
-            },
-          'about': {
-            'home': URL,
-            'summary': DESCRIPTION,
-            },
-          }
-        with open(metafile, 'w') as f:
-            yaml.dump(meta, f, default_flow_style=False)
-
-        with open(buildfile, 'w') as f:
-            f.write('#!/bin/bash'
-                    '\n\n'
-                    '$PYTHON setup.py install'
-                    '\n')
-
-        status = call(['conda', 'build', metadir])
-        if not status:
-            sys.exit(status)
-
-
-SETUP_COMMANDS = {
-  'pytest': PyTest,
-  'conda': Conda,
-  }
 
 
 # If this is a locally imported zetup.py in zetup's own repo...
