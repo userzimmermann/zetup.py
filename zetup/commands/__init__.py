@@ -17,27 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Zetup', 'COMMANDS']
+__all__ = ['init']
 
-# Import zetup script to get zetup's own setup data:
-# from . import zetup
+import os
 
-
-# z = zetup.Zetup()
-
-# ## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
-# __description__ = z.DESCRIPTION
-
-# __version__ = z.VERSION
-
-# __requires__ = z.REQUIRES.checked
-# __extras__ = z.EXTRAS
-
-# __notebook__ = z.NOTEBOOKS['README']
+from path import path as Path
 
 
-from .zetup import Zetup
-from . import commands
+def init(name, path=None):
+    path = Path(path or os.getcwd())
+    Path(__path__[0] / 'zetup.py').copy(path / '__init__.py')
+    with open(path / 'zetuprc', 'w') as f:
+        f.write("[%s]\n\n%s\n" % (name, "\n".join("%s =" % key for key in [
+          'description',
+          'author',
+          'url',
+          'license',
+          'python',
+          'classifiers',
+          'keywords',
+          ])))
+    with open(path / 'VERSION', 'w') as f:
+        f.write("0.0.0\n")
 
 
-COMMANDS = commands.__all__
+from . import pytest, tox, conda

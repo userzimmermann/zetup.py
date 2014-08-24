@@ -17,27 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Zetup', 'COMMANDS']
+import sys
+import os
+from subprocess import call
 
-# Import zetup script to get zetup's own setup data:
-# from . import zetup
-
-
-# z = zetup.Zetup()
-
-# ## __distribution__ = zetup.DISTRIBUTION.find(__path__[0])
-# __description__ = z.DESCRIPTION
-
-# __version__ = z.VERSION
-
-# __requires__ = z.REQUIRES.checked
-# __extras__ = z.EXTRAS
-
-# __notebook__ = z.NOTEBOOKS['README']
+from zetup import Zetup
 
 
-from .zetup import Zetup
-from . import commands
-
-
-COMMANDS = commands.__all__
+@Zetup.command
+def pytest(self):
+    """The actual pytest command action called by Command base.
+    """
+    env = dict(os.environ)
+    env['PYTHONPATH'] = os.pathsep.join([
+      os.getcwd(), env.get('PYTHONPATH', '')])
+    status = call(['py.test'], env=env)
+    if not status:
+        sys.exit(status)
