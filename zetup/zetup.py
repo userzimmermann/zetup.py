@@ -19,169 +19,28 @@
 
 import sys
 import os
-import re
-from textwrap import dedent
-from itertools import chain
-from collections import OrderedDict
-from subprocess import call
-
-if sys.version_info[0] == 3:
-    from configparser import ConfigParser
-    # Just for simpler PY2/3 compatible code:
-    unicode = str
-else:
-    from ConfigParser import ConfigParser
 
 try:
-    from setuptools import setup, Command, find_packages
+    from setuptools import setup
 except ImportError: # fallback
     # (setuptools should at least be available after package installation)
-    from distutils.core import setup, Command
+    from distutils.core import setup
 
-from .version import Version
-from .requires import Requirements
-from .extras import Extras
-from .dist import Distribution
-from .notebook import Notebook
+from .config import load_zetup_config
 
 
 class Zetup(object):
     def __init__(self, ZETUP_DIR='.'):
-        # if not ZETUP_DIR:
-        #     # Try to get the directory of this script,
-        #     #  to correctly access VERSION, requirements.txt, ...
-        #     try:
-        #         __file__
-        #     except: # Happens if exec()'d from SConstruct
-        #         ZETUP_DIR = '.'
-        #     else:
-        #         ZETUP_DIR = os.path.realpath(os.path.dirname(__file__))
-        self.ZETUP_DIR = ZETUP_DIR
-
-
-        # Read the zetup config...
-        config = ConfigParser()
-        for fname in ['zetup.ini', 'zetup.cfg', 'zetuprc']:
-            self.ZETUP_FILE = os.path.join(self.ZETUP_DIR, fname)
-            if config.read(self.ZETUP_FILE):
-                ##TODO: No print if run from installed package (under pkg/zetup/):
-                ## print("zetup: Using config from %s" % fname)
-
-                # The config file will be installed as pkg.zetup package_data:
-                self.ZETUP_DATA = [fname]
-                break
-        else:
-            raise RuntimeError("No zetup config found.")
-
-
-        #... and store all setup options in UPPERCASE vars...
-        self.NAME = config.sections()[0]
-
-        config = dict(config.items(self.NAME))
-
-        self.TITLE = config.get('title', self.NAME)
-        self.DESCRIPTION = config['description'].strip().replace('\n', ' ')
-
-        self.AUTHOR = re.match(r'^([^<]+)<([^>]+)>$', config['author'])
-        self.AUTHOR, self.EMAIL = map(str.strip, self.AUTHOR.groups())
-        self.URL = config['url']
-
-        self.LICENSE = config['license']
-
-        self.PYTHON = config['python'].split()
-
-        self.PACKAGES = config.get('packages', [])
-        if self.PACKAGES:
-            # First should be the root package
-            self.PACKAGES = self.PACKAGES.split()
-        elif os.path.isdir(self.NAME):
-            # Just assume distribution name == root package name
-            self.PACKAGES = [self.NAME]
-
-        self.CLASSIFIERS = config['classifiers'].strip() \
-          .replace('\n::', ' ::').split('\n')
-        self.CLASSIFIERS.append('Programming Language :: Python')
-        for pyversion in self.PYTHON:
-            self.CLASSIFIERS.append('Programming Language :: Python :: ' + pyversion)
-
-        self.KEYWORDS = config['keywords'].split()
-        if any(pyversion.startswith('3') for pyversion in self.PYTHON):
-            self.KEYWORDS.append('python3')
-
-        del config
-
-
-        # The default pkg.zetup package for installing this script and ZETUP_DATA:
-        if self.PACKAGES:
-            self.ZETUP_PACKAGE = self.PACKAGES[0] + '.zetup'
-
-
-        # Extend PACKAGES with all their subpackages:
-        try:
-            find_packages
-        except NameError: #==> No setuptools
-            pass
-        else:
-            self.PACKAGES.extend(chain(*(
-              ['%s.%s' % (pkg, sub) for sub in find_packages(pkg)]
-              for pkg in self.PACKAGES)))
-
-
-        # Parse VERSION and requirements files
-        #  and add them to pkg.zetup package_data...
-        self.ZETUP_DATA += ['VERSION', 'requirements.txt']
-
-        self.VERSION_FILE = os.path.join(self.ZETUP_DIR, 'VERSION')
-        if os.path.exists(self.VERSION_FILE):
-            self.VERSION = Version(open(self.VERSION_FILE).read().strip())
-        else:
-            self.VERSION_FILE = None
-            try:
-                import hgdistver
-            except ImportError:
-                self.VERSION = '0.0.0'
-            else:
-                self.VERSION = hgdistver.get_version()
-
-        self.DISTRIBUTION = Distribution(
-          self.NAME, self.PACKAGES and self.PACKAGES[0] or self.NAME, self.VERSION)
-
-        self.REQUIRES = Requirements(
-          open(os.path.join(self.ZETUP_DIR, 'requirements.txt')).read())
-
-        # Look for optional extra requirements to use with setup's extras_require=
-        self.EXTRAS = Extras()
-        _re = re.compile(r'^requirements\.(?P<name>[^\.]+)\.txt$')
-        for fname in sorted(os.listdir(self.ZETUP_DIR)):
-            match = _re.match(fname)
-            if match:
-                self.ZETUP_DATA.append(fname)
-
-                self.EXTRAS[match.group('name')] \
-                  = open(os.path.join(self.ZETUP_DIR, fname)).read()
-
-
-        # Are there IPython notebooks?
-        self.NOTEBOOKS = OrderedDict()
-        for fname in sorted(os.listdir(self.ZETUP_DIR)):
-            name, ext = os.path.splitext(fname)
-            if ext == '.ipynb':
-                if name == 'README':
-                    self.ZETUP_DATA.append(fname)
-                self.NOTEBOOKS[name] = Notebook(os.path.join(self.ZETUP_DIR, 'README.ipynb'))
-
-
-    def __call__(self, **setup_options):
-        """Run setup() with options from zetup config
-           and custom override `setup_options`.
-
-        - Also adds additional setup commands:
-          - ``conda``:
-            conda package builder (with build config generator)
+        """Load and store zetup config from `ZETUP_DIR`
+           as attributes in `self`.
         """
-        defaults = {
+        load_zetup_config(ZETUP_DIR, cfg=self)
+
+    def setup_keywords(self):
+        """Get a dictionary of `setup()` keywords generated from zetup config.
+        """
+        keywords = {
           'name': self.NAME,
-          'version': str(self.VERSION),
           'description': self.DESCRIPTION,
           'author': self.AUTHOR,
           'author_email': self.EMAIL,
@@ -192,23 +51,35 @@ class Zetup(object):
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
           'classifiers': self.CLASSIFIERS,
           'keywords': self.KEYWORDS,
-          # 'cmdclass': SETUP_COMMANDS, # defined below
           }
+        if self.VERSION:
+          keywords['version'] = str(self.VERSION)
         if self.PACKAGES:
-            defaults.update({
-              'package_dir': {self.ZETUP_PACKAGE: '.'},
-              'packages': self.PACKAGES + [self.ZETUP_PACKAGE],
-              'package_data': {self.ZETUP_PACKAGE: self.ZETUP_DATA},
+            keywords['packages'] = self.PACKAGES
+        if self.ZETUP_CONFIG_PACKAGE:
+            keywords.update({
+              'package_dir': {self.ZETUP_CONFIG_PACKAGE: '.'},
+              'package_data': {self.ZETUP_CONFIG_PACKAGE: self.ZETUP_DATA},
               })
-        for option, value in defaults.items():
-            setup_options.setdefault(option, value)
-        return setup(**setup_options)
+        return keywords
 
+    def __call__(self, **setup_keywords):
+        """Run `setup()` with generated keywords from zetup config
+           and custom override `setup_keywords`.
+        """
+        keywords = self.setup_keywords()
+        keywords.update(setup_keywords)
+        return setup(**keywords)
 
     COMMANDS = []
 
     @classmethod
     def command(cls, func):
+        """Add a command function as method to :class:`Zetup`
+           and store its name in `cls.COMMANDS`.
+
+        - Used in `zetup.commands.*` to sparate command implementations.
+        """
         name = func.__name__
         setattr(cls, name, func)
         cls.COMMANDS.append(name)
