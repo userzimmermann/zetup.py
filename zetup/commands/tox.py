@@ -21,26 +21,28 @@ import os
 from textwrap import dedent
 from subprocess import call
 
+from path import path as Path
+
 from zetup import Zetup
 
 
 @Zetup.command
 def tox(self):
-    tox_ini = 'tox.ini'
-    create_tox_ini = not os.path.exists(tox_ini)
+    tox_ini = Path('tox.ini')
+    create_tox_ini = not tox_ini.exists()
     if create_tox_ini:
-        with open(tox_ini, 'w') as f:
-            f.write(dedent("""
-              [tox]
-              envlist = %s""" % ','.join(
-                'py' + version.replace('.', '')
-                for version in self.PYTHON)
-              + """
-              [testenv]
-              deps =
-                zetup
-              """))
+        tox_ini.write_text(dedent("""
+          [tox]
+          envlist = %s""" % ','.join(
+            'py' + version.replace('.', '')
+            for version in self.PYTHON)
+          + """
+
+          [testenv]
+          deps =
+            zetup
+          """))
     status = call(['tox'])
     if create_tox_ini:
-        os.path.remove(tox_ini)
+        tox_ini.remove()
     return status
