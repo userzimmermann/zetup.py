@@ -21,10 +21,10 @@ import sys
 import os
 
 try:
-    from setuptools import setup
+    from setuptools import setup, Command
 except ImportError: # fallback
     # (setuptools should at least be available after package installation)
-    from distutils.core import setup
+    from distutils.core import setup, Command
 
 from .config import load_zetup_config
 
@@ -61,6 +61,26 @@ class Zetup(object):
               'package_dir': {self.ZETUP_CONFIG_PACKAGE: '.'},
               'package_data': {self.ZETUP_CONFIG_PACKAGE: self.ZETUP_DATA},
               })
+        cmdclasses = {}
+        for cmdname in self.COMMANDS:
+            cmdmethod = getattr(self, cmdname)
+
+            class ZetupCommand(Command):
+                # Must override options handling stuff from Command base...
+                user_options = []
+
+                def initialize_options(self):
+                    pass
+
+                def finalize_options(self):
+                    pass
+
+                run = staticmethod(cmdmethod)
+
+            ZetupCommand.__name__ = cmdname
+            cmdclasses[cmdname] = ZetupCommand
+
+        keywords['cmdclass'] = cmdclasses
         return keywords
 
     def __call__(self, **setup_keywords):
