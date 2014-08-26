@@ -1,2 +1,3 @@
 setuptools
+hgdistver
 path.py #import path
