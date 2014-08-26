@@ -75,5 +75,3 @@ def setup_entry_point(dist, keyword, value):
         #  (seems to read at least packages list somehow from there):
         for obj in [dist, dist.metadata]:
             setattr(obj, name, value)
-
-
