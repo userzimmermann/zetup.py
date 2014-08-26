@@ -17,28 +17,42 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Zetup']
+__all__ = ['Zetup', 'find_zetup_config']
 
+import sys
 import os
 
 from .zetup import Zetup
 
+
 # Get zetup's own config:
-try: # from installed zetup package
-    from . import zetup_config
-except ImportError: # from source
-    zetup_config = Zetup(os.path.dirname(os.path.realpath(__path__[0])))
+## try: # from installed zetup package
+##     from . import zetup_config as own_config
+## except ImportError: # from source
+##     own_config = Zetup(os.path.dirname(os.path.realpath(__path__[0])))
 
 
-__distribution__ = zetup_config.DISTRIBUTION.find(__path__[0])
-__description__ = zetup_config.DESCRIPTION
+def find_zetup_config(modname):
+    try:
+        return __import__(modname + '.zetup_config').zetup_config
+    except ImportError:
+        pass
+    mod = sys.modules[modname]
+    path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
+    return Zetup(path)
 
-__version__ = zetup_config.VERSION
 
-__requires__ = zetup_config.REQUIRES # .checked
-__extras__ = zetup_config.EXTRAS
+own_config = find_zetup_config(__name__)
 
-__notebook__ = zetup_config.NOTEBOOKS['README']
+__distribution__ = own_config.DISTRIBUTION.find(__path__[0])
+__description__ = own_config.DESCRIPTION
+
+__version__ = own_config.VERSION
+
+__requires__ = own_config.REQUIRES # .checked
+__extras__ = own_config.EXTRAS
+
+__notebook__ = own_config.NOTEBOOKS['README']
 
 
 def setup_entry_point(dist, keyword, value):
@@ -61,3 +75,5 @@ def setup_entry_point(dist, keyword, value):
         #  (seems to read at least packages list somehow from there):
         for obj in [dist, dist.metadata]:
             setattr(obj, name, value)
+
+
