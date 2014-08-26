@@ -1,6 +1,7 @@
 #!python
 
 import sys
+import os
 from textwrap import dedent
 from argparse import ArgumentParser
 from subprocess import call
@@ -9,8 +10,10 @@ import distutils.command
 from path import path as Path
 
 import zetup
-from zetup import COMMANDS
+import zetup.commands
 
+
+COMMANDS = zetup.commands.__all__
 
 EXTERNAL_COMMANDS = []
 
@@ -32,10 +35,16 @@ setup_py = Path('setup.py')
 create_setup_py = not setup_py.exists()
 if create_setup_py:
     setup_py.write_text(dedent("""
-      from zetup import Zetup
+      try:
+          from setuptools import setup
+      except ImportError:
+          from distutils.core import setup
 
-      zetup = Zetup()
-      zetup()
+
+      setup(
+        setup_requires=['zetup'],
+        use_zetup=True,
+        )
       """))
 
 exit_status = 0 # exit status of this script
@@ -46,10 +55,31 @@ except AttributeError:
         exit_status = call([args.cmd])
     else:
         zetup = zetup.Zetup()
+        if zetup.ZETUP_CONFIG_PACKAGE:
+            version_file = Path('VERSION')
+            create_version_file = not version_file.exists()
+            if create_version_file:
+                version_file.write_text(zetup.VERSION)
+            init_py = Path('__init__.py')
+            create_init_py = not init_py.exists()
+            if create_init_py:
+                init_py.write_text(dedent("""
+                  import sys
+
+                  from zetup.config import load_zetup_config
+
+
+                  load_zetup_config(__path__[0], sys.modules[__name__])
+                  """))
         if args.cmd in zetup.COMMANDS:
-            getattr(zetup, args.cmd)()
+            exit_status = getattr(zetup, args.cmd)()
         else: # ==> standard setup command
             zetup()
+        if zetup.ZETUP_CONFIG_PACKAGE:
+            if create_init_py:
+                init_py.remove()
+            if create_version_file:
+                version_file.remove()
 else:
     exit_status = cmdfunc()
 
