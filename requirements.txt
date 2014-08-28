@@ -1,3 +1,4 @@
 setuptools
 hgdistver
 path.py #import path
+Jinja2
