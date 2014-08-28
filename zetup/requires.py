@@ -19,6 +19,10 @@
 
 __all__ = ['Requirements']
 
+import sys
+if sys.version_info[0] == 3:
+    unicode = str
+
 from pkg_resources import (
   parse_requirements, Requirement,
   DistributionNotFound, VersionConflict)
