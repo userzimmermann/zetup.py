@@ -11,6 +11,10 @@ include zetuprc
 
 include __init__.py
 
+recursive-include zetup/commands/make/templates *.jinja
+
+include scripts/zetup
+
 recursive-include pytest *.py
 
 include tox.ini
