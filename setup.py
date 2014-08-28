@@ -1,4 +1,8 @@
 from zetup import Zetup
+try:
+    import zetup.commands
+except ImportError:
+    pass
 
 
 zetup = Zetup()
