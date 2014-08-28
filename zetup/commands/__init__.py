@@ -45,4 +45,4 @@ def init(name, path=None):
         f.write("0.0.0\n")
 
 
-from . import pytest, tox, conda
+from . import make, pytest, tox, conda
