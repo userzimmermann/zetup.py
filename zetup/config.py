@@ -1,3 +1,7 @@
+# zetup.py
+#
+# Zimmermann's Python package setup.
+#
 # Copyright (C) 2014 Stefan Zimmermann <zimmermann.code@gmail.com>
 #
 # zetup.py is free software: you can redistribute it and/or modify
