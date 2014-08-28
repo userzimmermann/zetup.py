@@ -24,6 +24,10 @@ import os
 from path import path as Path
 
 
+class ZetupCommandError(RuntimeError):
+    pass
+
+
 def init(name, path=None):
     path = Path(path or os.getcwd())
     Path(__path__[0] / 'zetup.py').copy(path / '__init__.py')
