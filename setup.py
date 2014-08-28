@@ -2,6 +2,10 @@ from zetup import Zetup
 
 
 zetup = Zetup()
+
+package_data = zetup.setup_keywords()['package_data']
+package_data['zetup.commands.make'] = ['templates/*.jinja']
+
 zetup(
   setup_requires=['hgdistver'],
 
@@ -10,6 +14,8 @@ zetup(
   entry_points={'distutils.setup_keywords': [
     'use_zetup = zetup:setup_entry_point',
     ]},
+
+  package_data=package_data,
 
   scripts=['scripts/zetup'],
   )
