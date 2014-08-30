@@ -19,8 +19,11 @@ def test_zetup():
 
     assert(zfg.NAME == 'zetup')
 
-    assert(zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path)
-           == get_distribution('zetup'))
+    dist = get_distribution('zetup')
+    if Path(dist.location).realpath() != pkg_path.dirname():
+        dist = None
+    assert zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path) \
+      == dist
 
     assert(zetup.__description__ == zfg.DESCRIPTION)
 
