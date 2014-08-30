@@ -8,5 +8,8 @@
 ^\.env/
 ^\.cache/
 
+\.egg$
 \.egg-info/
 dist/
+
+^\.conda/
