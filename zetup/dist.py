@@ -42,6 +42,9 @@ class Distribution(str):
           if version doesn't match the given one?
           If false just return None.
         """
+        # If no version is given (for whatever reason), just do nothing:
+        if not self.version:
+            return None
         try:
             dist = get_distribution(self)
         except DistributionNotFound:
