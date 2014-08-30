@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
+__all__ = ['load_zetup_config']
+
 import sys
 import os
 import re
