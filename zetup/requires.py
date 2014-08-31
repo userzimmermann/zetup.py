@@ -105,7 +105,7 @@ class Requirements(str):
             if version not in req:
                 if raise_:
                     raise VersionConflict(
-                      "Need %s. Found %s" % (str(req), version))
+                      "Need %s. Found %s" % (req, version))
                 return False
         return True
 
@@ -126,7 +126,7 @@ class Requirements(str):
         raise KeyError(name)
 
     def __add__(self, text):
-        """Return a new manager instance
+        """Return a new :class:`Requirements` instance
            with additional requirements from `text`.
         """
         return type(self)('%s\n%s' % (
