@@ -25,13 +25,6 @@ import os
 from .zetup import Zetup
 
 
-# Get zetup's own config:
-## try: # from installed zetup package
-##     from . import zetup_config as own_config
-## except ImportError: # from source
-##     own_config = Zetup(os.path.dirname(os.path.realpath(__path__[0])))
-
-
 def find_zetup_config(modname):
     zfg_modname = modname + '.zetup_config'
     try: # Already imported?
@@ -50,17 +43,18 @@ def find_zetup_config(modname):
     return Zetup(path)
 
 
-own_config = find_zetup_config(__name__)
+# Get zetup's own config:
+zfg = find_zetup_config(__name__)
 
-__distribution__ = own_config.DISTRIBUTION.find(__path__[0])
-__description__ = own_config.DESCRIPTION
+__distribution__ = zfg.DISTRIBUTION.find(__path__[0])
+__description__ = zfg.DESCRIPTION
 
-__version__ = own_config.VERSION
+__version__ = zfg.VERSION
 
-__requires__ = own_config.REQUIRES # .checked
-__extras__ = own_config.EXTRAS
+__requires__ = zfg.REQUIRES # .checked
+__extras__ = zfg.EXTRAS
 
-__notebook__ = own_config.NOTEBOOKS['README']
+__notebook__ = zfg.NOTEBOOKS['README']
 
 
 def setup_entry_point(dist, keyword, value):
