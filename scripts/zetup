@@ -99,6 +99,11 @@ except AttributeError:
             except ZetupCommandError as e:
                 print("Error: %s" % e, file=sys.stderr)
                 exit_status = 1
+            else:
+                try: # return value can be more than just a status number
+                    exit_status = exit_status.status
+                except AttributeError:
+                    pass
         else: # ==> standard setup command
             zetup()
         if zetup.ZETUP_CONFIG_PACKAGE:
