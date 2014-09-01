@@ -6,8 +6,9 @@ python:
   - pypy
 
 install:
+  - pip install -r requirements.txt --pre
+  - pip install -r requirements.pytest.txt
   - pip install .
-  - pip install pytest
 
 script:
   - python setup.py pytest
