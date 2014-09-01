@@ -91,54 +91,79 @@ class Zetup(object):
         """
         keywords = self.setup_keywords()
         keywords.update(setup_keywords)
+        if 'make' in self.COMMANDS:
+            with self.make(targets=['VERSION', 'setup.py', '__init__.py'],
+                           skip_existing=True
+                           ):
+                return setup(**keywords)
         return setup(**keywords)
 
     COMMANDS = []
 
     @classmethod
-    def command(cls, func):
+    def command(cls, args=None, depends=None):
+        return CommandDeco(cls, args, depends)
+
+
+class CommandDeco(object):
+    def __init__(self, zetupcls, args=None, depends=None):
+        self.zetupcls = zetupcls
+        self.args = args
+        self.make_targets = depends and list(depends)
+
+    def __call__(self, func):
         """Add a command function as method to :class:`Zetup`
            and store its name in `cls.COMMANDS`.
 
         - Used in `zetup.commands.*` to sparate command implementations.
         """
-        name = func.__name__
-        setattr(cls, name, func)
-        cls.COMMANDS.append(name)
+        targets = self.make_targets
+
+        def cmdmethod(self, args=None, **kwargs):
+            if not targets:
+                return func(self, args, **kwargs)
+            with self.make(targets=targets, skip_existing=True):
+                return func(self, args, **kwargs)
+
+        name = cmdmethod.__name__ = func.__name__
+        cmdmethod.args = self.args
+
+        setattr(self.zetupcls, name, cmdmethod)
+        self.zetupcls.COMMANDS.append(name)
 
 
 # If installed with pip, add all build directories and src/ subdirs
 #  of implicitly downloaded requirements
 #  to sys.path and os.environ['PYTHONPATH']
 #  to make them importable during installation:
-sysbuildpath = os.path.join(sys.prefix, 'build')
-try:
-    fnames = os.listdir(sysbuildpath)
-except OSError:
-    pass
-else:
-    if 'pip-delete-this-directory.txt' in fnames:
-        pkgpaths = []
-        for fn in fnames:
-            path = os.path.join(sysbuildpath, fn)
-            if not os.path.isdir(path):
-                continue
-            path = os.path.abspath(path)
-            pkgpaths.append(path)
+# sysbuildpath = os.path.join(sys.prefix, 'build')
+# try:
+#     fnames = os.listdir(sysbuildpath)
+# except OSError:
+#     pass
+# else:
+#     if 'pip-delete-this-directory.txt' in fnames:
+#         pkgpaths = []
+#         for fn in fnames:
+#             path = os.path.join(sysbuildpath, fn)
+#             if not os.path.isdir(path):
+#                 continue
+#             path = os.path.abspath(path)
+#             pkgpaths.append(path)
 
-            srcpath = os.path.join(path, 'src')
-            if os.path.isdir(srcpath):
-                pkgpaths.append(srcpath)
+#             srcpath = os.path.join(path, 'src')
+#             if os.path.isdir(srcpath):
+#                 pkgpaths.append(srcpath)
 
-        for path in pkgpaths:
-            sys.path.insert(0, path)
+#         for path in pkgpaths:
+#             sys.path.insert(0, path)
 
-        PYTHONPATH = os.environ.get('PYTHONPATH')
-        PATH = ':'.join(pkgpaths)
-        if PYTHONPATH is None:
-            os.environ['PYTHONPATH'] = PATH
-        else:
-            os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
+#         PYTHONPATH = os.environ.get('PYTHONPATH')
+#         PATH = ':'.join(pkgpaths)
+#         if PYTHONPATH is None:
+#             os.environ['PYTHONPATH'] = PATH
+#         else:
+#             os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
 
 
 # If this is a locally imported zetup.py in zetup's own repo...
