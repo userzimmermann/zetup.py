@@ -22,7 +22,8 @@ from textwrap import dedent
 
 from path import path as Path
 
-from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from jinja2 import FileSystemLoader, TemplateNotFound
+from jinjatools import Environment
 
 from zetup import Zetup
 from zetup.commands import ZetupCommandError
@@ -39,8 +40,32 @@ class Loader(FileSystemLoader):
         return source, target, uptodate
 
 
-@Zetup.command
-def make(self, *targets):
+class Made(list):
+    def __init__(self):
+        self.status = 0
+
+    def clean(self):
+        for path in self:
+            path.remove()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        self.clean()
+
+
+class ZetupMakeError(ZetupCommandError):
+    def __init__(self, made, message):
+        ZetupCommandError.__init__(self, message)
+        made.clean()
+
+
+@Zetup.command()
+def make(self, args=None, targets=None, force=False, skip_existing=False):
+    if args:
+        targets = args.targets
+        force = args.force
     if not targets:
         raise ZetupCommandError("No targets given. You can 'make all'.")
     env = Environment(loader=Loader())
@@ -48,16 +73,22 @@ def make(self, *targets):
         targets = [tname.rsplit('.', 1)[0]
                    for tname in os.listdir(env.loader.templates_dir)
                    if tname.endswith('.jinja')]
+        skip_existing = True
+
+    made = Made()
     for target in targets:
         path = Path(self.ZETUP_DIR) / target
         if path.exists():
-            raise ZetupCommandError(
-              "Target '%s' already exists. Overwrite with -f or --force"
-              % target)
+            if skip_existing:
+                continue
+            if not force:
+                raise ZetupMakeError(made,
+                  "Target '%s' already exists." % target
+                  + "Overwrite with -f or --force")
         try:
             template = env.get_template(target)
         except TemplateNotFound:
-            raise ZetupCommandError(
+            raise ZetupMakeError(made,
               "No template for target '%s'." % target)
         text = template.render({
           'zetup_header': dedent("""
@@ -68,3 +99,6 @@ def make(self, *targets):
           'zfg': self,
           })
         path.write_text(text.strip())
+        made.append(path)
+
+    return made
