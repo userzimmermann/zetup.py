@@ -24,8 +24,8 @@ from subprocess import call
 from zetup import Zetup
 
 
-@Zetup.command
-def pytest(self):
+@Zetup.command()
+def pytest(self, args=None):
     """The actual pytest command action called by Command base.
     """
     env = dict(os.environ)

@@ -25,8 +25,8 @@ from subprocess import call
 from zetup import Zetup
 
 
-@Zetup.command
-def conda(self):
+@Zetup.command(depends=['VERSION', 'setup.py', '__init__.py'])
+def conda(self, args):
     """The actual conda command action called by Command base.
     """
     from path import path as Path
