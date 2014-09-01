@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['init']
+__all__ = ['init', 'ZetupCommandError', 'ZetupMakeError']
 
 import os
 
@@ -45,4 +45,5 @@ def init(name, path=None):
         f.write("0.0.0\n")
 
 
-from . import make, pytest, tox, conda
+from . import make, run, pytest, tox, conda
+from .make import ZetupMakeError
