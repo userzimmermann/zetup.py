@@ -5,7 +5,7 @@ from zetup import Zetup
 try: # needs zetup's requirements to be installed
     import zetup.commands
 except ImportError as e:
-    raise RuntimeError(dedent("""
+    warn(dedent("""
       Can't load all zetup features.
       You should install zetup's requirements from 'requirements.txt'.
       (ImportError: %s)
