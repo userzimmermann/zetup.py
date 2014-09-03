@@ -25,20 +25,20 @@ import os
 from .zetup import Zetup
 
 
-def find_zetup_config(modname):
-    zfg_modname = modname + '.zetup_config'
+def find_zetup_config(pkgname):
+    zfg_pkgname = pkgname + '.zetup_config'
     try: # Already imported?
-        return sys.modules[zfg_modname]
+        return sys.modules[zfg_pkgname]
     except KeyError:
         pass
     try:
-        return __import__(zfg_modname).zetup_config
+        return __import__(zfg_pkgname).zetup_config
     except ImportError:
         pass
     # ==> no .zetup_config subpackage
     # ==> assume package imported from source (repo)
     # ==> load setup config from package's parent path:
-    mod = sys.modules[modname]
+    mod = sys.modules[pkgname]
     path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
     return Zetup(path)
 
