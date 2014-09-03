@@ -19,9 +19,6 @@
 
 __all__ = ['Zetup']
 
-import sys
-import os
-
 try:
     from setuptools import setup, Command
 except ImportError: # fallback
@@ -85,24 +82,40 @@ class Zetup(object):
         keywords['cmdclass'] = cmdclasses
         return keywords
 
+    @property
+    def setup(self):
+        return Setup(zetup=self)
+
     def __call__(self, **setup_keywords):
         """Run `setup()` with generated keywords from zetup config
            and custom override `setup_keywords`.
         """
-        keywords = self.setup_keywords()
-        keywords.update(setup_keywords)
-        if 'make' in self.COMMANDS:
-            with self.make(targets=['VERSION', 'setup.py', '__init__.py'],
-                           skip_existing=True
-                           ):
-                return setup(**keywords)
-        return setup(**keywords)
+        return self.setup(**setup_keywords)
 
     COMMANDS = []
 
     @classmethod
     def command(cls, args=None, depends=None):
         return CommandDeco(cls, args, depends)
+
+
+class Setup(dict):
+    def __init__(self, zetup):
+        dict.__init__(self, zetup.setup_keywords())
+        self.zetup = zetup
+
+    def __call__(self, **keywords):
+        """Run `setup()` with generated keywords from zetup config
+           and custom override `keywords`.
+        """
+        keywords = dict(self, **keywords)
+        if 'make' in Zetup.COMMANDS:
+            with self.zetup.make(
+              targets=['VERSION', 'setup.py', '__init__.py'],
+              skip_existing=True
+              ):
+                return setup(**keywords)
+        return setup(**keywords)
 
 
 class CommandDeco(object):
