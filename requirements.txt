@@ -1,4 +1,4 @@
 setuptools
-hgdistver
+hgdistver >= 0.19
 path.py #import path
 jinjatools >= 0.1a15
