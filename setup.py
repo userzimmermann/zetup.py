@@ -1,16 +1,22 @@
+from textwrap import dedent
+from warnings import warn
+
 from zetup import Zetup
-try:
+try: # needs zetup's requirements to be installed
     import zetup.commands
-except ImportError:
-    pass
+except ImportError as e:
+    raise RuntimeError(dedent("""
+      Can't load all zetup features.
+      You should install zetup's requirements from 'requirements.txt'.
+      (ImportError: %s)
+      """ % e).strip())
 
 
 zetup = Zetup()
 
-package_data = zetup.setup_keywords()['package_data']
-package_data['zetup.commands.make'] = ['templates/*.jinja']
-
-zetup(
+setup = zetup.setup
+setup['package_data']['zetup.commands.make'] = ['templates/*.jinja']
+setup(
   setup_requires=['hgdistver'],
 
   get_version_from_scm=True,
@@ -18,8 +24,6 @@ zetup(
   entry_points={'distutils.setup_keywords': [
     'use_zetup = zetup:setup_entry_point',
     ]},
-
-  package_data=package_data,
 
   scripts=['scripts/zetup'],
   )
