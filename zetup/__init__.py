@@ -62,10 +62,10 @@ __notebook__ = zfg.NOTEBOOKS['README']
 
 
 def setup_entry_point(dist, keyword, value):
-    """zetup's `entry_point` handler for `setup()` in _setup.py_,
+    """zetup's `entry_point` handler for `setup()` in a project's _setup.py_,
        setting all setup keyword parameters based on zetup config.
 
-    - Activated with `use_setup=True`
+    - Activated with `setup(setup_requires=['zetup'], use_setup=True)`
     """
     assert keyword == 'use_zetup'
     if not value:
