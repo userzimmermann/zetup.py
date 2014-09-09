@@ -25,7 +25,7 @@ if sys.version_info[0] == 3:
 
 from pkg_resources import (
   parse_requirements, Requirement,
-  DistributionNotFound, VersionConflict)
+  get_distribution, DistributionNotFound, VersionConflict)
 
 
 class Requirements(str):
@@ -100,8 +100,13 @@ class Requirements(str):
                 continue
             try:
                 version = mod.__version__
-            except AttributeError as e:
-                raise AttributeError("%s: %s" % (e, mod))
+            except AttributeError as e_no__version__attr:
+                try: # try to get version from distribution
+                    dist = get_distribution(req.key)
+                except DistributionNotFound as e:
+                    raise VersionConflict("Need %s. %s: %s. %s: %s" % (
+                      req, e_no__version__attr, mod, type(e).__name__, e))
+                version = dist.version
             if version not in req:
                 if raise_:
                     raise VersionConflict(
