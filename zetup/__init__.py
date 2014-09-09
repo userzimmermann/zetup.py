@@ -21,6 +21,7 @@ __all__ = ['Zetup', 'find_zetup_config']
 
 import sys
 import os
+from inspect import ismodule
 
 from .zetup import Zetup
 
@@ -52,6 +53,9 @@ __description__ = zfg.DESCRIPTION
 __version__ = zfg.VERSION
 
 __requires__ = zfg.REQUIRES # .checked
+if ismodule(zfg): # if this is an installed zetup package:
+    __requires__.check()
+
 __extras__ = zfg.EXTRAS
 
 __notebook__ = zfg.NOTEBOOKS['README']
