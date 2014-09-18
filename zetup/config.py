@@ -87,9 +87,10 @@ def load_zetup_config(path, cfg):
     cfg.ZETUP_CONFIG_PACKAGE = config.get(
       'zetup_config_package', False)
     if cfg.ZETUP_CONFIG_PACKAGE:
-        cfg.ZETUP_CONFIG_PACKAGE = cfg.ZETUP_CONFIG_PACKAGE.strip()
-    if cfg.ZETUP_CONFIG_PACKAGE == '':
-        cfg.ZETUP_CONFIG_PACKAGE = cfg.PACKAGES[0] + '.zetup_config'
+        if cfg.ZETUP_CONFIG_PACKAGE == 'yes':
+            cfg.ZETUP_CONFIG_PACKAGE = cfg.PACKAGES[0] + '.zetup_config'
+        elif cfg.ZETUP_CONFIG_PACKAGE != 'no':
+            cfg.ZETUP_CONFIG_PACKAGE = cfg.ZETUP_CONFIG_PACKAGE.strip()
 
     cfg.CLASSIFIERS = config['classifiers'].strip() \
       .replace('\n::', ' ::').split('\n')
