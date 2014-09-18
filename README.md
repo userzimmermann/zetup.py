@@ -19,5 +19,3 @@
 
 <https://github.com/userzimmermann/zetup.py>
 
-
-# 0. zetup's own setup :)
