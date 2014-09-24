@@ -4,10 +4,10 @@ from warnings import warn
 from zetup import Zetup
 try: # needs zetup's requirements to be installed
     import zetup.commands
-except ImportError as e:
+except Exception as e:
     warn(dedent("""
       Can't load all zetup features.
-      You should install zetup's requirements from 'requirements.txt'.
+      You should install requirements from 'requirements.commands.txt'
       (ImportError: %s)
       """ % e).strip())
 
