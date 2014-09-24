@@ -32,7 +32,7 @@ def test_zetup():
     assert zetup.__description__ == zfg.DESCRIPTION
 
     dist = get_distribution('zetup')
-    if in_repo and Path(dist.location).realpath() != pkg_path.dirname():
+    if in_repo and not Path(dist.location).samefile(pkg_path.dirname()):
         dist = None
     assert zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path) \
       == dist
