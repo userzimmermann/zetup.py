@@ -36,23 +36,23 @@ class Requirements(str):
         """ Generate parsed requirements from `text`,
             which should contain newline separated requirement specs.
 
-        - Additionally looks for "#import modname" comments
+        - Additionally looks for "#import name" comments
           after requirement lines (the actual root module name
           of the required package to use for runtime dependency checks)
-          and stores them as .modname attrs on the Requirement instances.
+          and stores them as .impname attrs on the Requirement instances.
         """
         for line in text.split('\n'):
             line = line.strip()
             if not line:
                 continue
             try:
-                req, modname = line.split('#import')
+                req, impname = line.split('#import')
             except ValueError:
                 req = next(parse_requirements(line))
-                req.modname = req.key
+                req.impname = req.key
             else:
                 req = next(parse_requirements(req))
-                req.modname = modname.strip()
+                req.impname = impname.strip()
             yield req
 
     def __new__(cls, reqs):
@@ -91,7 +91,7 @@ class Requirements(str):
         """
         for req in self:
             try:
-                mod = __import__(req.modname)
+                mod = __import__(req.impname)
             except ImportError:
                 if raise_:
                     raise DistributionNotFound(str(req))
@@ -104,8 +104,11 @@ class Requirements(str):
                 try: # try to get version from distribution
                     dist = get_distribution(req.key)
                 except DistributionNotFound as e:
-                    raise VersionConflict("Need %s. %s: %s. %s: %s" % (
-                      req, e_no__version__attr, mod, type(e).__name__, e))
+                    if raise_:
+                        raise VersionConflict("Need %s. %s: %s. %s: %s" % (
+                          req, e_no__version__attr, mod,
+                          type(e).__name__, e))
+                    return False
                 version = dist.version
             if version not in req:
                 if raise_:
@@ -136,8 +139,8 @@ class Requirements(str):
         """
         return type(self)('%s\n%s' % (
           # For simplicity:
-          #  Just create explicit modname hints for every requirement:
-          '\n'.join('%s #import %s' % (req, req.modname) for req in self),
+          #  Just create explicit #import hints for every requirement:
+          '\n'.join('%s #import %s' % (req, req.impname) for req in self),
           text))
 
     def __repr__(self):
