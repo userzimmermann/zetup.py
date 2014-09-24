@@ -49,8 +49,9 @@ class Distribution(str):
             dist = get_distribution(self)
         except DistributionNotFound:
             return None
-        if os.path.realpath(dist.location) \
-          != os.path.realpath(os.path.dirname(modpath)):
+        if not os.path.samefile(
+          dist.location, os.path.realpath(os.path.dirname(modpath))
+          ):
             return None
         if dist.parsed_version != self.version.parsed:
             if raise_:
