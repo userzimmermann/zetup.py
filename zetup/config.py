@@ -114,7 +114,7 @@ def load_zetup_config(path, cfg):
     else:
         cfg.PACKAGES.extend(chain(*(
           ['%s.%s' % (pkg, sub) for sub in find_packages(pkg)]
-          for pkg in cfg.PACKAGES)))
+          for pkg in cfg.PACKAGES if os.path.isdir(pkg))))
 
     if cfg.ZETUP_CONFIG_PACKAGE:
         cfg.PACKAGES.append(cfg.ZETUP_CONFIG_PACKAGE)
