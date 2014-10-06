@@ -1,2 +1,2 @@
 path.py #import path
-jinjatools >= 0.1a15
+jinjatools >= 0.1.4
