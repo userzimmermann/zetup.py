@@ -83,7 +83,10 @@ class Requirements(str):
 
     def check(self, raise_=True):
         """Check that all requirements are available (importable)
-           and their versions match (using pkg.__version__).
+           and their versions match (using modules' __version__ attributes).
+
+        - Fallback to pkg_resources.get_distribution().version
+          if no __version__ or is None.
 
         :param raise_: Raise DistributionNotFound if ImportError
           or VersionConflict if version doesn't match?
@@ -100,6 +103,9 @@ class Requirements(str):
                 continue
             try:
                 version = mod.__version__
+                if version is None:
+                    raise AttributeError(
+                      "module's '__version__' attribute is None")
             except AttributeError as e_no__version__attr:
                 try: # try to get version from distribution
                     dist = get_distribution(req.key)
