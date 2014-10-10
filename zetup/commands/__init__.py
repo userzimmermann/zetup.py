@@ -45,8 +45,6 @@ def init(name, path=None):
           'classifiers',
           'keywords',
           ])))
-    with open(path / 'VERSION', 'w') as f:
-        f.write("0.0.0\n")
 
 
 from . import make, run, pytest, tox, conda
