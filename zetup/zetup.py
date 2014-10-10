@@ -19,6 +19,7 @@
 
 __all__ = ['Zetup']
 
+import os
 try:
     from setuptools import setup, Command
 except ImportError: # fallback
@@ -52,8 +53,15 @@ class Zetup(object):
           'keywords': self.KEYWORDS,
           }
         if self.VERSION:
-          keywords['version'] = str(self.VERSION)
+            keywords['version'] = str(self.VERSION)
         if self.PACKAGES:
+            namespaces = set()
+            for pkg in self.PACKAGES:
+                main = pkg.split('.')[0]
+                if not os.path.exists(os.path.join(main, '__init__.py')):
+                    namespaces.add(main)
+            if namespaces:
+                keywords['namespace_packages'] = list(namespaces)
             keywords['packages'] = self.PACKAGES
         if self.ZETUP_CONFIG_PACKAGE:
             keywords.update({
