@@ -1,2 +1,2 @@
 setuptools
-hgdistver >= 0.22
+hgdistver >= 0.23
