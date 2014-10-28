@@ -31,8 +31,6 @@ if sys.version_info[0] == 3:
 else:
     from ConfigParser import ConfigParser
 
-from setuptools import find_packages
-
 from .version import Version
 from .requires import Requirements
 from .extras import Extras
@@ -108,8 +106,11 @@ def load_zetup_config(path, cfg):
 
     # Extend PACKAGES with all their subpackages:
     try:
-        find_packages
-    except NameError: #==> No setuptools
+        # need to import dynamically for packages dealing with namespaces
+        #  because setuptools try to import namespace packages
+        #  before setuptools.find_packages gets available
+        from setuptools import find_packages
+    except ImportError: #==> No setuptools
         pass
     else:
         cfg.PACKAGES.extend(chain(*(
