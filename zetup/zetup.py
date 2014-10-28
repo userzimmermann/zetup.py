@@ -38,10 +38,28 @@ class Zetup(object):
 
     @property
     def config(self):
+        """Get the zetup config as dictionary.
+
+        - Actually just return self.__dict__ because all attr assignments
+          come from :func:`.config.load_zetup_config` in :meth:`.__init__`
+          and are therefore just the config.
+        """
         return self.__dict__
 
     def __getitem__(self, name):
-        return self.__dict__[name]
+        return self.config[name]
+
+    @property
+    def config_py(self):
+        """Get the zetup config as Python code for writing to a .py module.
+        """
+        def items():
+            for name, value in self.config.items():
+                if not name.startswith('ZETUP') \
+                  and not name.endswith('FILE'):
+                    yield "%s = %s" % (name, repr(value))
+
+        return '\n\n'.join(items())
 
     def setup_keywords(self):
         """Get a dictionary of `setup()` keywords generated from zetup config.
