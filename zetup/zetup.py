@@ -36,6 +36,13 @@ class Zetup(object):
         """
         load_zetup_config(ZETUP_DIR, cfg=self)
 
+    @property
+    def config(self):
+        return self.__dict__
+
+    def __getitem__(self, name):
+        return self.__dict__[name]
+
     def setup_keywords(self):
         """Get a dictionary of `setup()` keywords generated from zetup config.
         """
