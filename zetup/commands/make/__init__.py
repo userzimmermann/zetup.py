@@ -18,6 +18,7 @@
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 from textwrap import dedent
 
 from path import path as Path
@@ -70,14 +71,16 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
         raise ZetupCommandError("No targets given. You can 'make all'.")
     env = Environment(loader=Loader())
     if 'all' in targets:
-        targets = [tname.rsplit('.', 1)[0]
-                   for tname in os.listdir(env.loader.templates_dir)
-                   if tname.endswith('.jinja')]
+        templates_dir = Path(env.loader.templates_dir)
+        targets = [templates_dir.relpathto(tpath).rsplit('.', 1)[0]
+                   for tpath in templates_dir.walkfiles()
+                   if tpath.endswith('.jinja')]
         skip_existing = True
 
     made = Made()
     for target in targets:
-        path = Path(self.ZETUP_DIR) / target
+        path = Path(self.ZETUP_DIR) / re.sub(
+          '^package', self.PACKAGES[0], target)
         if path.exists():
             if skip_existing:
                 continue
