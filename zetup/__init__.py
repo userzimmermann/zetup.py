@@ -58,7 +58,7 @@ if ismodule(zfg): # if this is an installed zetup package:
 
 __extras__ = zfg.EXTRAS
 
-__notebook__ = zfg.NOTEBOOKS['README']
+## __notebook__ = zfg.NOTEBOOKS['README']
 
 
 def setup_entry_point(dist, keyword, value):
