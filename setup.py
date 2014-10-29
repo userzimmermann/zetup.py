@@ -15,7 +15,10 @@ except Exception as e:
 zetup = Zetup()
 
 setup = zetup.setup
-setup['package_data']['zetup.commands.make'] = ['templates/*.jinja']
+setup['package_data']['zetup.commands.make'] = [
+  'templates/*.jinja',
+  'templates/package/*.jinja',
+  ]
 setup(
   setup_requires=['hgdistver'],
 
