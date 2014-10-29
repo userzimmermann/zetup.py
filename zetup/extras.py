@@ -43,7 +43,7 @@ class Extras(OrderedDict):
 
     @property
     def py(self):
-        return '%s([\n%s\n])' % (type(self).__name__, '\n, '.join(
+        return '%s([\n%s\n])' % (type(self).__name__, ',\n'.join(
           '(%s, %s)' % (repr(name), reqs.py)
           for name, reqs in self.items()))
 
