@@ -57,7 +57,11 @@ class Zetup(object):
             for name, value in self.config.items():
                 if not name.startswith('ZETUP') \
                   and not name.endswith('FILE'):
-                    yield "%s = %s" % (name, repr(value))
+                    try:
+                        py = value.py
+                    except AttributeError:
+                        py = repr(value)
+                    yield "%s = %s" % (name, py)
 
         return '\n\n'.join(items())
 
@@ -74,6 +78,8 @@ class Zetup(object):
           'install_requires': str(self.REQUIRES),
           'extras_require':
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
+          'package_dir': {},
+          'package_data': {},
           'classifiers': self.CLASSIFIERS,
           'keywords': self.KEYWORDS,
           }
@@ -89,10 +95,9 @@ class Zetup(object):
                 keywords['namespace_packages'] = list(namespaces)
             keywords['packages'] = self.PACKAGES
         if self.ZETUP_CONFIG_PACKAGE:
-            keywords.update({
-              'package_dir': {self.ZETUP_CONFIG_PACKAGE: '.'},
-              'package_data': {self.ZETUP_CONFIG_PACKAGE: self.ZETUP_DATA},
-              })
+            keywords['package_dir'][self.ZETUP_CONFIG_PACKAGE] = '.'
+            keywords['package_data'][self.ZETUP_CONFIG_PACKAGE] \
+              = self.ZETUP_DATA
         cmdclasses = {}
         for cmdname in self.COMMANDS:
             cmdmethod = getattr(self, cmdname)
@@ -143,10 +148,10 @@ class Setup(dict):
         """
         keywords = dict(self, **keywords)
         if 'make' in Zetup.COMMANDS:
-            with self.zetup.make(
-              targets=['VERSION', 'setup.py', '__init__.py'],
-              skip_existing=True
-              ):
+            make_targets = ['VERSION', 'setup.py', '__init__.py']
+            if self.zetup.ZETUP_CONFIG_MODULE:
+                make_targets.append('package/zetup_config.py')
+            with self.zetup.make(targets=make_targets, skip_existing=True):
                 return setup(**keywords)
         return setup(**keywords)
 

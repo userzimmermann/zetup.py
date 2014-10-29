@@ -41,6 +41,12 @@ class Extras(OrderedDict):
             return Requirements(chain(*self.values()))
         return OrderedDict.__getitem__(self, name)
 
+    @property
+    def py(self):
+        return '%s([\n%s\n])' % (type(self).__name__, '\n, '.join(
+          '(%s, %s)' % (repr(name), reqs.py)
+          for name, reqs in self.items()))
+
     def __repr__(self):
         return "\n\n".join((
           "[%s]\n" % key + '\n'.join(map(str, reqs))

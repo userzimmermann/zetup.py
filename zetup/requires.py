@@ -149,5 +149,10 @@ class Requirements(str):
           '\n'.join('%s #import %s' % (req, req.impname) for req in self),
           text))
 
+    @property
+    def py(self):
+        return '%s("""\n%s\n""")' % (type(self).__name__, '\n'.join(
+          '%s #import %s' % (req, req.impname) for req in self))
+
     def __repr__(self):
         return str(self)

@@ -23,6 +23,8 @@ import os
 from pkg_resources import (
   get_distribution, DistributionNotFound, VersionConflict)
 
+from .version import Version
+
 
 class Distribution(str):
     """Simple proxy to get a pkg_resources.Distribution instance
@@ -32,11 +34,17 @@ class Distribution(str):
         return str.__new__(cls, name)
 
     def __init__(self, name, pkg, version):
+        """Initialize with distribution `name`, top level `pkg` name
+           and `version` string.
+        """
         self.pkg = pkg
-        self.version = version
+        self.version = Version(version)
 
     def find(self, modpath, raise_=True):
         """Try to find the distribution and check version.
+
+        - Also checks if distribution is in the same directory
+          as given `modpath`.
 
         :param raise_: Raise a VersionConflict
           if version doesn't match the given one?
@@ -49,6 +57,7 @@ class Distribution(str):
             dist = get_distribution(self)
         except DistributionNotFound:
             return None
+        # check if distribution path matches package path
         if os.path.normcase(os.path.realpath(dist.location)) \
           != os.path.normcase(os.path.dirname(os.path.realpath(modpath))):
             return None
@@ -60,3 +69,8 @@ class Distribution(str):
                   % (dist, self.pkg, self.version))
             return None
         return dist
+
+    @property
+    def py(self):
+        return '%s(%s, %s, %s)' % (type(self).__name__,
+          repr(str(self)), repr(str(self.pkg)), repr(str(self.version)))

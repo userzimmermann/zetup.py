@@ -63,3 +63,7 @@ class Version(str):
 
     def __ge__(self, other):
         return self.parsed >= self._parsed(other)
+
+    @property
+    def py(self):
+        return '%s(%s)' % (type(self).__name__, repr(str(self)))
