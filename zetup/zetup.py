@@ -55,13 +55,15 @@ class Zetup(object):
         """
         def items():
             for name, value in self.config.items():
-                if not name.startswith('ZETUP') \
-                  and not name.endswith('FILE'):
-                    try:
-                        py = value.py
-                    except AttributeError:
-                        py = repr(value)
-                    yield "%s = %s" % (name, py)
+                if name in [
+                  'NOTEBOOKS',
+                  ] or name.startswith('ZETUP') or name.endswith('FILE'):
+                    continue
+                try:
+                    py = value.py
+                except AttributeError:
+                    py = repr(value)
+                yield "%s = %s" % (name, py)
 
         return '\n\n'.join(items())
 
