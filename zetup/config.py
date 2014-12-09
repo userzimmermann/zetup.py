@@ -22,8 +22,10 @@ __all__ = ['load_zetup_config']
 import sys
 import os
 import re
+from textwrap import dedent
 from itertools import chain
 from collections import OrderedDict
+from warnings import warn
 if sys.version_info[0] == 3:
     from configparser import ConfigParser
     # Just for simpler PY2/3 compatible code:
@@ -140,6 +142,10 @@ def load_zetup_config(path, cfg):
         try:
             import hgdistver
         except ImportError:
+            warn(dedent("""
+              No hgdistver found.
+              Zetup needs hgdistver to get package version from repository.
+              """))
             cfg.VERSION = None
         else:
             cfg.VERSION = hgdistver.get_version()
