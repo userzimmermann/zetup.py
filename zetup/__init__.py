@@ -53,8 +53,8 @@ __description__ = zfg.DESCRIPTION
 __version__ = zfg.VERSION
 
 __requires__ = zfg.REQUIRES # .checked
-if ismodule(zfg): # if this is an installed zetup package:
-    __requires__.check()
+## if ismodule(zfg): # if this is an installed zetup package:
+##     __requires__.check()
 
 __extras__ = zfg.EXTRAS
 
