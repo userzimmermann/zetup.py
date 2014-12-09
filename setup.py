@@ -20,7 +20,7 @@ setup['package_data']['zetup.commands.make'] = [
   'templates/package/*.jinja',
   ]
 setup(
-  setup_requires=['hgdistver'],
+  setup_requires=['hgdistver >= 0.23'],
 
   get_version_from_scm=True,
 
