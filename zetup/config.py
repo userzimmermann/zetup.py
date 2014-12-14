@@ -148,7 +148,11 @@ def load_zetup_config(path, cfg):
               """))
             cfg.VERSION = None
         else:
-            cfg.VERSION = hgdistver.get_version()
+            version = hgdistver.get_version()
+            # the hyphen-revision-hash part after .dev# version strings
+            # results in wrong version comparisons
+            # via pkg_resources.parse_version()
+            cfg.VERSION = version.split('-')[0]
     if cfg.VERSION:
         cfg.VERSION = Version(cfg.VERSION)
 
