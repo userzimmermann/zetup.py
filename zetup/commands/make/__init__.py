@@ -81,7 +81,7 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
     made = Made()
     for target in targets:
         path = Path(self.ZETUP_DIR) / re.sub(
-          '^package', self.PACKAGES[0], target)
+          '^package', self.PACKAGES[0].replace(*'./'), target)
         if path.exists():
             if skip_existing:
                 print("zetup: NOT generating existing %s" % target)
