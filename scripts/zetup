@@ -51,24 +51,6 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-# Generate setup.py if not existing
-# (and delete after running commands in that case):
-setup_py = Path('setup.py')
-create_setup_py = not setup_py.exists()
-if create_setup_py:
-    setup_py.write_text(dedent("""
-      try:
-          from setuptools import setup
-      except ImportError:
-          from distutils.core import setup
-
-
-      setup(
-        setup_requires=['zetup'],
-        use_zetup=True,
-        )
-      """))
-
 exit_status = 0 # exit status of this script
 try:
     cmdfunc = getattr(zetup, args.cmd)
@@ -77,22 +59,6 @@ except AttributeError:
         exit_status = call([args.cmd])
     else:
         zetup = zetup.Zetup()
-        if zetup.ZETUP_CONFIG_PACKAGE:
-            version_file = Path('VERSION')
-            create_version_file = not version_file.exists()
-            if create_version_file:
-                version_file.write_text(zetup.VERSION)
-            init_py = Path('__init__.py')
-            create_init_py = not init_py.exists()
-            if create_init_py:
-                init_py.write_text(dedent("""
-                  import sys
-
-                  from zetup.config import load_zetup_config
-
-
-                  load_zetup_config(__path__[0], sys.modules[__name__])
-                  """))
         if args.cmd in zetup.COMMANDS:
             try:
                 exit_status = getattr(zetup, args.cmd)()
@@ -106,16 +72,7 @@ except AttributeError:
                     pass
         else: # ==> standard setup command
             zetup()
-        if zetup.ZETUP_CONFIG_PACKAGE:
-            if create_init_py:
-                init_py.remove()
-            if create_version_file:
-                version_file.remove()
 else:
     exit_status = cmdfunc()
-
-# Delete setup.py if generated before:
-if create_setup_py:
-    setup_py.remove()
 
 sys.exit(exit_status or 0)
