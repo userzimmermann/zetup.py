@@ -65,7 +65,7 @@ def setup_entry_point(dist, keyword, value):
     """zetup's `entry_point` handler for `setup()` in a project's _setup.py_,
        setting all setup keyword parameters based on zetup config.
 
-    - Activated with `setup(setup_requires=['zetup'], use_setup=True)`
+    - Activated with `setup(setup_requires=['zetup'], use_zetup=True)`
     """
     assert keyword == 'use_zetup'
     if not value:
