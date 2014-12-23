@@ -11,7 +11,7 @@
 ```python
 >>> import zetup
 >>> print(zetup.__version__)
-0.2.3
+0.2.5
 ```
 
 
