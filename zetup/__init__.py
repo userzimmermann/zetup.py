@@ -72,12 +72,12 @@ def setup_entry_point(dist, keyword, value):
         return
 
     zetup = Zetup() # reads config from current working directory
-                    #  (where setup.py is run)
+                    # (where setup.py is run)
     keywords = zetup.setup_keywords()
     for name, value in keywords.items():
         # Generally, setting stuff on dist.metadata is enough
-        #  (and necessary), but *pip* only works correct
-        #  if stuff is also set directly on dist object
-        #  (seems to read at least packages list somehow from there):
+        # (and necessary), but *pip* only works correct
+        # if stuff is also set directly on dist object
+        # (seems to read at least packages list somehow from there):
         for obj in [dist, dist.metadata]:
             setattr(obj, name, value)
