@@ -63,7 +63,9 @@ def load_zetup_config(path, cfg):
     #... and store all setup options in UPPERCASE vars...
     cfg.NAME = config.sections()[0]
 
-    config = dict(config.items(cfg.NAME))
+    # get a section dictionary with normalized option names as keys
+    config = {re.sub(r'[^a-z0-9]', '', option.lower()): value
+              for option, value in config.items(cfg.NAME)}
 
     cfg.TITLE = config.get('title', cfg.NAME)
     cfg.DESCRIPTION = config['description'].strip().replace('\n', ' ')
@@ -85,7 +87,7 @@ def load_zetup_config(path, cfg):
         cfg.PACKAGES = [cfg.NAME]
 
     cfg.ZETUP_CONFIG_PACKAGE = config.get(
-      'zetup_config_package', False)
+      'zetupconfigpackage', False)
     if cfg.ZETUP_CONFIG_PACKAGE:
         if cfg.ZETUP_CONFIG_PACKAGE == 'yes':
             cfg.ZETUP_CONFIG_PACKAGE = cfg.PACKAGES[0] + '.zetup_config'
@@ -93,7 +95,7 @@ def load_zetup_config(path, cfg):
             cfg.ZETUP_CONFIG_PACKAGE = cfg.ZETUP_CONFIG_PACKAGE.strip()
 
     cfg.ZETUP_CONFIG_MODULE = config.get(
-      'zetup_config_module', False)
+      'zetupconfigmodule', False)
     if cfg.ZETUP_CONFIG_MODULE:
         if cfg.ZETUP_CONFIG_MODULE == 'yes':
             cfg.ZETUP_CONFIG_MODULE = cfg.PACKAGES[0] + '.zetup_config'
