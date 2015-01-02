@@ -106,7 +106,8 @@ def load_zetup_config(path, cfg):
       .replace('\n::', ' ::').split('\n')
     cfg.CLASSIFIERS.append('Programming Language :: Python')
     for pyversion in cfg.PYTHON:
-        cfg.CLASSIFIERS.append('Programming Language :: Python :: ' + pyversion)
+        cfg.CLASSIFIERS.append(
+          'Programming Language :: Python :: ' + pyversion)
 
     cfg.KEYWORDS = config['keywords'].split()
     if any(pyversion.startswith('3') for pyversion in cfg.PYTHON):
