@@ -40,6 +40,10 @@ from .dist import Distribution
 from .notebook import Notebook
 
 
+TRUE = True, 'true', 'yes'
+FALSE = False, 'false', 'no'
+
+
 def load_zetup_config(path, cfg):
     """Load zetup config from directory in `path`
        and store keywords as attributes to `cfg` object.
@@ -89,17 +93,17 @@ def load_zetup_config(path, cfg):
     cfg.ZETUP_CONFIG_PACKAGE = config.get(
       'zetupconfigpackage', False)
     if cfg.ZETUP_CONFIG_PACKAGE:
-        if cfg.ZETUP_CONFIG_PACKAGE == 'yes':
+        if cfg.ZETUP_CONFIG_PACKAGE in TRUE:
             cfg.ZETUP_CONFIG_PACKAGE = cfg.PACKAGES[0] + '.zetup_config'
-        elif cfg.ZETUP_CONFIG_PACKAGE != 'no':
+        elif cfg.ZETUP_CONFIG_PACKAGE not in FALSE:
             cfg.ZETUP_CONFIG_PACKAGE = cfg.ZETUP_CONFIG_PACKAGE.strip()
 
     cfg.ZETUP_CONFIG_MODULE = config.get(
       'zetupconfigmodule', False)
     if cfg.ZETUP_CONFIG_MODULE:
-        if cfg.ZETUP_CONFIG_MODULE == 'yes':
+        if cfg.ZETUP_CONFIG_MODULE in TRUE:
             cfg.ZETUP_CONFIG_MODULE = cfg.PACKAGES[0] + '.zetup_config'
-        elif cfg.ZETUP_CONFIG_MODULE != 'no':
+        elif cfg.ZETUP_CONFIG_MODULE not in FALSE:
             cfg.ZETUP_CONFIG_MODULE = cfg.ZETUP_CONFIG_MODULE.strip()
 
     cfg.CLASSIFIERS = config['classifiers'].strip() \
