@@ -13,7 +13,7 @@ python = 2.7 3.3 3.4
 packages =
     zetup
 
-zetup_config_module = yes
+zetup config module = yes
 
 classifiers =
     Development Status :: 3 - Alpha
