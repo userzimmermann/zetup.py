@@ -34,7 +34,7 @@ class Zetup(object):
         """Load and store zetup config from `ZETUP_DIR`
            as attributes in `self`.
         """
-        load_zetup_config(ZETUP_DIR, cfg=self)
+        load_zetup_config(ZETUP_DIR, zfg=self)
 
     @property
     def config(self):
