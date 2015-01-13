@@ -19,7 +19,9 @@
 
 __all__ = ['Zetup']
 
+import sys
 import os
+from subprocess import call
 try:
     from setuptools import setup, Command
 except ImportError: # fallback
@@ -128,11 +130,16 @@ class Zetup(object):
     def setup(self):
         return Setup(zetup=self)
 
-    def __call__(self, **setup_keywords):
+    def __call__(self, subprocess=False, **setup_keywords):
         """Run `setup()` with generated keywords from zetup config
            and custom override `setup_keywords`.
+
+        - If `subprocess` is True, run the dynamically generated setup.py
+          (if zetup's extra 'commands' requirements are installed)
+          with parameters from sys.argv in an external python process
+          instead of directly calling setuptools.setup()
         """
-        return self.setup(**setup_keywords)
+        return self.setup(subprocess=subprocess, **setup_keywords)
 
     COMMANDS = []
 
@@ -146,16 +153,25 @@ class Setup(dict):
         dict.__init__(self, zetup.setup_keywords())
         self.zetup = zetup
 
-    def __call__(self, **keywords):
+    def __call__(self, subprocess=False, **keywords):
         """Run `setup()` with generated keywords from zetup config
            and custom override `keywords`.
+
+        - If `subprocess` is True, run python setup.py with sys.argv
+          (see :meth:`Zetup.__call__` for details)
         """
         keywords = dict(self, **keywords)
         if 'make' in Zetup.COMMANDS:
             make_targets = ['VERSION', 'setup.py', '__init__.py']
+            if self.zetup.ZETUP_CONFIG_PACKAGE:
+                make_targets.append('__init__.py')
             if self.zetup.ZETUP_CONFIG_MODULE:
                 make_targets.append('package/zetup_config.py')
             with self.zetup.make(targets=make_targets, skip_existing=True):
+                if subprocess:
+                    return call([sys.executable, 'setup.py']
+                                + sys.argv[1:])
+
                 return setup(**keywords)
         return setup(**keywords)
 
