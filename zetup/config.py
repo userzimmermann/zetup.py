@@ -155,7 +155,7 @@ def load_zetup_config(path, cfg):
               """))
             cfg.VERSION = None
         else:
-            version = hgdistver.get_version()
+            version = hgdistver.get_version(root=cfg.ZETUP_DIR)
             # the hyphen-revision-hash part after .dev# version strings
             # results in wrong version comparisons
             # via pkg_resources.parse_version()
