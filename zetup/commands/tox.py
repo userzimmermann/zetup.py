@@ -25,6 +25,6 @@ from path import path as Path
 from zetup import Zetup
 
 
-@Zetup.command(depends=['VERSION', 'setup.py', '__init__.py', 'tox.ini'])
+@Zetup.command(depends=['VERSION', 'setup.py', 'zfg', 'tox.ini'])
 def tox(self, args=None):
     return call(['tox'])
