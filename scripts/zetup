@@ -71,7 +71,7 @@ except AttributeError:
                 except AttributeError:
                     pass
         else: # ==> standard setup command
-            zetup()
+            zetup(subprocess=True)
 else:
     exit_status = cmdfunc()
 
