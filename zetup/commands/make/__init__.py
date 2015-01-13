@@ -80,6 +80,12 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
 
     made = Made()
     for target in targets:
+        if target in ['zetup_config', 'zfg']:
+            if self.ZETUP_CONFIG_PACKAGE:
+                target = '__init__.py'
+            if self.ZETUP_CONFIG_MODULE:
+                target = 'package/zetup_config.py'
+        target = re.sub('^%s/' % self.PACKAGES[0], 'package/', target)
         path = Path(self.ZETUP_DIR) / re.sub(
           '^package', self.PACKAGES[0].replace(*'./'), target)
         if path.exists():
