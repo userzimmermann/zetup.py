@@ -16,7 +16,7 @@ recursive-include zetup/commands/make/templates *.jinja
 
 include scripts/zetup
 
-recursive-include pytest *.py
+recursive-include test/ *.py
 
 include tox.ini
 include .travis.yml
