@@ -33,7 +33,7 @@ def test_zetup_config():
 
     if in_site_packages:
         assert zfg.__name__ == 'zetup.zetup_config'
-        assert zfg_path == pkg_path / 'zetup_config'
+        assert zfg_path == pkg_path # / 'zetup_config'
     else:
         with pytest.raises(ImportError):
             from zetup import zetup_config
