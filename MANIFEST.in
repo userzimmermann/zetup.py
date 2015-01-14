@@ -7,10 +7,7 @@ include VERSION
 include requirements.txt
 include requirements.*.txt
 
-include zetup.py
 include zetuprc
-
-include __init__.py
 
 recursive-include zetup/commands/make/templates *.jinja
 
