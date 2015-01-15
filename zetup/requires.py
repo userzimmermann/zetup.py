@@ -22,6 +22,7 @@ __all__ = ['Requirements']
 import sys
 if sys.version_info[0] == 3:
     unicode = str
+import re
 
 from pkg_resources import (
   parse_requirements, Requirement,
@@ -40,11 +41,20 @@ class Requirements(str):
           after requirement lines (the actual root module name
           of the required package to use for runtime dependency checks)
           and stores them as .impname attrs on the Requirement instances.
+        - Supports #py.. tags at the beginning of lines,
+          specifying a python version the requirement applies to.
         """
         for line in text.split('\n'):
             line = line.strip()
             if not line:
                 continue
+            match = re.match(r'^#py([0-9]+) (.*)$', line)
+            if match: # only required in given python version
+                pyver, line = match.groups()
+                #TODO:
+                # if len(pyver) > 2:
+                if not ('%s%s' % sys.version_info[:2]).startswith(pyver):
+                    continue
             try:
                 req, impname = line.split('#import')
             except ValueError:
