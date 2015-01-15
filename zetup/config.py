@@ -90,6 +90,10 @@ def load_zetup_config(path, cfg):
         # Just assume distribution name == root package name
         cfg.PACKAGES = [cfg.NAME]
 
+    cfg.MODULES = config.get('modules', []) or config.get('pymodules', [])
+    if cfg.MODULES:
+        cfg.MODULES = cfg.MODULES.split()
+
     cfg.ZETUP_CONFIG_PACKAGE = config.get(
       'zetupconfigpackage', False)
     if cfg.ZETUP_CONFIG_PACKAGE:
