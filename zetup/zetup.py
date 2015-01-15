@@ -84,6 +84,7 @@ class Zetup(object):
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
           'package_dir': {},
           'package_data': {},
+          'py_modules': self.MODULES,
           'classifiers': self.CLASSIFIERS,
           'keywords': self.KEYWORDS,
           }
