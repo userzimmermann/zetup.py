@@ -76,8 +76,10 @@ class Requirements(str):
           :class:`pkg_resources.Requirement` instances.
         """
         if isinstance(reqs, (str, unicode)):
+            txt = reqs
             reqlist = list(cls._parse(reqs))
         else:
+            txt = ''
             reqlist = []
             for req in reqs:
                 if isinstance(req, (str, unicode)):
@@ -86,8 +88,10 @@ class Requirements(str):
                     reqlist.append(req)
                 else:
                     raise TypeError(type(req))
+                txt += '\n%s' % req
 
         obj = str.__new__(cls, '\n'.join(map(str, reqlist)))
+        obj.txt = txt
         obj._list = reqlist
         return obj
 
@@ -105,15 +109,19 @@ class Requirements(str):
         for req in self:
             try:
                 mod = __import__(req.impname)
-            except ImportError:
+            except ImportError as e:
                 if raise_:
-                    raise DistributionNotFound(str(req))
+                    raise DistributionNotFound(
+                      "%s (%s: %s)" % (req, type(e).__name__, e))
                 return False
             if not req.specs: # No version constraints
                 continue
             try:
                 version = mod.__version__
                 if version is None:
+                    # treat the same as if .__version__ not exists
+                    # (handle in following except block)
+                    # ==> same exception, just different msg
                     raise AttributeError(
                       "module's '__version__' attribute is None")
             except AttributeError as e_no__version__attr:
@@ -156,13 +164,14 @@ class Requirements(str):
         return type(self)('%s\n%s' % (
           # For simplicity:
           #  Just create explicit #import hints for every requirement:
-          '\n'.join('%s #import %s' % (req, req.impname) for req in self),
+          ## '\n'.join('%s #import %s' % (req, req.impname) for req in self),
+          self.txt,
           text))
 
     @property
     def py(self):
-        return '%s("""\n%s\n""")' % (type(self).__name__, '\n'.join(
-          '%s #import %s' % (req, req.impname) for req in self))
+        return '%s("""\n%s\n""")' % (type(self).__name__, self.txt) ## '\n'.join(
+          ## '%s #import %s' % (req, req.impname) for req in self))
 
     def __repr__(self):
         return str(self)
