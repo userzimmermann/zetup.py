@@ -15,7 +15,7 @@ Zimmermann's `Python <http://python.org>`__ package setup
 
     >>> import zetup
     >>> print(zetup.__version__)
-    0.2.6
+    0.2.7
 
 
 
