@@ -68,19 +68,23 @@ def load_zetup_config(path, cfg):
     cfg.NAME = config.sections()[0]
 
     # get a section dictionary with normalized option names as keys
-    config = {re.sub(r'[^a-z0-9]', '', option.lower()): value
+    # and stripped value strings
+    config = {re.sub(r'[^a-z0-9]', '', option.lower()): value.strip()
               for option, value in config.items(cfg.NAME)}
 
     cfg.TITLE = config.get('title', cfg.NAME)
-    cfg.DESCRIPTION = config['description'].strip().replace('\n', ' ')
+    cfg.DESCRIPTION = config.get('description', '').replace('\n', ' ')
 
-    cfg.AUTHOR = re.match(r'^([^<]+)<([^>]+)>$', config['author'])
-    cfg.AUTHOR, cfg.EMAIL = map(str.strip, cfg.AUTHOR.groups())
-    cfg.URL = config['url']
+    cfg.AUTHOR = config.get('author')
+    if cfg.AUTHOR:
+        match = re.match(r'^([^<]+)<([^>]+)>$', cfg.AUTHOR)
+        if match:
+            cfg.AUTHOR, cfg.EMAIL = map(str.strip, match.groups())
+    cfg.URL = config.get('url')
 
-    cfg.LICENSE = config['license']
+    cfg.LICENSE = config.get('license')
 
-    cfg.PYTHON = config['python'].split()
+    cfg.PYTHON = config.get('python', '').split()
 
     cfg.PACKAGES = config.get('packages', [])
     if cfg.PACKAGES:
@@ -90,34 +94,37 @@ def load_zetup_config(path, cfg):
         # Just assume distribution name == root package name
         cfg.PACKAGES = [cfg.NAME]
 
-    cfg.MODULES = config.get('modules', []) or config.get('pymodules', [])
-    if cfg.MODULES:
-        cfg.MODULES = cfg.MODULES.split()
+    cfg.MODULES = (
+      config.get('modules', '') or config.get('pymodules', '')
+      ).split()
 
-    cfg.ZETUP_CONFIG_PACKAGE = config.get(
-      'zetupconfigpackage', False)
+    cfg.ZETUP_CONFIG_PACKAGE = config.get('zetupconfigpackage')
     if cfg.ZETUP_CONFIG_PACKAGE:
         if cfg.ZETUP_CONFIG_PACKAGE in TRUE:
             cfg.ZETUP_CONFIG_PACKAGE = cfg.PACKAGES[0] + '.zetup_config'
-        elif cfg.ZETUP_CONFIG_PACKAGE not in FALSE:
-            cfg.ZETUP_CONFIG_PACKAGE = cfg.ZETUP_CONFIG_PACKAGE.strip()
+        elif cfg.ZETUP_CONFIG_PACKAGE in FALSE:
+            cfg.ZETUP_CONFIG_PACKAGE = False
+        # else it defines a custom package
 
-    cfg.ZETUP_CONFIG_MODULE = config.get(
-      'zetupconfigmodule', False)
+    cfg.ZETUP_CONFIG_MODULE = config.get('zetupconfigmodule')
     if cfg.ZETUP_CONFIG_MODULE:
         if cfg.ZETUP_CONFIG_MODULE in TRUE:
             cfg.ZETUP_CONFIG_MODULE = cfg.PACKAGES[0] + '.zetup_config'
-        elif cfg.ZETUP_CONFIG_MODULE not in FALSE:
-            cfg.ZETUP_CONFIG_MODULE = cfg.ZETUP_CONFIG_MODULE.strip()
+        elif cfg.ZETUP_CONFIG_MODULE in FALSE:
+            cfg.ZETUP_CONFIG_MODULE = False
+        # else it defines a custom module
 
-    cfg.CLASSIFIERS = config['classifiers'].strip() \
-      .replace('\n::', ' ::').split('\n')
+    # get all non-empty classifier lines
+    # (lines starting with :: are interpreted as continuation)
+    cfg.CLASSIFIERS = list(filter(None, (line.strip() for line in
+      re.sub('\n\w*::', ' ::', config.get('classifiers', '').strip())
+      .split('\n'))))
     cfg.CLASSIFIERS.append('Programming Language :: Python')
     for pyversion in cfg.PYTHON:
         cfg.CLASSIFIERS.append(
           'Programming Language :: Python :: ' + pyversion)
 
-    cfg.KEYWORDS = config['keywords'].split()
+    cfg.KEYWORDS = config.get('keywords', '').split()
     if any(pyversion.startswith('3') for pyversion in cfg.PYTHON):
         cfg.KEYWORDS.append('python3')
 
@@ -170,14 +177,14 @@ def load_zetup_config(path, cfg):
     cfg.DISTRIBUTION = Distribution(
       cfg.NAME, cfg.PACKAGES and cfg.PACKAGES[0] or cfg.NAME, cfg.VERSION)
 
-    cfg.REQUIRES = Requirements(
-      open(os.path.join(cfg.ZETUP_DIR, 'requirements.txt')).read())
+    req_txt = os.path.join(cfg.ZETUP_DIR, 'requirements.txt')
+    if os.path.exists(req_txt):
+        cfg.REQUIRES = Requirements(open(req_txt).read())
 
     # Look for optional extra requirements to use with setup's extras_require=
     cfg.EXTRAS = Extras()
-    _re = re.compile(r'^requirements\.(?P<name>[^\.]+)\.txt$')
     for fname in sorted(os.listdir(cfg.ZETUP_DIR)):
-        match = _re.match(fname)
+        match = re.match(r'^requirements\.(?P<name>[^\.]+)\.txt$', fname)
         if match:
             cfg.ZETUP_DATA.append(fname)
 
