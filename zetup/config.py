@@ -179,18 +179,31 @@ def load_zetup_config(path, cfg):
     cfg.DISTRIBUTION = Distribution(
       cfg.NAME, cfg.PACKAGES and cfg.PACKAGES[0] or cfg.NAME, cfg.VERSION)
 
+    req_setup_txt = os.path.join(cfg.ZETUP_DIR, 'requirements.setup.txt')
+    if os.path.exists(req_setup_txt):
+        cfg.SETUP_REQUIRES = Requirements(open(req_setup_txt).read())
+    else:
+        cfg.SETUP_REQUIRES = None
+
     req_txt = os.path.join(cfg.ZETUP_DIR, 'requirements.txt')
     if os.path.exists(req_txt):
         cfg.REQUIRES = Requirements(open(req_txt).read())
+    else:
+        cfg.REQUIRES = None
 
     # Look for optional extra requirements to use with setup's extras_require=
     cfg.EXTRAS = Extras()
     for fname in sorted(os.listdir(cfg.ZETUP_DIR)):
         match = re.match(r'^requirements\.(?P<name>[^\.]+)\.txt$', fname)
         if match:
+            name = match.group('name')
+            if name == 'setup':
+                # already handled in SETUP_REQUIRES
+                continue
+
             cfg.ZETUP_DATA.append(fname)
 
-            cfg.EXTRAS[match.group('name')] \
+            cfg.EXTRAS[name] \
               = open(os.path.join(cfg.ZETUP_DIR, fname)).read()
 
     # Are there IPython notebooks?

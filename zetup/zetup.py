@@ -79,7 +79,8 @@ class Zetup(object):
           'author_email': self.EMAIL,
           'url': self.URL,
           'license': self.LICENSE,
-          'install_requires': str(self.REQUIRES),
+          'setup_requires': str(self.SETUP_REQUIRES or ''),
+          'install_requires': str(self.REQUIRES or ''),
           'extras_require':
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
           'package_dir': {},
