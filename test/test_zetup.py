@@ -2,9 +2,7 @@
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
-
-import pytest
-
+import sys
 from inspect import ismodule
 
 from pkg_resources import (
@@ -15,10 +13,13 @@ from path import path as Path
 import zetup
 from zetup import Zetup, find_zetup_config
 
+import pytest
+
 
 def test_zetup_config():
     """Test the zetup config management on zetup package's own config.
     """
+    #--- NAME
     zfg = find_zetup_config('zetup')
     assert zfg.NAME == 'zetup'
 
@@ -41,8 +42,10 @@ def test_zetup_config():
         assert isinstance(zfg, Zetup)
         assert zfg_path == pkg_path.dirname()
 
+    #--- DESCRIPTION ---
     assert zetup.__description__ == zfg.DESCRIPTION
 
+    #--- DISTRIBUTION ---
     try:
         dist = get_distribution('zetup')
     except DistributionNotFound:
@@ -56,13 +59,16 @@ def test_zetup_config():
     assert zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path) \
       == dist
 
+    #--- VERSION ---
     assert zetup.__version__ == zfg.VERSION
 
+    #--- REQUIRES ---
     assert zetup.__requires__ == zfg.REQUIRES
     if in_repo:
         assert list(parse_requirements(zetup.__requires__)) == list(
           parse_requirements((zfg_path / 'requirements.txt').text()))
 
+    #--- EXTRAS ---
     for extra in zetup.__extras__:
         assert zetup.__extras__[extra] == zfg.EXTRAS[extra]
         if in_repo:
@@ -70,3 +76,10 @@ def test_zetup_config():
               == list(parse_requirements(
                    (zfg_path / ('requirements.%s.txt' % extra))
                    .text()))
+
+    #--- PYTHON ---
+    assert ('%s.%s' % sys.version_info[:2]) in zfg.PYTHON
+
+    #--- CLASSIFIERS ---
+    assert all('Programming Language :: Python :: %s' % version
+               for version in zfg.PYTHON)
