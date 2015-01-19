@@ -81,3 +81,14 @@ def setup_entry_point(dist, keyword, value):
         # (seems to read at least packages list somehow from there):
         for obj in [dist, dist.metadata]:
             setattr(obj, name, value)
+
+    # finally run any custom setup hooks defined in project's zetup config
+    if zetup.SETUP_HOOKS:
+        sys.path.insert(0, '.')
+        for hook in zetup.SETUP_HOOKS:
+            modname, funcname = hook.split(':')
+            mod = __import__(modname)
+            for subname in modname.split('.')[1:]:
+                mod = getattr(mod, subname)
+            func = getattr(mod, funcname)
+            func(dist)

@@ -114,6 +114,8 @@ def load_zetup_config(path, cfg):
             cfg.ZETUP_CONFIG_MODULE = False
         # else it defines a custom module
 
+    cfg.SETUP_HOOKS = config.get('setuphooks', '').split()
+
     # get all non-empty classifier lines
     # (lines starting with :: are interpreted as continuation)
     cfg.CLASSIFIERS = list(filter(None, (line.strip() for line in
