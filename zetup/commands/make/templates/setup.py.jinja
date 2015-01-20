@@ -29,7 +29,10 @@ except ImportError:
 setup(
   {% block setup_keywords %}
   setup_requires=[
-    {% block setup_requires %}'zetup',{% endblock %}
+    {% block setup_requires %}'zetup',
+    {% for req in zfg.SETUP_REQUIRES %}'{{ req }}',
+    {% endfor %}
+    {% endblock %}
     ],
   use_zetup=True,
   {% endblock %}
