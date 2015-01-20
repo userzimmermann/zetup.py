@@ -82,7 +82,16 @@ def setup_entry_point(dist, keyword, value):
         for obj in [dist, dist.metadata]:
             setattr(obj, name, value)
 
-    # finally run any custom setup hooks defined in project's zetup config
+    # finally run any custom setup hooks defined in project's zetup config,
+    # but first check its setup requirements
+    # and make them available for any subprocesses via PYTHONPATH
+    if zetup.SETUP_REQUIRES:
+        PYTHONPATH = os.environ.get('PYTHONPATH', '')
+        for req in zetup.SETUP_REQUIRES.checked:
+            mod = __import__(req.impname)
+            PYTHONPATH = os.path.dirname(os.path.realpath(mod.__file__)) \
+              + (PYTHONPATH and os.pathsep + PYTHONPATH)
+        os.environ['PYTHONPATH'] = PYTHONPATH
     if zetup.SETUP_HOOKS:
         sys.path.insert(0, '.')
         for hook in zetup.SETUP_HOOKS:
