@@ -59,7 +59,7 @@ class Requirements(str):
                 req, impname = line.split('#import')
             except ValueError:
                 req = next(parse_requirements(line))
-                req.impname = req.key
+                req.impname = req.unsafe_name
             else:
                 req = next(parse_requirements(req))
                 req.impname = impname.strip()
