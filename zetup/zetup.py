@@ -83,11 +83,16 @@ class Zetup(object):
           'install_requires': str(self.REQUIRES or ''),
           'extras_require':
             {name: str(reqs) for name, reqs in self.EXTRAS.items()},
+          # always provide empty default collections
+          # to make sure that any custom setup hooks
+          # can always directly add stuff
+          # even if no data defined in zetup config
+          'packages': [],
           'package_dir': {},
           'package_data': {},
-          'py_modules': self.MODULES,
-          'classifiers': self.CLASSIFIERS,
-          'keywords': self.KEYWORDS,
+          'py_modules': self.MODULES or [],
+          'classifiers': self.CLASSIFIERS or [],
+          'keywords': self.KEYWORDS or [],
           }
         if self.EXTRAS:
             keywords['extras_require']['all'] = self.EXTRAS['all']
