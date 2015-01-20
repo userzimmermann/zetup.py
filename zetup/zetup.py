@@ -169,7 +169,7 @@ class Setup(dict):
         """
         keywords = dict(self, **keywords)
         if 'make' in Zetup.COMMANDS:
-            make_targets = ['VERSION', 'setup.py', '__init__.py']
+            make_targets = ['VERSION', 'setup.py', 'zetup_config']
             if self.zetup.ZETUP_CONFIG_PACKAGE:
                 make_targets.append('__init__.py')
             if self.zetup.ZETUP_CONFIG_MODULE:
