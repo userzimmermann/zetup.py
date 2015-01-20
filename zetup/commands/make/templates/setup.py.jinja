@@ -30,7 +30,7 @@ setup(
   {% block setup_keywords %}
   setup_requires=[
     {% block setup_requires %}'zetup',
-    {% for req in zfg.SETUP_REQUIRES %}'{{ req }}',
+    {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
     {% endfor %}
     {% endblock %}
     ],
