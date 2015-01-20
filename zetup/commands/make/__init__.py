@@ -83,11 +83,17 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
         if target in ['zetup_config', 'zfg']:
             if self.ZETUP_CONFIG_PACKAGE:
                 target = '__init__.py'
-            if self.ZETUP_CONFIG_MODULE:
+            elif self.ZETUP_CONFIG_MODULE:
                 target = 'package/zetup_config.py'
-        target = re.sub('^%s/' % self.PACKAGES[0], 'package/', target)
-        path = Path(self.ZETUP_DIR) / re.sub(
-          '^package', self.PACKAGES[0].replace(*'./'), target)
+            else:
+                continue
+        if self.PACKAGES:
+            target = re.sub('^%s/' % self.PACKAGES[0], 'package/', target)
+        path = target
+        if self.PACKAGES:
+            path = re.sub(
+              '^package', self.PACKAGES[0].replace(*'./'), path)
+        path = Path(self.ZETUP_DIR) / path
         if path.exists():
             if skip_existing:
                 print("zetup: NOT generating existing %s" % target)
