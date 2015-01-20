@@ -49,7 +49,7 @@ class Requirements(str):
             if not line:
                 continue
             match = re.match(r'^#py([0-9]+) (.*)$', line)
-            if match: # only required in given python version
+            if match: #==> only required in given python version
                 pyver, line = match.groups()
                 #TODO:
                 # if len(pyver) > 2:
