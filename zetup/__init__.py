@@ -21,6 +21,7 @@ __all__ = ['Zetup', 'find_zetup_config']
 
 import sys
 import os
+import imp
 from inspect import ismodule
 
 from .zetup import Zetup
@@ -83,15 +84,9 @@ def setup_entry_point(dist, keyword, value):
             setattr(obj, name, value)
 
     # finally run any custom setup hooks defined in project's zetup config,
-    # but first check its setup requirements
-    # and make them available for any subprocesses via PYTHONPATH
+    # but first check setup requirements
     if zetup.SETUP_REQUIRES:
-        PYTHONPATH = os.environ.get('PYTHONPATH', '')
-        for req in zetup.SETUP_REQUIRES.checked:
-            mod = __import__(req.impname)
-            PYTHONPATH = os.path.dirname(os.path.realpath(mod.__file__)) \
-              + (PYTHONPATH and os.pathsep + PYTHONPATH)
-        os.environ['PYTHONPATH'] = PYTHONPATH
+        zetup.SETUP_REQUIRES.check()
     if zetup.SETUP_HOOKS:
         sys.path.insert(0, '.')
         for hook in zetup.SETUP_HOOKS:
