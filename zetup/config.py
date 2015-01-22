@@ -76,6 +76,7 @@ def load_zetup_config(path, cfg):
     cfg.DESCRIPTION = config.get('description', '').replace('\n', ' ')
 
     cfg.AUTHOR = config.get('author')
+    cfg.EMAIL = None
     if cfg.AUTHOR:
         match = re.match(r'^([^<]+)<([^>]+)>$', cfg.AUTHOR)
         if match:
