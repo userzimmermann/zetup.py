@@ -58,11 +58,13 @@ class Requirements(str):
             try:
                 req, impname = line.split('#import')
             except ValueError:
-                req = next(parse_requirements(line))
-                req.impname = req.unsafe_name
+                req = next(parse_requirements(line), None)
+                impname = req and req.unsafe_name
             else:
-                req = next(parse_requirements(req))
-                req.impname = impname.strip()
+                req = next(parse_requirements(req), None)
+            if not req: # maybe a comment line
+                continue
+            req.impname = impname.strip()
             yield req
 
     def __new__(cls, reqs):
