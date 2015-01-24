@@ -34,6 +34,7 @@ class Notebook(base):
         """Return names of dynamically generatable .to_...() converter methods
            with IPython.nbconvert.export_...() delegation.
         """
+        # import on demand to be not required for module import
         from IPython import nbconvert
         return ['to_' + name.split('_', 1)[1]
                 for name, member in getmembers(nbconvert)
