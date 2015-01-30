@@ -45,21 +45,47 @@ def find_zetup_config(pkgname):
     return Zetup(path)
 
 
-# Get zetup's own config:
-zfg = find_zetup_config(__name__)
+def annotate(pkgname, check_requirements=True):
+    """Find the zetup config for given `pkgname`
+       and add __version__, __requires__, __dist__, __description__
+       and __extras__ (if defined) to the package object.
 
-__distribution__ = zfg.DISTRIBUTION.find(__path__[0])
-__description__ = zfg.DESCRIPTION
+    - Automatically checks installed package requirements
+      unless `check_requirements` is False.
+    """
+    try:
+        mod = sys.modules[pkgname]
+    except KeyError:
+        raise RuntimeError(
+          "Package was not found in sys.modules" % pkgname)
+    zfg = find_zetup_config(pkgname)
+    mod.__version__ = zfg.VERSION
+    mod.__requires__ = zfg.REQUIRES
+    if check_requirements:
+        zfg.REQUIRES.check()
+    if zfg.EXTRAS:
+        mod.__extras__ = zfg.EXTRAS
+    mod.__distribution__ = zfg.DISTRIBUTION.find(os.path.dirname(__file__))
+    mod.__description__ = zfg.DESCRIPTION
 
-__version__ = zfg.VERSION
 
-__requires__ = zfg.REQUIRES # .checked
-## if ismodule(zfg): # if this is an installed zetup package:
-##     __requires__.check()
+annotate(__name__, check_requirements=False)
 
-__extras__ = zfg.EXTRAS
+# # Get zetup's own config:
+# zfg = find_zetup_config(__name__)
 
-## __notebook__ = zfg.NOTEBOOKS['README']
+# __distribution__ = zfg.DISTRIBUTION.find(__path__[0])
+# __description__ = zfg.DESCRIPTION
+
+# __version__ = zfg.VERSION
+
+# __requires__ = zfg.REQUIRES # .checked
+# ## if ismodule(zfg): # if this is an installed zetup package:
+# ##     __requires__.check()
+
+# __extras__ = zfg.EXTRAS
+
+# ## __notebook__ = zfg.NOTEBOOKS['README']
 
 
 def setup_entry_point(dist, keyword, value):
