@@ -19,22 +19,46 @@
  #}
 
 {% block header %}{{ zetup_header }}{% endblock %}
+
 {% block imports %}
+import sys
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+else:
+    from setuptools.dist import Distribution
 {% endblock %}
-{% block pre_setup %}{% endblock %}
-setup(
+
+SETUP_REQUIRES = [
+  {% block setup_requires %}'zetup',
+  {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
+  {% endfor %}
+  {% endblock %}]
+
+{% block pre_setup %}
+try:
+    Distribution
+except NameError: # no setuptools
+    pass
+else:
+    #HACK: make sure that setup requirements
+    # are always correctly resolved and accessible
+    # by pre-processing them one after another
+    # and moving any installed eggs to the front of sys.path
+
+    PYTHONPATH = list(sys.path)
+    for req in SETUP_REQUIRES:
+        Distribution({'setup_requires': req})
+        sys.path = list(set(sys.path) - set(PYTHONPATH)) + PYTHONPATH
+{% endblock %}
+
+dist = setup(
   {% block setup_keywords %}
-  setup_requires=[
-    {% block setup_requires %}'zetup',
-    {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
-    {% endfor %}
-    {% endblock %}
-    ],
+  setup_requires=SETUP_REQUIRES,
+
   use_zetup=True,
   {% endblock %}
   )
+
 {% block post_setup %}{% endblock %}
