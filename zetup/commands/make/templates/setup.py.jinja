@@ -21,6 +21,8 @@
 {% block header %}{{ zetup_header }}{% endblock %}
 
 {% block imports %}
+from __future__ import print_function
+
 import sys
 try:
     from setuptools import setup
@@ -51,17 +53,19 @@ else:
 
     installer = Distribution().fetch_build_egg
 
-    def resolve(requirements):
+    def resolve(requirements, parent=None):
         for req in requirements:
+            qualreq = parent and '%s->%s' % (req, parent) or req
+            print("Resolving setup requirement %s:" % qualreq)
             try:
-                get_distribution(req)
+                print(repr(get_distribution(req)))
             except (DistributionNotFound, VersionConflict):
                 dist = installer(req)
-                resolve(map(str, dist.requires()))
+                resolve(map(str, dist.requires()), qualreq)
 
                 sys.path.insert(0, dist.location)
                 working_set.entries.insert(0, dist.location)
-                working_set.by_ref[dist.key] = dist
+                working_set.by_key[dist.key] = dist
 
     resolve(SETUP_REQUIRES)
 {% endblock %}
