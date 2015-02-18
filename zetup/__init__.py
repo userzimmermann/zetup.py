@@ -21,10 +21,10 @@ __all__ = ['Zetup', 'find_zetup_config']
 
 import sys
 import os
-import imp
-from inspect import ismodule
+## from inspect import ismodule
 
 from .zetup import Zetup
+from .error import ZetupError
 
 
 def find_zetup_config(pkgname):
@@ -56,8 +56,8 @@ def annotate(pkgname, check_requirements=True):
     try:
         mod = sys.modules[pkgname]
     except KeyError:
-        raise RuntimeError(
-          "Package was not found in sys.modules" % pkgname)
+        raise ZetupError(
+          "Package %s was not found in sys.modules" % repr(pkgname))
     zfg = find_zetup_config(pkgname)
     mod.__version__ = zfg.VERSION
     mod.__requires__ = zfg.REQUIRES

@@ -38,10 +38,14 @@ from .requires import Requirements
 from .extras import Extras
 from .dist import Distribution
 from .notebook import Notebook
+from .error import ZetupError
 
 
 TRUE = True, 'true', 'yes'
 FALSE = False, 'false', 'no'
+
+
+CONFIG_FILE_NAMES = ['zetuprc', 'zetup.cfg', 'zetup.ini']
 
 
 def load_zetup_config(path, zfg):
@@ -52,7 +56,7 @@ def load_zetup_config(path, zfg):
 
     # Read the zetup config...
     config = ConfigParser()
-    for fname in ['zetup.ini', 'zetup.cfg', 'zetuprc']:
+    for fname in CONFIG_FILE_NAMES:
         zfg.ZETUP_FILE = os.path.join(zfg.ZETUP_DIR, fname)
         if config.read(zfg.ZETUP_FILE):
             ##TODO: No print if run from installed package (under pkg/zetup/):
@@ -62,7 +66,11 @@ def load_zetup_config(path, zfg):
             zfg.ZETUP_DATA = [fname]
             break
     else:
-        raise RuntimeError("No zetup config found.")
+        raise ZetupError(
+          "No zetup config file found in %s" % repr(path)
+          + " (need %s)" % " or ".join([
+            ", ".join(map(repr, CONFIG_FILE_NAMES[:-1])),
+            repr(CONFIG_FILE_NAMES[-1])]))
 
     #... and store all setup options in UPPERCASE vars...
     zfg.NAME = config.sections()[0]

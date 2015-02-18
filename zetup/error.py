@@ -17,37 +17,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['init', 'ZetupCommandError', 'ZetupMakeError']
+"""zetup.error
 
-import os
+zetup-specific exceptions
 
-import zetup
-
-__requires__ = zetup.__extras__['commands'].checked
-
-from path import Path
-
-from zetup.error import ZetupError
+.. moduleauthor:: Stefan Zimmermann <szimmermann@advaoptical.com>
+"""
+__all__ = ['ZetupError']
 
 
-class ZetupCommandError(ZetupError):
+class ZetupError(RuntimeError):
     pass
-
-
-def init(name, path=None):
-    path = Path(path or os.getcwd())
-    Path(__path__[0] / 'zetup.py').copy(path / '__init__.py')
-    with open(path / 'zetuprc', 'w') as f:
-        f.write("[%s]\n\n%s\n" % (name, "\n".join("%s =" % key for key in [
-          'description',
-          'author',
-          'url',
-          'license',
-          'python',
-          'classifiers',
-          'keywords',
-          ])))
-
-
-from . import make, run, pytest, tox, conda
-from .make import ZetupMakeError
