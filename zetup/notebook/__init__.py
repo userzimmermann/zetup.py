@@ -50,7 +50,12 @@ class Notebook(base):
 
         # import on demand to be not required for module import
         from IPython import nbconvert
-        func = getattr(nbconvert, 'export_' + name.split('_', 1)[1])
+        try:
+            func = getattr(nbconvert, 'export_' + name.split('_', 1)[1])
+        except AttributeError as e:
+            raise AttributeError(
+              "%s instance has no converter method %s (%s: %s)"
+              % (type(self), repr(name), type(e).__name__, e))
 
         def method():
             return func(self)
