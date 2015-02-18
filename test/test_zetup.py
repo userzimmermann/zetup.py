@@ -11,16 +11,15 @@ from pkg_resources import (
 from path import path as Path
 
 import zetup
-from zetup import Zetup, find_zetup_config
+from zetup import Zetup
 
 import pytest
 
 
-def test_zetup_config():
+def test_zetup_config(zfg):
     """Test the zetup config management on zetup package's own config.
     """
-    #--- NAME
-    zfg = find_zetup_config('zetup')
+    #--- NAME ---
     assert zfg.NAME == 'zetup'
 
     pkg_path = Path(zetup.__path__[0]).realpath()
@@ -54,6 +53,8 @@ def test_zetup_config():
         else:
             raise
     else:
+        print(dist.location)
+        print(pkg_path.dirname())
         if in_repo and not Path(dist.location).samefile(pkg_path.dirname()):
             dist = None
     assert zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path) \
