@@ -26,8 +26,6 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-else:
-    from setuptools.dist import Distribution
 {% endblock %}
 
 SETUP_REQUIRES = [
@@ -38,19 +36,34 @@ SETUP_REQUIRES = [
 
 {% block pre_setup %}
 try:
-    Distribution
-except NameError: # no setuptools
+    from setuptools.dist import Distribution
+    from pkg_resources import get_distribution, working_set, \
+      DistributionNotFound, VersionConflict
+except ImportError: # no setuptools
     pass
 else:
     #HACK: make sure that setup requirements
-    # are always correctly resolved and accessible
-    # by pre-processing them one after another
-    # and moving any installed eggs to the front of sys.path
+    # are always correctly resolved and accessible by:
+    # - pre-processing them one after another
+    # - recursively resolving their runtime requirements
+    # - moving any installed eggs to the front of sys.path
+    # - updating pkg_resources.working_set accordingly
 
-    PYTHONPATH = list(sys.path)
-    for req in SETUP_REQUIRES:
-        Distribution({'setup_requires': req})
-        sys.path = list(set(sys.path) - set(PYTHONPATH)) + PYTHONPATH
+    installer = Distribution().fetch_build_egg
+
+    def resolve(requirements):
+        for req in requirements:
+            try:
+                get_distribution(req)
+            except (DistributionNotFound, VersionConflict):
+                dist = installer(req)
+                resolve(map(str, dist.requires()))
+
+                sys.path.insert(0, dist.location)
+                working_set.entries.insert(0, dist.location)
+                working_set.by_ref[dist.key] = dist
+
+    resolve(SETUP_REQUIRES)
 {% endblock %}
 
 dist = setup(
