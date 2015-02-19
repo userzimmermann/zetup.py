@@ -8,7 +8,9 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements.commands.txt
+  - pip install -r requirements.notebook.txt
   - pip install -r requirements.pytest.txt
+  - pip install -r requirements.conda.txt
   - pip install .
 
 script:
