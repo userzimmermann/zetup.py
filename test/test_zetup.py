@@ -3,7 +3,6 @@
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
 import sys
-from inspect import ismodule
 
 from pkg_resources import (
   parse_requirements, get_distribution, DistributionNotFound)
