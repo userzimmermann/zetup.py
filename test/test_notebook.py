@@ -9,9 +9,13 @@ from IPython import nbconvert
 import pytest
 
 
-def test_zetup_notebook(zfg):
+def test_zetup_notebook(zfg, in_site_packages):
     """Test zetup.Notebook features using zetup's own README notebook.
     """
+    if in_site_packages:
+        # notebooks aren't installed
+        return
+
     notebook = zfg.NOTEBOOKS['README']
 
     #--- CONVERTERS ---
