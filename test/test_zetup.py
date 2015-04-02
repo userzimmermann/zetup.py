@@ -16,7 +16,7 @@ from zetup import Zetup
 import pytest
 
 
-def test_zetup_config(zfg):
+def test_zetup_config(zfg, in_repo, in_site_packages):
     """Test the zetup config management on zetup package's own config.
     """
     #--- NAME ---
@@ -24,8 +24,6 @@ def test_zetup_config(zfg):
 
     pkg_path = Path(zetup.__path__[0]).realpath()
 
-    in_site_packages = ismodule(zfg)
-    in_repo = not in_site_packages
     if in_site_packages:
         zfg_path = Path(zfg.__file__).realpath().dirname()
     else:
