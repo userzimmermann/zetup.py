@@ -181,7 +181,7 @@ def load_zetup_config(path, zfg):
             # the hyphen-revision-hash part after .dev# version strings
             # results in wrong version comparisons
             # via pkg_resources.parse_version()
-            zfg.VERSION = version.split('-')[0]
+            zfg.VERSION = re.split('[-+]', version)[0]
     if zfg.VERSION:
         zfg.VERSION = Version(zfg.VERSION)
 
