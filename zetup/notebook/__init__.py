@@ -58,7 +58,8 @@ class Notebook(base):
               % (type(self), repr(name), type(e).__name__, e))
 
         def method():
-            return func(self)
+            result = func(self)
+            return result[0] # only the actual text
 
         method.__name__ = name
         return method
