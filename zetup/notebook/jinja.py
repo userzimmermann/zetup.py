@@ -53,14 +53,14 @@ class ExtraTemplateLoader(BaseLoader):
 
 
         {% block input %}
-        {%- if cell.input.strip() -%}
+        {%- if cell.source.strip() -%}
 
         .. code:: python
 
         {% if cell.outputs %}
-        {{ cell.input | add_prompts(cont='>>> ') | indent }}
+        {{ cell.source | add_prompts(cont='>>> ') | indent }}
         {% else %}
-        {{ cell.input | indent }}
+        {{ cell.source | indent }}
         {% endif %}
         {%- endif -%}
         {% endblock input %}
@@ -88,9 +88,9 @@ class ExtraTemplateLoader(BaseLoader):
         {% block input %}
         ```python
         {% if cell.outputs %}
-        {{ cell.input | add_prompts(cont='>>> ') }}
+        {{ cell.source | add_prompts(cont='>>> ') }}
         {% else %}
-        {{ cell.input }}
+        {{ cell.source }}
         ```
         {% endif %}
         {% endblock input %}
