@@ -19,13 +19,24 @@
 
 __all__ = ['Notebook']
 
+import zetup
+
+__requires__ = zetup.__requires__ + zetup.__extras__['notebook']
+
 import re
 from inspect import getmembers
 
 try:
     from path import Path as base
 except ImportError:
+    # just reduce features
     base = str
+
+
+def check_requirements(raise_=True):
+    """Check requirements for full :class:`zetup.Notebook` features.
+    """
+    return zetup.__extras__['notebook'].check(raise_=raise_)
 
 
 class Notebook(base):
@@ -34,6 +45,8 @@ class Notebook(base):
         """Return names of dynamically generatable .to_...() converter methods
            with IPython.nbconvert.export_...() delegation.
         """
+        if not check_requirements(raise_=False):
+            return []
         # import on demand to be not required for module import
         from IPython import nbconvert
         return ['to_' + name.split('_', 1)[1]
@@ -48,6 +61,7 @@ class Notebook(base):
             raise AttributeError(
               "%s instance has no attribute %s" % (type(self), repr(name)))
 
+        check_requirements()
         # import on demand to be not required for module import
         from IPython import nbconvert
         try:
@@ -70,6 +84,7 @@ class Notebook(base):
         - Prepends 'rst-header-' to link targets.
           ('#some-section' --> '#rst-header-some-section')
         """
+        check_requirements()
         # import on demand to be not required for module import
         from IPython import nbconvert
         from .jinja import FILTERS, LOADER
@@ -103,6 +118,7 @@ class Notebook(base):
         - Removes header enumeration prefixes from link targets.
           ('#1.-section-one' --> '#section-one')
         """
+        check_requirements()
         # import on demand to be not required for module import
         from IPython import nbconvert
         from .jinja import FILTERS, LOADER
