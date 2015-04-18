@@ -51,28 +51,34 @@ ap.add_argument(
 
 args = ap.parse_args()
 
-exit_status = 0 # exit status of this script
-try:
-    cmdfunc = getattr(zetup, args.cmd)
-except AttributeError:
-    if args.cmd in EXTERNAL_COMMANDS:
-        exit_status = call([args.cmd])
-    else:
-        zetup = zetup.Zetup()
-        if args.cmd in zetup.COMMANDS:
-            try:
-                exit_status = getattr(zetup, args.cmd)()
-            except ZetupCommandError as e:
-                print("Error: %s" % e, file=sys.stderr)
-                exit_status = 1
-            else:
-                try: # return value can be more than just a status number
-                    exit_status = exit_status.status
-                except AttributeError:
-                    pass
-        else: # ==> standard setup command
-            zetup(subprocess=True)
-else:
-    exit_status = cmdfunc()
 
-sys.exit(exit_status or 0)
+def run():
+    exit_status = 0 # exit status of this script
+    try:
+        cmdfunc = getattr(zetup, args.cmd)
+    except AttributeError:
+        if args.cmd in EXTERNAL_COMMANDS:
+            exit_status = call([args.cmd])
+        else:
+            zetup = zetup.Zetup()
+            if args.cmd in zetup.COMMANDS:
+                try:
+                    exit_status = getattr(zetup, args.cmd)()
+                except ZetupCommandError as e:
+                    print("Error: %s" % e, file=sys.stderr)
+                    exit_status = 1
+                else:
+                    try: # return value can be more than just a status number
+                        exit_status = exit_status.status
+                    except AttributeError:
+                        pass
+            else: # ==> standard setup command
+                zetup(subprocess=True)
+    else:
+        exit_status = cmdfunc()
+
+    sys.exit(exit_status or 0)
+
+
+if __name__ == '__main__':
+    run()

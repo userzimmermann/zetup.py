@@ -24,9 +24,11 @@ setup(
 
   ## get_version_from_scm=True,
 
-  entry_points={'distutils.setup_keywords': [
-    'use_zetup = zetup:setup_entry_point',
-    ]},
-
-  scripts=['scripts/zetup'],
+  entry_points={
+    'distutils.setup_keywords': [
+      'use_zetup = zetup:setup_entry_point',
+      ],
+    'console_scripts': [
+      'zetup = zetup.script:run',
+      ]},
   )
