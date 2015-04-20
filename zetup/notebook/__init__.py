@@ -21,7 +21,9 @@ __all__ = ['Notebook']
 
 import zetup
 
-__requires__ = zetup.__requires__ + zetup.__extras__['notebook']
+#TODO: not working because module is imported
+# before main zetup module is annotated
+## __requires__ = zetup.__requires__ + zetup.__extras__['notebook']
 
 import re
 from inspect import getmembers
