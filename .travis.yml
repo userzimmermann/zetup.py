@@ -11,8 +11,11 @@ install:
   - pip install -r requirements.notebook.txt
   - pip install -r requirements.pytest.txt
   - pip install -r requirements.conda.txt
-  - pip install .
+  - pip install pyzmq tornado jsonschema
+  - pip install -e .
 
 script:
   - python setup.py pytest
   - py.test test/
+  - python setup.py tox
+  - tox -r -v
