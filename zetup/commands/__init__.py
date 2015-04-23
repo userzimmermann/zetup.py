@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
+
 __all__ = ['init', 'ZetupCommandError', 'ZetupMakeError']
 
 import os
@@ -34,9 +36,9 @@ class ZetupCommandError(ZetupError):
     pass
 
 
+@zetup.command
 def init(name, path=None):
     path = Path(path or os.getcwd())
-    Path(__path__[0] / 'zetup.py').copy(path / '__init__.py')
     with open(path / 'zetuprc', 'w') as f:
         f.write("[%s]\n\n%s\n" % (name, "\n".join("%s =" % key for key in [
           'description',
@@ -49,5 +51,6 @@ def init(name, path=None):
           ])))
 
 
+# register the project-bound commands
 from . import make, run, pytest, tox, conda
 from .make import ZetupMakeError
