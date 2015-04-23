@@ -24,9 +24,36 @@ if sys.version_info[0] == 3:
     unicode = str
 import re
 
+import pkg_resources
 from pkg_resources import (
-  parse_requirements, Requirement,
-  get_distribution, DistributionNotFound, VersionConflict)
+  parse_requirements, Requirement, get_distribution)
+
+
+class DistributionNotFound(pkg_resources.DistributionNotFound):
+    def __init__(self, req, requirer, reason=None):
+        super(DistributionNotFound, self).__init__(
+            req, requirer and [requirer] or [])
+        self.reason = reason
+
+    def __str__(self):
+        text = "%s needs %s" % (self.requirers_str, self.req)
+        if self.reason:
+            text += " (%s)" % self.reason
+        return text
+
+
+class VersionConflict(pkg_resources.ContextualVersionConflict):
+    def __init__(self, req, found_version, requirer, reason=None):
+        super(VersionConflict, self).__init__(
+          '%s-%s' % (req.key, found_version), req, requirer)
+        self.reason = reason
+
+    def __str__(self):
+        text = "%s needs %s but found %s" % (
+          self.required_by, self.req, self.dist)
+        if self.reason:
+            text += " (%s)" % self.reason
+        return text
 
 
 class Requirements(str):
@@ -67,7 +94,7 @@ class Requirements(str):
             req.impname = impname.strip()
             yield req
 
-    def __new__(cls, reqs):
+    def __new__(cls, reqs, zfg=None):
         """Store a list of :class:`pkg_resources.Requirement` instances
            from the given requirement specs
            and additionally store them newline separated
@@ -76,6 +103,8 @@ class Requirements(str):
         :param reqs: Either a single string of requirement specs
           or a sequence of strings and/or
           :class:`pkg_resources.Requirement` instances.
+        :param zfg: Optional zetup config object
+          the requirements are related to.
         """
         if isinstance(reqs, (str, unicode)):
             txt = reqs
@@ -95,6 +124,7 @@ class Requirements(str):
         obj = str.__new__(cls, '\n'.join(map(str, reqlist)))
         obj.txt = txt
         obj._list = reqlist
+        obj.zfg = zfg
         return obj
 
     def check(self, raise_=True):
@@ -108,13 +138,15 @@ class Requirements(str):
           or VersionConflict if version doesn't match?
           If False just return False in that case.
         """
+        requirer = self.zfg and '%s-%s' % (
+          self.zfg.NAME, self.zfg.VERSION or '(none)')
         for req in self:
             try:
                 mod = __import__(req.impname)
             except ImportError as e:
                 if raise_:
-                    raise DistributionNotFound(
-                      "%s (%s: %s)" % (req, type(e).__name__, e))
+                    raise DistributionNotFound(req, requirer,
+                      reason="%s: %s" % (type(e).__name__, e))
                 return False
             if not req.specs: # No version constraints
                 continue
@@ -131,15 +163,14 @@ class Requirements(str):
                     dist = get_distribution(req.key)
                 except DistributionNotFound as e:
                     if raise_:
-                        raise VersionConflict("Need %s. %s: %s. %s: %s" % (
-                          req, e_no__version__attr, mod,
-                          type(e).__name__, e))
+                        raise VersionConflict(req, None, requirer,
+                          reason="%s: %s. %s: %s" % (
+                            e_no__version__attr, mod, type(e).__name__, e))
                     return False
                 version = dist.version
             if version not in req:
                 if raise_:
-                    raise VersionConflict(
-                      "Need %s. Found %s" % (req, version))
+                    raise VersionConflict(req, version, requirer)
                 return False
         return True
 
