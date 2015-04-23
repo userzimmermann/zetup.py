@@ -135,7 +135,7 @@ class Zetup(object):
 
     @property
     def setup(self):
-        return Setup(zetup=self)
+        return Setup(zfg=self)
 
     def __call__(self, subprocess=False, **setup_keywords):
         """Run `setup()` with generated keywords from zetup config
@@ -156,9 +156,9 @@ class Zetup(object):
 
 
 class Setup(dict):
-    def __init__(self, zetup):
-        dict.__init__(self, zetup.setup_keywords())
-        self.zetup = zetup
+    def __init__(self, zfg):
+        dict.__init__(self, zfg.setup_keywords())
+        self.zfg = zfg
 
     def __call__(self, subprocess=False, **keywords):
         """Run `setup()` with generated keywords from zetup config
@@ -170,11 +170,11 @@ class Setup(dict):
         keywords = dict(self, **keywords)
         if 'make' in Zetup.COMMANDS:
             make_targets = ['VERSION', 'setup.py', 'zetup_config']
-            if self.zetup.ZETUP_CONFIG_PACKAGE:
+            if self.zfg.ZETUP_CONFIG_PACKAGE:
                 make_targets.append('__init__.py')
-            if self.zetup.ZETUP_CONFIG_MODULE:
+            if self.zfg.ZETUP_CONFIG_MODULE:
                 make_targets.append('package/zetup_config.py')
-            with self.zetup.make(targets=make_targets, skip_existing=True):
+            with self.zfg.make(targets=make_targets, skip_existing=True):
                 if subprocess:
                     return call([sys.executable, 'setup.py']
                                 + sys.argv[1:])
