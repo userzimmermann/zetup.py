@@ -1,18 +1,18 @@
 
+
 # zetup.py
 
 
-![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)
+
+[![](https://pypip.in/v/zetup/badge.svg)](
+  https://pypi.python.org/pypi/zetup)
+[![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)](
+  https://travis-ci.org/userzimmermann/zetup.py)
+
 
 
 ## Zimmermann's [Python](http://python.org) package setup
 
-
-```python
->>> import zetup
->>> print(zetup.__version__)
-0.2.10
-```
 
 
 <https://bitbucket.org/userzimmermann/zetup.py>
