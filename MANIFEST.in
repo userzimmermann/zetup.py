@@ -2,6 +2,8 @@ include COPYING
 include COPYING.LESSER
 
 include README.ipynb
+include README.md
+include README.rst
 
 include VERSION
 include requirements.txt
@@ -11,9 +13,8 @@ include zetuprc
 
 recursive-include zetup/commands/make/templates *.jinja
 
-include scripts/zetup
-
-recursive-include test/ *.py
+recursive-include test *.py
 
 include tox.ini
-include .travis.yml
+
+exclude *.yml
