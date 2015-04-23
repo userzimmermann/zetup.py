@@ -27,6 +27,15 @@ from .zetup import Zetup
 from .error import ZetupError
 
 
+COMMANDS = {}
+
+
+def command(func):
+    """Decorator for registering basic (non-project-bound) commands.
+    """
+    COMMANDS[func.__name__] = func
+
+
 def find_zetup_config(pkgname):
     zfg_pkgname = pkgname + '.zetup_config'
     try: # Already imported?
