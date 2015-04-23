@@ -19,18 +19,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 import sys
-import os
-from textwrap import dedent
 from argparse import ArgumentParser
 from subprocess import call
 import distutils.command
 
-from path import path as Path
-
-import zetup
 import zetup.commands
 from zetup.commands import ZetupCommandError
 
@@ -55,15 +50,15 @@ args = ap.parse_args()
 def run():
     exit_status = 0 # exit status of this script
     try:
-        cmdfunc = getattr(zetup, args.cmd)
-    except AttributeError:
+        cmdfunc = zetup.COMMANDS[args.cmd]
+    except KeyError:
         if args.cmd in EXTERNAL_COMMANDS:
             exit_status = call([args.cmd])
         else:
-            zetup = zetup.Zetup()
-            if args.cmd in zetup.COMMANDS:
+            zfg = zetup.Zetup()
+            if args.cmd in zfg.COMMANDS:
                 try:
-                    exit_status = getattr(zetup, args.cmd)()
+                    exit_status = getattr(zfg, args.cmd)()
                 except ZetupCommandError as e:
                     print("Error: %s" % e, file=sys.stderr)
                     exit_status = 1
@@ -73,7 +68,7 @@ def run():
                     except AttributeError:
                         pass
             else: # ==> standard setup command
-                zetup(subprocess=True)
+                zfg(subprocess=True)
     else:
         exit_status = cmdfunc()
 
