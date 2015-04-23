@@ -31,26 +31,27 @@ from pkg_resources import (
 
 class DistributionNotFound(pkg_resources.DistributionNotFound):
     def __init__(self, req, requirer, reason=None):
-        super(DistributionNotFound, self).__init__(
-            req, requirer and [requirer] or [])
+        super(DistributionNotFound, self).__init__(req, [requirer])
+        self.requirer = requirer
         self.reason = reason
 
     def __str__(self):
-        text = "%s needs %s" % (self.requirers_str, self.req)
+        text = "%s needs %s" % (self.requirer, self.req)
         if self.reason:
             text += " (%s)" % self.reason
         return text
 
 
-class VersionConflict(pkg_resources.ContextualVersionConflict):
+class VersionConflict(pkg_resources.VersionConflict):
     def __init__(self, req, found_version, requirer, reason=None):
         super(VersionConflict, self).__init__(
-          '%s-%s' % (req.key, found_version), req, requirer)
+          '%s-%s' % (req.key, found_version), req)
+        self.requirer = requirer
         self.reason = reason
 
     def __str__(self):
         text = "%s needs %s but found %s" % (
-          self.required_by, self.req, self.dist)
+          self.requirer, self.req, self.dist)
         if self.reason:
             text += " (%s)" % self.reason
         return text
