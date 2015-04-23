@@ -23,6 +23,7 @@ import sys
 import os
 ## from inspect import ismodule
 
+from .config import ZetupConfigNotFound
 from .zetup import Zetup
 from .error import ZetupError
 
@@ -51,7 +52,11 @@ def find_zetup_config(pkgname):
     # ==> load setup config from package's parent path:
     mod = sys.modules[pkgname]
     path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
-    return Zetup(path)
+    try:
+        return Zetup(path)
+    except ZetupConfigNotFound as e:
+        raise ZetupConfigNotFound(
+          "No '%s.zetup_config' module and: %s" % (pkgname, e))
 
 
 def annotate(pkgname, check_requirements=True):

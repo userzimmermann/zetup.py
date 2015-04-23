@@ -48,6 +48,10 @@ FALSE = False, 'false', 'no'
 CONFIG_FILE_NAMES = ['zetuprc', 'zetup.cfg', 'zetup.ini']
 
 
+class ZetupConfigNotFound(ZetupError):
+    pass
+
+
 def load_zetup_config(path, zfg):
     """Load zetup config from directory in `path`
        and store keywords as attributes to `zfg` object.
@@ -66,7 +70,7 @@ def load_zetup_config(path, zfg):
             zfg.ZETUP_DATA = [fname]
             break
     else:
-        raise ZetupError(
+        raise ZetupConfigNotFound(
           "No zetup config file found in %s" % repr(path)
           + " (need %s)" % " or ".join([
             ", ".join(map(repr, CONFIG_FILE_NAMES[:-1])),
