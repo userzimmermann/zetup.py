@@ -17,15 +17,18 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Zetup', 'find_zetup_config']
+__all__ = ['find_zetup_config', 'Zetup',
+  'ZetupError', 'ZetupConfigNotFound',
+  'DistributionNotFound', 'VersionConflict']
 
 import sys
 import os
 ## from inspect import ismodule
 
-from .config import ZetupConfigNotFound
 from .zetup import Zetup
 from .error import ZetupError
+from .config import ZetupConfigNotFound
+from .requires import DistributionNotFound, VersionConflict
 
 
 COMMANDS = {}
