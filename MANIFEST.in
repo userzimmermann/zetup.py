@@ -17,4 +17,5 @@ recursive-include test *.py
 
 include tox.ini
 
+exclude .hg*
 exclude *.yml
