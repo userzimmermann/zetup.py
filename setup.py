@@ -30,7 +30,7 @@ setup['package_data']['zetup.commands.make'] = [
   ]
 setup(
   ## setup_requires=setup_req,
-  ## setup_requires=['hgdistver >= 0.23'],
+  ## setup_requires=['hgdistver >= 0.25'],
 
   ## get_version_from_scm=True,
 
