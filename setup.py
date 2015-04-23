@@ -2,14 +2,6 @@ from textwrap import dedent
 from warnings import warn
 
 from zetup import Zetup
-try: # needs zetup's requirements to be installed
-    import zetup.commands
-except Exception as e:
-    warn(dedent("""
-      Can't load all zetup features.
-      You should install requirements from 'requirements.commands.txt'
-      (ImportError: %s)
-      """ % e).strip())
 
 
 zetup = Zetup()
