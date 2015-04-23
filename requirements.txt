@@ -1,2 +1,2 @@
-setuptools
+setuptools >= 15.0
 hgdistver >= 0.23
