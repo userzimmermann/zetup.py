@@ -110,6 +110,8 @@ class Requirements(str):
         if isinstance(reqs, (str, unicode)):
             txt = reqs
             reqlist = list(cls._parse(reqs))
+        elif isinstance(reqs, Requirements):
+            txt = reqs.txt
         else:
             txt = ''
             reqlist = []
@@ -204,8 +206,9 @@ class Requirements(str):
 
     @property
     def py(self):
-        return '%s("""\n%s\n""")' % (type(self).__name__, self.txt) ## '\n'.join(
-          ## '%s #import %s' % (req, req.impname) for req in self))
+        return '%s("""\n%s\n""", zfg=zfg)' % (
+          type(self).__name__, self.txt) ## '\n'.join(
+            ## '%s #import %s' % (req, req.impname) for req in self))
 
     def __repr__(self):
         return str(self)
