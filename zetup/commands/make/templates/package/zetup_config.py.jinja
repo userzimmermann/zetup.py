@@ -22,6 +22,7 @@
 {% block imports %}
 from __future__ import absolute_import
 
+import sys
 from collections import OrderedDict
 
 from zetup.version import Version
@@ -31,5 +32,9 @@ from zetup.extras import Extras
 from zetup.notebook import Notebook
 {% endblock %}
 {% block pre_config %}{% endblock %}
-{% block config %}{{ zfg.config_py }}{% endblock %}
+{% block config %}
+zfg = sys.modules[__name__]
+
+{{ zfg.config_py }}
+{% endblock %}
 {% block post_config %}{% endblock %}
