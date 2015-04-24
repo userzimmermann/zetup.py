@@ -217,8 +217,8 @@ def load_zetup_config(path, zfg):
 
             zfg.ZETUP_DATA.append(fname)
 
-            zfg.EXTRAS[name] \
-              = open(os.path.join(zfg.ZETUP_DIR, fname)).read()
+            zfg.EXTRAS[name] = Requirements(
+              open(os.path.join(zfg.ZETUP_DIR, fname)).read())
 
     # Are there IPython notebooks?
     zfg.NOTEBOOKS = OrderedDict()
