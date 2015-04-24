@@ -32,18 +32,22 @@ class Extras(OrderedDict):
     - Provides an implicit 'all' key, returning a dynamically created
       combined :class:`Requirements` instance with all extra requirements.
     """
+    def __init__(self, mapping=(), zfg=None):
+        self.zfg = zfg
+        super(Extras, self).__init__(mapping)
+
     def __setitem__(self, name, text):
-        reqs = Requirements(text)
-        OrderedDict.__setitem__(self, name, reqs)
+        reqs = Requirements(text, zfg=self.zfg)
+        super(Extras, self).__setitem__(name, reqs)
 
     def __getitem__(self, name):
         if name == 'all':
-            return Requirements(chain(*self.values()))
-        return OrderedDict.__getitem__(self, name)
+            return Requirements(chain(*self.values()), zfg=self.zfg)
+        return super(Extras, self).__getitem__(name)
 
     @property
     def py(self):
-        return '%s([\n%s\n])' % (type(self).__name__, ',\n'.join(
+        return '%s([\n%s\n], zfg=zfg)' % (type(self).__name__, ',\n'.join(
           '(%s, """\n%s\n""")' % (repr(name), reqs.txt) ## '\n'.join(
             ## '%s #import %s' % (req, req.impname) for req in reqs))
           for name, reqs in self.items()))
