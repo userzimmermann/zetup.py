@@ -5,11 +5,15 @@ zetup.py
 
 
 
-|image0| |image1|
+|image0| |image1| |image2| |image3|
 
-.. |image0| image:: https://pypip.in/v/zetup/badge.svg
+.. |image0| image:: http://www.gnu.org/graphics/lgplv3-88x31.png
+   :target: http://www.gnu.org/licenses/lgpl.html
+.. |image1| image:: https://pypip.in/version/zetup/badge.svg
    :target: https://pypi.python.org/pypi/zetup
-.. |image1| image:: https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master
+.. |image2| image:: https://pypip.in/py_versions/zetup/badge.svg
+   :target: https://pypi.python.org/pypi/zetup
+.. |image3| image:: https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master
    :target: https://travis-ci.org/userzimmermann/zetup.py
 
 

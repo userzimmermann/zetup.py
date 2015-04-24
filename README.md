@@ -4,7 +4,11 @@
 
 
 
-[![](https://pypip.in/v/zetup/badge.svg)](
+[![](http://www.gnu.org/graphics/lgplv3-88x31.png)](
+  http://www.gnu.org/licenses/lgpl.html)
+[![](https://pypip.in/version/zetup/badge.svg)](
+  https://pypi.python.org/pypi/zetup)
+[![](https://pypip.in/py_versions/zetup/badge.svg)](
   https://pypi.python.org/pypi/zetup)
 [![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)](
   https://travis-ci.org/userzimmermann/zetup.py)
