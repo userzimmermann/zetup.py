@@ -206,7 +206,7 @@ def load_zetup_config(path, zfg):
         zfg.REQUIRES = None
 
     # Look for optional extra requirements to use with setup's extras_require=
-    zfg.EXTRAS = Extras()
+    zfg.EXTRAS = Extras(zfg=zfg)
     for fname in sorted(os.listdir(zfg.ZETUP_DIR)):
         match = re.match(r'^requirements\.(?P<name>[^\.]+)\.txt$', fname)
         if match:
