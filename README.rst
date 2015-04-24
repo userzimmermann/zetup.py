@@ -23,7 +23,7 @@ Zimmermann's `Python <http://python.org>`__ package setup
 
 
 
-https://bitbucket.org/userzimmermann/zetup.py
-
-https://github.com/userzimmermann/zetup.py
+-  https://bitbucket.org/userzimmermann/zetup.py
+-  https://github.com/userzimmermann/zetup.py
+-  https://www.openhub.net/p/python-zetup
 

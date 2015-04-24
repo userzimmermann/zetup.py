@@ -19,7 +19,7 @@
 
 
 
-<https://bitbucket.org/userzimmermann/zetup.py>
-
-<https://github.com/userzimmermann/zetup.py>
+* https://bitbucket.org/userzimmermann/zetup.py
+* https://github.com/userzimmermann/zetup.py
+* https://www.openhub.net/p/python-zetup
 
