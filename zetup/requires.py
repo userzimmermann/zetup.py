@@ -107,11 +107,12 @@ class Requirements(str):
         :param zfg: Optional zetup config object
           the requirements are related to.
         """
-        if isinstance(reqs, (str, unicode)):
+        if isinstance(reqs, Requirements):
+            txt = reqs.txt
+            reqlist = list(cls._parse(reqs.txt))
+        elif isinstance(reqs, (str, unicode)):
             txt = reqs
             reqlist = list(cls._parse(reqs))
-        elif isinstance(reqs, Requirements):
-            txt = reqs.txt
         else:
             txt = ''
             reqlist = []
