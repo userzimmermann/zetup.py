@@ -19,18 +19,18 @@
 
 import sys
 import os
-from subprocess import call
 
 from zetup import Zetup
+from zetup.process import call
+
+
+WIN = sys.platform.startswith('win')
 
 
 @Zetup.command()
 def pytest(self, args=None):
     """The actual pytest command action called by Command base.
     """
-    env = dict(os.environ)
-    env['PYTHONPATH'] = os.pathsep.join([
-      os.getcwd(), env.get('PYTHONPATH', '')])
-    status = call(['py.test'], env=env)
+    status = call(['py.test' if not WIN else 'py.test.exe'])
     if not status:
         sys.exit(status)
