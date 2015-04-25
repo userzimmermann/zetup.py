@@ -1,21 +1,23 @@
 
 
-# zetup.py
+# Zetup
 
 
 
 [![](http://www.gnu.org/graphics/lgplv3-88x31.png)](
-  http://www.gnu.org/licenses/lgpl.html)
+  https://gnu.org/licenses/lgpl.html)
 [![](https://pypip.in/version/zetup/badge.svg)](
   https://pypi.python.org/pypi/zetup)
 [![](https://pypip.in/py_versions/zetup/badge.svg)](
-  https://pypi.python.org/pypi/zetup)
+  https://python.org)
 [![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)](
   https://travis-ci.org/userzimmermann/zetup.py)
+[![Build status](https://ci.appveyor.com/api/projects/status/3wm8jnisoft5x7qr?svg=true)](
+  https://ci.appveyor.com/project/userzimmermann/zetup-py)
 
 
 
-## Zimmermann's [Python](http://python.org) package setup
+## Zimmermann's Python Package Setup
 
 
 
