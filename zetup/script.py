@@ -22,21 +22,23 @@
 from __future__ import absolute_import, print_function
 
 import sys
+from itertools import chain
 from argparse import ArgumentParser
-from subprocess import call
 import distutils.command
 
 import zetup.commands
 from zetup.commands import ZetupCommandError
+from zetup.process import call
 
-
-COMMANDS = zetup.commands.__all__
 
 EXTERNAL_COMMANDS = []
 
-COMMANDS += distutils.command.__all__
-COMMANDS += zetup.Zetup.COMMANDS
-COMMANDS += EXTERNAL_COMMANDS
+COMMANDS = sorted(chain(
+  distutils.command.__all__,
+  zetup.COMMANDS,
+  zetup.Zetup.COMMANDS,
+  EXTERNAL_COMMANDS,
+  ))
 
 ap = ArgumentParser()
 ap.add_argument(
