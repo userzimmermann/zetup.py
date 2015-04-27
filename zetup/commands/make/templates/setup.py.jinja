@@ -24,6 +24,7 @@
 from __future__ import print_function
 
 import sys
+import os
 try:
     from setuptools import setup
 except ImportError:
@@ -32,8 +33,13 @@ except ImportError:
 
 SETUP_REQUIRES = [
   {% block setup_requires %}'zetup',
-  {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
-  {% endfor %}
+  {# {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
+     {% endfor %}
+   #}
+  ] + (os.path.exists('requirements.setup.txt')
+       and [line for line in map(str.strip, open('requirements.setup.txt'))
+            if line and not line.startswith('#')]
+       or []) + [
   {% endblock %}]
 
 {% block pre_setup %}
@@ -44,7 +50,7 @@ try:
 except ImportError: # no setuptools
     pass
 else:
-    #HACK: make sure that setup requirements
+    # make sure that setup requirements
     # are always correctly resolved and accessible by:
     # - pre-processing them one after another
     # - recursively resolving their runtime requirements
