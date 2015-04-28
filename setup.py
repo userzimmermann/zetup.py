@@ -1,12 +1,27 @@
-## import sys
+from __future__ import print_function
+
+import sys
+import os
 
 ## from setuptools import Distribution
 ## from pkg_resources import get_distribution
 
+
+egg_info = 'zetup.egg-info'
+if os.path.exists(egg_info):
+    print("zetup: Removing possibly outdated %s/" % egg_info)
+    for fname in os.listdir(egg_info):
+        os.remove(os.path.join(egg_info, fname))
+    os.rmdir(egg_info)
+
+
+sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))
 from zetup import Zetup, DistributionNotFound, VersionConflict
 try:
     import zetup.commands
 except (ImportError, DistributionNotFound, VersionConflict):
+    #==> no zetup commands available
+    # standard setup commands work anyway
     pass
 
 
