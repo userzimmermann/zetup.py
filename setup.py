@@ -13,6 +13,8 @@ if os.path.exists(egg_info):
     for fname in os.listdir(egg_info):
         os.remove(os.path.join(egg_info, fname))
     os.rmdir(egg_info)
+    # when run via pip, the egg-info is still referenced by setuptools,
+    # which would try to read the contents
     del working_set.by_key['zetup']
 
 
