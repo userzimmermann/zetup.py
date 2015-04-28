@@ -19,6 +19,7 @@
 
 import re
 from textwrap import dedent
+from glob import glob
 
 from path import path as Path
 
@@ -48,6 +49,16 @@ class Made(list):
         for path in self:
             print("zetup: Removing auto-generated %s" % path)
             path.remove()
+            if path.ext == '.py':
+                compiled = []
+                path = path.splitext()[0] + '.pyc'
+                if path.exists():
+                    compiled.append(path)
+                compiled += glob(path.dirname() / '__pycache__'
+                                 / path.namebase + '.*.pyc')
+                for path in map(Path, compiled):
+                    print("zetup: Removing compiled %s" % path)
+                    path.remove()
 
     def __enter__(self):
         return self
