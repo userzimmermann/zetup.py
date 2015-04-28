@@ -4,18 +4,24 @@ import sys
 import os
 
 ## from setuptools import Distribution
-from pkg_resources import working_set ## get_distribution
+from pkg_resources import get_distribution, working_set, VersionConflict
 
 
-egg_info = 'zetup.egg-info'
-if os.path.exists(egg_info):
-    print("zetup: Removing possibly outdated %s/" % egg_info)
-    for fname in os.listdir(egg_info):
-        os.remove(os.path.join(egg_info, fname))
-    os.rmdir(egg_info)
-    # when run via pip, the egg-info is still referenced by setuptools,
-    # which would try to read the contents
-    del working_set.by_key['zetup']
+try:
+    import zetup
+except VersionConflict:
+    egg_info = 'zetup.egg-info'
+    dist = get_distribution('zetup')
+    if os.path.samefile(
+      dist.location, os.path.dirname(os.path.realpath(__file__))
+      ) and os.path.exists(egg_info):
+        print("zetup: Removing possibly outdated %s/" % egg_info)
+        for fname in os.listdir(egg_info):
+            os.remove(os.path.join(egg_info, fname))
+        os.rmdir(egg_info)
+        # when run via pip, the egg-info is still referenced by setuptools,
+        # which would try to read the contents
+        del working_set.by_key['zetup']
 
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))
