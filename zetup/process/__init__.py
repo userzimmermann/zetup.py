@@ -30,6 +30,9 @@ import os
 import subprocess
 
 
+WIN = sys.platform.startswith('win')
+
+
 def _prepare_kwargs(kwargs):
     """Prepare (manipulate) the given `kwargs` dict for passing to
        :func:`subprocess.call` or :class:`subprocess.Popen`
@@ -48,15 +51,27 @@ def _prepare_kwargs(kwargs):
 def call(command, **kwargs):
     """Wrapper for :func:`subprocess.call`,
        which updates PYTHONPATH from current ``sys.path``.
+
+    - On Windows, ``['cmd', '/c']`` is prepended to `command`
+      to support running scripts without explicitly adding
+      ``'.bat'`` or ``'.cmd'`` prefixes.
     """
     _prepare_kwargs(kwargs)
+    if WIN:
+        command = ['cmd', '/c'] + list(command)
     return subprocess.call(command, **kwargs)
 
 
 class Popen(subprocess.Popen):
     """Wrapper for :class:`subprocess.Popen`,
        which updates PYTHONPATH from current ``sys.path``.
+
+    - On Windows, ``['cmd', '/c']`` is prepended to `command`
+      to support running scripts without explicitly adding
+      ``'.bat'`` or ``'.cmd'`` prefixes.
     """
     def __init__(self, command, **kwargs):
         _prepare_kwargs(kwargs)
+        if WIN:
+            command = ['cmd', '/c'] + list(command)
         subprocess.Popen.__init__(self, command, **kwargs)
