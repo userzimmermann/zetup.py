@@ -37,6 +37,7 @@ from .version import Version
 from .requires import Requirements
 from .extras import Extras
 from .dist import Distribution
+from .package import Packages
 from .notebook import Notebook
 from .error import ZetupError
 
@@ -102,10 +103,10 @@ def load_zetup_config(path, zfg):
     zfg.PACKAGES = config.get('packages', [])
     if zfg.PACKAGES:
         # First should be the root package
-        zfg.PACKAGES = zfg.PACKAGES.split()
+        zfg.PACKAGES = Packages(zfg.PACKAGES.split(), root=zfg.ZETUP_DIR)
     elif os.path.isdir(os.path.join(zfg.ZETUP_DIR, zfg.NAME)):
         # Just assume distribution name == root package name
-        zfg.PACKAGES = [zfg.NAME]
+        zfg.PACKAGES = Packages([zfg.NAME])
 
     zfg.MODULES = (
       config.get('modules', '') or config.get('pymodules', '')
@@ -114,15 +115,15 @@ def load_zetup_config(path, zfg):
     zfg.ZETUP_CONFIG_PACKAGE = config.get('zetupconfigpackage')
     if zfg.ZETUP_CONFIG_PACKAGE:
         if zfg.ZETUP_CONFIG_PACKAGE in TRUE:
-            zfg.ZETUP_CONFIG_PACKAGE = zfg.PACKAGES[0] + '.zetup_config'
+            zfg.ZETUP_CONFIG_PACKAGE = zfg.PACKAGES.main + '.zetup_config'
         elif zfg.ZETUP_CONFIG_PACKAGE in FALSE:
             zfg.ZETUP_CONFIG_PACKAGE = False
         # else it defines a custom package
 
-    zfg.ZETUP_CONFIG_MODULE = config.get('zetupconfigmodule')
+    zfg.ZETUP_CONFIG_MODULE = config.get('zetupconfigmodule', 'yes')
     if zfg.ZETUP_CONFIG_MODULE:
         if zfg.ZETUP_CONFIG_MODULE in TRUE:
-            zfg.ZETUP_CONFIG_MODULE = zfg.PACKAGES[0] + '.zetup_config'
+            zfg.ZETUP_CONFIG_MODULE = zfg.PACKAGES.main + '.zetup_config'
         elif zfg.ZETUP_CONFIG_MODULE in FALSE:
             zfg.ZETUP_CONFIG_MODULE = False
         # else it defines a custom module
@@ -142,26 +143,6 @@ def load_zetup_config(path, zfg):
     zfg.KEYWORDS = config.get('keywords', '').split()
     if any(pyversion.startswith('3') for pyversion in zfg.PYTHON):
         zfg.KEYWORDS.append('python3')
-
-    # The default pkg.zetup package for installing this script and ZETUP_DATA:
-    if zfg.PACKAGES:
-        zfg.ZETUP_PACKAGE = zfg.PACKAGES[0] + '.zetup'
-
-    # Extend PACKAGES with all their subpackages:
-    try:
-        # need to import dynamically for packages dealing with namespaces
-        #  because setuptools try to import namespace packages
-        #  before setuptools.find_packages gets available
-        from setuptools import find_packages
-    except ImportError: #==> No setuptools
-        pass
-    else:
-        zfg.PACKAGES.extend(chain(*(
-          ['%s.%s' % (pkg, sub) for sub in find_packages(pkg)]
-          for pkg in zfg.PACKAGES if os.path.isdir(pkg))))
-
-    if zfg.ZETUP_CONFIG_PACKAGE:
-        zfg.PACKAGES.append(zfg.ZETUP_CONFIG_PACKAGE)
 
     # Parse VERSION and requirements files
     #  and add them to pkg.zetup package_data...
@@ -190,7 +171,7 @@ def load_zetup_config(path, zfg):
         zfg.VERSION = Version(zfg.VERSION)
 
     zfg.DISTRIBUTION = Distribution(
-      zfg.NAME, zfg.PACKAGES and zfg.PACKAGES[0] or zfg.NAME, zfg.VERSION)
+      zfg.NAME, zfg.PACKAGES.main, zfg.VERSION)
 
     req_setup_txt = os.path.join(zfg.ZETUP_DIR, 'requirements.setup.txt')
     if os.path.exists(req_setup_txt):

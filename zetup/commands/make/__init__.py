@@ -98,11 +98,12 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
             else:
                 continue
         if self.PACKAGES:
-            target = re.sub('^%s/' % self.PACKAGES[0], 'package/', target)
+            target = re.sub(
+              '^%s/' % self.PACKAGES.main, 'package/', target)
         path = target
         if self.PACKAGES:
             path = re.sub(
-              '^package', self.PACKAGES[0].replace(*'./'), path)
+              '^package', self.PACKAGES.main.replace(*'./'), path)
         path = Path(self.ZETUP_DIR) / path
         if path.exists():
             if skip_existing:
