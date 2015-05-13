@@ -8,12 +8,7 @@ url = https://bitbucket.org/userzimmermann/zetup.py
 
 license = LGPLv3
 
-python = 2.7 3.3 3.4
-
-packages =
-    zetup
-
-zetup config module = yes
+python = 2.7 3.3 3.4 3.5
 
 classifiers =
     Development Status :: 3 - Alpha
