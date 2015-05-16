@@ -13,4 +13,5 @@
 ^build/
 ^dist/
 
+^\.venv/
 ^\.conda/
