@@ -19,7 +19,8 @@
 
 __all__ = ['find_zetup_config', 'Zetup',
   'ZetupError', 'ZetupConfigNotFound',
-  'DistributionNotFound', 'VersionConflict']
+  'DistributionNotFound', 'VersionConflict',
+  'Popen', 'call']
 
 import sys
 import os
@@ -29,6 +30,7 @@ from .zetup import Zetup
 from .error import ZetupError
 from .config import ZetupConfigNotFound
 from .requires import DistributionNotFound, VersionConflict
+from .process import Popen, call
 
 
 COMMANDS = {}
