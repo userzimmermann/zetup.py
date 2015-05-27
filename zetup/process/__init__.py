@@ -84,17 +84,22 @@ def _prepare_kwargs(kwargs):
         env.setdefault(key, value)
 
 
-_doc = """Wrapper for :func:`subprocess.%s`,
-  which updates PYTHONPATH from current ``sys.path``.
+class Popen(subprocess.Popen):
+    """Wrapper for :func:`subprocess.Popen`,
+       which updates PYTHONPATH from current ``sys.path``.
 
-  - Supports same `kwargs` as ``subprocess`` implementation.
-  - Setting ``env=`` overrides whole environment;
-    to keep PYTHONPATH update, use ``env_update=`` and ``env_defaults=``
-    with dicts containing only the variables to change.
-  - On Windows, supports running scripts without explicitly adding
-    ``'.bat'`` or ``'.cmd'`` extensions.
-    **pywin32** should be installed for better performance.
-  """
+    - Supports same `kwargs` as ``subprocess`` implementation.
+    - Setting ``env=`` overrides whole environment;
+      to keep PYTHONPATH update, use ``env_update=`` and ``env_defaults=``
+      with dicts containing only the variables to change.
+    - On Windows, supports running scripts without explicitly adding
+      ``'.bat'`` or ``'.cmd'`` extensions.
+      **pywin32** should be installed for better performance.
+    """
+    def __init__(self, command, **kwargs):
+        _prepare_kwargs(kwargs)
+        command = _command(command, kwargs)
+        subprocess.Popen.__init__(command, **kwargs)
 
 
 def call(command, **kwargs):
@@ -102,13 +107,4 @@ def call(command, **kwargs):
     command = _command(command, kwargs)
     return subprocess.call(command, **kwargs)
 
-call.__doc__ = _doc % 'call'
-
-
-class Popen(subprocess.Popen):
-    def __init__(self, command, **kwargs):
-        _prepare_kwargs(kwargs)
-        command = _command(command, kwargs)
-        subprocess.Popen.__init__(command, **kwargs)
-
-Popen.__doc__ = _doc % 'Popen'
+call.__doc__ = Popen.__doc__.replace('Popen', 'call')
