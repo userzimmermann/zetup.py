@@ -19,7 +19,9 @@
 
 """zetup.process
 
-subprocess wrappers for calling external programs with updated PYTHONPATH.
+subprocess wrappers for calling external programs with updated PYTHONPATH
+and better Windows support by implicitly calling .bat and .cmd scripts
+without explicitly specified file extension.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
@@ -27,10 +29,44 @@ __all__ = ['call', 'Popen']
 
 import sys
 import os
+from itertools import chain
 import subprocess
 
+if sys.version_info[0] == 3:
+    unicode = str
 
-WIN = sys.platform.startswith('win')
+
+# define a platform-dependent `_command` helper,
+# which converts a `command` arg for subprocess.Popen or .call
+# to support Windows .bat and .cmd scripts without extension
+if sys.platform.startswith('win'):
+    try:
+        # find script path with win32api.FindExecutable()
+        # if pywin32 is installed
+        import win32api
+    except ImportError:
+        # otherwise run through cmd.exe /c (same as shell=True)
+        def _command(command, kwargs):
+            if kwargs.get('shell'):
+                return command
+            if isinstance(command, (str, unicode)):
+                return "cmd /c " + command
+            return chain(('cmd', '/c'), command)
+    else:
+        def _command(command, kwargs):
+            if kwargs.get('shell'):
+                return command
+            if isinstance(command, (str, unicode)):
+                command, args = command.split(None, 1)
+                status, path = win32api.FindExecutable(command)
+                return " ".join((path, args))
+            command = iter(command)
+            status, path = win32api.FindExecutable(next(command))
+            return chain((path, ), command)
+
+else: # no Windows ==> just pass through
+    def _command(command, kwargs):
+        return command
 
 
 def _prepare_kwargs(kwargs):
@@ -48,30 +84,31 @@ def _prepare_kwargs(kwargs):
         env.setdefault(key, value)
 
 
-def call(command, **kwargs):
-    """Wrapper for :func:`subprocess.call`,
-       which updates PYTHONPATH from current ``sys.path``.
+_doc = """Wrapper for :func:`subprocess.%s`,
+  which updates PYTHONPATH from current ``sys.path``.
 
-    - On Windows, ``['cmd', '/c']`` is prepended to `command`
-      to support running scripts without explicitly adding
-      ``'.bat'`` or ``'.cmd'`` prefixes.
-    """
+  - Supports same `kwargs` as ``subprocess`` implementation.
+  - Setting ``env=`` overrides whole environment;
+    to keep PYTHONPATH update, use ``env_update=`` and ``env_defaults=``
+    with dicts containing only the variables to change.
+  - On Windows, supports running scripts without explicitly adding
+    ``'.bat'`` or ``'.cmd'`` extensions.
+    **pywin32** should be installed for better performance.
+  """
+
+
+def call(command, **kwargs):
     _prepare_kwargs(kwargs)
-    if WIN:
-        command = ['cmd', '/c'] + list(command)
+    command = _command(command, kwargs)
     return subprocess.call(command, **kwargs)
+
+call.__doc__ = _doc % 'call'
 
 
 class Popen(subprocess.Popen):
-    """Wrapper for :class:`subprocess.Popen`,
-       which updates PYTHONPATH from current ``sys.path``.
-
-    - On Windows, ``['cmd', '/c']`` is prepended to `command`
-      to support running scripts without explicitly adding
-      ``'.bat'`` or ``'.cmd'`` prefixes.
-    """
     def __init__(self, command, **kwargs):
         _prepare_kwargs(kwargs)
-        if WIN:
-            command = ['cmd', '/c'] + list(command)
-        subprocess.Popen.__init__(self, command, **kwargs)
+        command = _command(command, kwargs)
+        subprocess.Popen.__init__(command, **kwargs)
+
+Popen.__doc__ = _doc % 'Popen'
