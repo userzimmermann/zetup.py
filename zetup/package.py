@@ -59,15 +59,17 @@ class Package(str):
     def __new__(cls, pkg, **kwargs):
         return str.__new__(cls, pkg)
 
-    def __init__(self, pkg, root=None, path=None,
-                 sources=None, data=None, subpackages=None):
+    def __init__(self, pkg, root=None, path=None, data=None,
+                 sources=None, datafiles=None, subpackages=None):
         if not isinstance(pkg, Package):
             pkg = None
         self.root = root or pkg and pkg.root
         self._path = path or pkg and pkg._path
+        self.data = data and list(data) or pkg and pkg.data or None
         self._sources = sources and list(sources) \
           or pkg and pkg._sources or None
-        self.data = data and list(data) or pkg and pkg.data or None
+        self._datafiles = datafiles and list(datafiles) \
+          or pkg and pkg._datafiles or None
         self._subpackages = subpackages and list(subpackages) \
           or pkg and pkg._subpackages or None
 
@@ -78,27 +80,30 @@ class Package(str):
         return os.path.realpath(os.path.join(self.root or '.',
           self._path or os.path.join(*self.split('.'))))
 
-    def sources(self):
+    def sources(self, force_search=False):
         """Iterates :class:`zetup.package.Source` instances
            absolute of the package's direct source *.py files
            (without sub-package sources).
         """
-        # sources = self.__dict__.get('sources')
-        # if sources:
-        #     for path in sources:
-        #         yield path
-        #     return
+        if not force_search and self._sources:
+            for source in self._sources:
+                yield source
+            return
 
         for name in os.listdir(self.path):
             path = os.path.join(self.path, name)
             if os.path.isfile(path) and path.endswith('.py'):
                 yield Source(name, package=self)
 
-    def datafiles(self):
+    def datafiles(self, force_search=False):
         """Iterates :class:`zetup.package.DataFile` instances
            of the package's direct data files
            (without sub-package data files).
         """
+        if not force_search and self._datafiles:
+            for datafile in self._datafiles:
+                yield datafile
+            return
         if not self.data:
             return
         for pattern in self.data:
@@ -106,54 +111,23 @@ class Package(str):
                 yield DataFile(os.path.relpath(path, self.path),
                                package=self)
 
-    def files(self):
+    def files(self, force_search=False):
         """Iterates the package's direct sources and data files combined
            (without sub-package files).
         """
-        for path in self.sources():
-            yield path
-        for path in self.datafiles():
-            yield path
+        for source in self.sources(force_search=force_search):
+            yield source
+        for datafile in self.datafiles(force_search=force_search):
+            yield datafile
 
-    def walksources(self):
-        """Recursively iterates the source *.py files of the package
-           and its sub-packages.
-        """
-        for path in self.sources():
-            yield path
-        for pkg in self.subpackages():
-            for path in pkg.walksources():
-                yield path
-
-    def walkdatafiles(self):
-        """Recursively iterates the data files of the package
-           and its sub-packages.
-        """
-        for path in self.datafiles():
-            yield path
-        for pkg in self.subpackages():
-            for path in pkg.walkdatafiles():
-                yield path
-
-    def walkfiles(self):
-        """Recursively iterates the source and data files of the package
-           and its sub-packages.
-        """
-        for path in self.files():
-            yield path
-        for pkg in self.subpackages():
-            for path in pkg.walkfiles():
-                yield path
-
-    def subpackages(self):
+    def subpackages(self, force_search=False):
         """Iterates the package's direct sub-packages as instances of own type
            (without sub-sub-packages).
         """
-        # subpkgs = self.__dict__.get('subpackages')
-        # if subpkgs:
-        #     for pkg in subpkgs:
-        #         yield pkg
-        #     return
+        if self._subpackages:
+            for pkg in self._subpackages:
+                yield pkg
+            return
 
         for name in os.listdir(self.path):
             path = os.path.join(self.path, name)
@@ -161,12 +135,12 @@ class Package(str):
               os.path.join(path, '__init__.py')):
                 yield type(self)('.'.join((self, name)))
 
-    def walksubpackages(self):
+    def walk(self):
         """Iterates the package's sub-packages recursively.
         """
         for pkg in self.subpackages():
             yield pkg
-            for subpkg in pkg.walksubpackages():
+            for subpkg in pkg.walk():
                 yield subpkg
 
     def __getitem__(self, name):
@@ -190,20 +164,31 @@ class Package(str):
               % (repr(self), repr(name)))
 
     def check(self, raise_=True):
-        sources = getattr(self, '_sources', None)
-        if sources is not None:
-            diff = set(sources) - set(self.sources())
+        if self._sources is not None:
+            expected = set(self._sources)
+            found = set(self.sources(force_search=True))
+            diff = expected - found
             if diff:
                 if raise_:
                     raise RuntimeError(diff)
                 return False
 
-        subpkgs = getattr(self, '_subpackages', None)
-        if subpkgs is not None:
-            diff = set(subpkgs) - set(self.subpackages())
+        if self._datafiles is not None:
+            expected = set(self._datafiles)
+            found = set(self.datafiles(force_search=True))
+            diff = expected - found
             if diff:
                 if raise_:
-                    raise RuntimeError
+                    raise RuntimeError(diff)
+                return False
+
+        if self._subpackages is not None:
+            expected = set(self._subpackages)
+            found = set(self.subpackages(force_search=True))
+            diff = expected - found
+            if diff:
+                if raise_:
+                    raise RuntimeError(diff)
                 return False
 
         return True
@@ -235,7 +220,7 @@ class Packages(object):
         """
         for pkg in self.toplevel:
             yield pkg
-            for subpkg in pkg.walksubpackages():
+            for subpkg in pkg.walk():
                 yield subpkg
 
     def __len__(self):
