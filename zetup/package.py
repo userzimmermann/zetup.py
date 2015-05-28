@@ -17,9 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os
 from glob import glob
 from textwrap import dedent
+
+if sys.version_info[0] == 3:
+    unicode = str
 
 from .error import ZetupError
 
@@ -81,7 +85,8 @@ class Package(str):
             pkg = None
         self.root = root or pkg and pkg.root
         self._path = path or pkg and pkg._path
-        self.data = data and list(data) or pkg and pkg.data or None
+        self.data = data and [os.path.sep.join(d.split('/')) for d in data] \
+          or pkg and pkg.data or None
         self._sources = sources and list(sources) \
           or pkg and pkg._sources or None
         self._datafiles = datafiles and list(datafiles) \
@@ -159,6 +164,15 @@ class Package(str):
             for subpkg in pkg.walk():
                 yield subpkg
 
+    def issubpackage(self, parent, recursive=False):
+        pkg = self.split('.')
+        parent = parent.split('.')
+        if len(pkg) <= len(parent):
+            return False
+        if not recursive and (len(pkg) - len(parent) > 1):
+            return False
+        return parent == pkg[:len(parent)]
+
     def __getitem__(self, name):
         """Get a subpackge by its relative name.
         """
@@ -228,8 +242,40 @@ class Package(str):
 
 
 class Packages(object):
-    def __init__(self, toplevel, root=None):
-        self.toplevel = [Package(name, root=root) for name in toplevel]
+    def _parse(self, text, root=None):
+        packages = []
+        for line in map(str.strip, text.split('\n')):
+            if not line:
+                continue
+            try:
+                pkg, data = map(str.strip, line.split('+'))
+            except ValueError:
+                pkg, data = line, None
+            else:
+                data = data.split()
+            try:
+                pkg, path = map(str.strip, pkg.split(':'))
+            except ValueError:
+                path = None
+            packages.append(Package(pkg, root=root, path=path, data=data))
+        toplevel = list(packages)
+        for pkg in sorted(packages):
+            for item in packages:
+                if pkg.issubpackage(item):
+                    if item._subpackages:
+                        item._subpackages.append(pkg)
+                    else:
+                        item._subpackages = [pkg]
+                        toplevel.remove(pkg)
+                    break
+        return toplevel
+
+    def __init__(self, text_or_toplevel, root=None):
+        if isinstance(text_or_toplevel, (str, unicode)):
+            self.toplevel = self._parse(text_or_toplevel, root=root)
+        else:
+            self.toplevel = [Package(pkg, root=root)
+                             for pkg in text_or_toplevel]
 
     def __iter__(self):
         """Iterate all toplevel and sub-packages.

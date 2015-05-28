@@ -103,7 +103,7 @@ def load_zetup_config(path, zfg):
     zfg.PACKAGES = config.get('packages', [])
     if zfg.PACKAGES:
         # First should be the root package
-        zfg.PACKAGES = Packages(zfg.PACKAGES.split(), root=zfg.ZETUP_DIR)
+        zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR)
     elif os.path.isdir(os.path.join(zfg.ZETUP_DIR, zfg.NAME)):
         # Just assume distribution name == root package name
         zfg.PACKAGES = Packages([zfg.NAME])
