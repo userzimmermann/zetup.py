@@ -268,6 +268,15 @@ class Packages(object):
     def main(self):
         return next(iter(self))
 
+    def check(self, raise_=True):
+        for pkg in self:
+            pkg.check(raise_=raise_)
+
+    @property
+    def checked(self):
+        self.check()
+        return self
+
     @property
     def py(self):
         """Generate Python code for zetup config module.
