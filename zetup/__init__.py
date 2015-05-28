@@ -65,7 +65,7 @@ def find_zetup_config(pkgname):
           "No '%s.zetup_config' module and: %s" % (pkgname, e))
 
 
-def annotate(pkgname, check_requirements=True):
+def annotate(pkgname, check_requirements=True, check_packages=True):
     """Find the zetup config for given `pkgname`
        and add __version__, __requires__, __dist__, __description__
        and __extras__ (if defined) to the package object.
@@ -87,6 +87,9 @@ def annotate(pkgname, check_requirements=True):
         mod.__extras__ = zfg.EXTRAS
     mod.__distribution__ = zfg.DISTRIBUTION.find(os.path.dirname(__file__))
     mod.__description__ = zfg.DESCRIPTION
+    mod.__packages__ = zfg.PACKAGES
+    if check_packages:
+        zfg.PACKAGES.check()
 
 
 annotate(__name__, check_requirements=False)
