@@ -21,6 +21,22 @@ import os
 from glob import glob
 from textwrap import dedent
 
+from .error import ZetupError
+
+
+class ZetupPackageError(ZetupError):
+    """Exception related to zetup package config.
+    """
+    pass
+
+
+class ZetupPackageCheckError(ZetupPackageError):
+    """Exception related to zetup package config.
+    """
+    def __init__(self, missing, extra):
+        self.missing = list(missing)
+        self.extra = list(extra)
+
 
 class File(str):
     """The name of a package file (source or data)
