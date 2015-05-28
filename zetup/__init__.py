@@ -44,16 +44,16 @@ def command(func):
 
 
 def find_zetup_config(pkgname):
-    zfg_pkgname = pkgname + '.zetup_config'
+    zfg_modname = pkgname + '.zetup_config'
     try: # Already imported?
-        return sys.modules[zfg_pkgname]
+        return sys.modules[zfg_modname]
     except KeyError:
         pass
     try:
-        return __import__(zfg_pkgname).zetup_config
+        return __import__(zfg_modname).zetup_config
     except ImportError:
         pass
-    # ==> no .zetup_config subpackage
+    # ==> no zetup config module
     # ==> assume package imported from source (repo)
     # ==> load setup config from package's parent path:
     mod = sys.modules[pkgname]
