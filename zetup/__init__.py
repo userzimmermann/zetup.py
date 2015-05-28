@@ -34,35 +34,6 @@ from .requires import DistributionNotFound, VersionConflict
 from .process import Popen, call
 
 
-class ZetupModule(ModuleType):
-    """Custom module class for wrapping native `zetup` module on import.
-    """
-    def __init__(self):
-        self.__name__ = __name__
-        self.module = sys.modules[__name__]
-
-    def __getattr__(self, name):
-        """Just delegate to native `zetup` module.
-        """
-        return getattr(self.module, name)
-
-    def __dir__(self):
-        """Just delegate to native `zetup` module.
-        """
-        return dir(self.module)
-
-    @property
-    def Path(self):
-        """Provide **path.py**-wrapping `zetup.Path` class
-           if **path.py** is installed.
-        """
-        from .path import Path
-        return Path
-
-# replace native zetup module with wrapper
-sys.modules[__name__] = ZetupModule()
-
-
 COMMANDS = {}
 
 
@@ -119,6 +90,36 @@ def annotate(pkgname, check_requirements=True):
 
 
 annotate(__name__, check_requirements=False)
+
+
+class ZetupModule(ModuleType):
+    """Custom module class for wrapping native `zetup` module on import.
+    """
+    def __init__(self):
+        self.__name__ = __name__
+        self.module = sys.modules[__name__]
+
+    def __getattr__(self, name):
+        """Just delegate to native `zetup` module.
+        """
+        return getattr(self.module, name)
+
+    def __dir__(self):
+        """Just delegate to native `zetup` module.
+        """
+        return dir(self.module)
+
+    @property
+    def Path(self):
+        """Provide **path.py**-wrapping `zetup.Path` class
+           if **path.py** is installed.
+        """
+        from .path import Path
+        return Path
+
+# replace native zetup module with wrapper
+sys.modules[__name__] = ZetupModule()
+
 
 # # Get zetup's own config:
 # zfg = find_zetup_config(__name__)
