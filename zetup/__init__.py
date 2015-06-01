@@ -110,7 +110,7 @@ class ZetupModule(ModuleType):
     def __dir__(self):
         """Just delegate to native `zetup` module.
         """
-        return dir(self.module)
+        return list(self.__dict__) + dir(self.module)
 
     @property
     def Path(self):
