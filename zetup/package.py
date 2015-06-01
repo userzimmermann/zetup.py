@@ -80,7 +80,8 @@ class Package(str):
         return str.__new__(cls, pkg)
 
     def __init__(self, pkg, root=None, path=None, data=None,
-                 sources=None, datafiles=None, subpackages=None):
+                 sources=None, datafiles=None, subpackages=None,
+                 zfg=None):
         if not isinstance(pkg, Package):
             pkg = None
         self.root = root or pkg and pkg.root
@@ -91,8 +92,12 @@ class Package(str):
           or pkg and pkg._sources or None
         self._datafiles = datafiles and list(datafiles) \
           or pkg and pkg._datafiles or None
-        self._subpackages = subpackages and list(subpackages) \
-          or pkg and pkg._subpackages or None
+        if not subpackages and pkg:
+            subpackages = pkg._subpackages
+        self._subpackages = subpackages and [
+          type(self)(spkg, root=self.root) for spkg in subpackages
+          ] or None
+        self.zfg = zfg or pkg and pkg.zfg
 
     @property
     def path(self):
@@ -272,7 +277,9 @@ class Packages(object):
                     break
         return toplevel
 
-    def __init__(self, text_or_toplevel, root=None):
+    def __init__(self, text_or_toplevel, root=None, zfg=None):
+        self.root = root
+        self.zfg = zfg
         if isinstance(text_or_toplevel, (str, unicode)):
             self.toplevel = self._parse(text_or_toplevel, root=root)
         else:
@@ -330,8 +337,16 @@ class Packages(object):
     def py(self):
         """Generate Python code for zetup config module.
         """
-        return "%s([\n%s\n  ])" % (type(self).__name__, ",\n  ".join(
-          pkg.py for pkg in self.toplevel))
+        if self.zfg:
+            zfg_modname = self.zfg.ZETUP_CONFIG_MODULE
+            root_code = "os.path.realpath(__file__)"
+            for _ in range(zfg_modname.count('.') + 1):
+                root_code = "os.path.dirname(%s)" % root_code
+        else:
+            root_code = 'None'
+        return "%s([\n%s\n  ], root=%s)" % (type(self).__name__,
+          ",\n  ".join(pkg.py for pkg in self.toplevel),
+          root_code)
 
     def __repr__(self):
         return "%s(%s)" % (type(self).__name__, repr(self.toplevel))
