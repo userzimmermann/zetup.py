@@ -154,7 +154,9 @@ class Package(str):
             path = os.path.join(self.path, name)
             if os.path.isdir(path) and os.path.isfile(
               os.path.join(path, '__init__.py')):
-                yield type(self)('.'.join((self, name)))
+                yield type(self)('.'.join((self, name)),
+                  path=self._path and os.path.join(self._path, name),
+                  root=self.root)
 
     def walk(self):
         """Iterates the package's sub-packages recursively.
