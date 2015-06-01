@@ -90,7 +90,10 @@ def annotate(pkgname, check_requirements=True, check_packages=True):
     mod.__distribution__ = zfg.DISTRIBUTION.find(os.path.dirname(__file__))
     mod.__description__ = zfg.DESCRIPTION
     mod.__packages__ = zfg.PACKAGES
-    if check_packages:
+    if (check_packages
+        #TODO: remove (only for backwards compatibility)
+        and isinstance(zfg.PACKAGES, Packages)
+        ):
         zfg.PACKAGES.check()
 
 
