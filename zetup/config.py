@@ -100,13 +100,14 @@ def load_zetup_config(path, zfg):
 
     zfg.PYTHON = config.get('python', '').split()
 
-    zfg.PACKAGES = config.get('packages', Packages([]))
+    zfg.PACKAGES = config.get('packages',
+      Packages([], root=zfg.ZETUP_DIR, zfg=zfg))
     if zfg.PACKAGES:
         # First should be the root package
-        zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR)
+        zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR, zfg=zfg)
     elif os.path.isdir(os.path.join(zfg.ZETUP_DIR, zfg.NAME)):
         # Just assume distribution name == root package name
-        zfg.PACKAGES = Packages([zfg.NAME])
+        zfg.PACKAGES = Packages([zfg.NAME], root=zfg.ZETUP_DIR, zfg=zfg)
 
     zfg.MODULES = (
       config.get('modules', '') or config.get('pymodules', '')
