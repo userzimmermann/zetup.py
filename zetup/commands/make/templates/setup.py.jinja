@@ -33,7 +33,7 @@ except ImportError:
 {% endblock %}
 
 SETUP_REQUIRES = [
-  {% block setup_requires %}'zetup',
+  {% block setup_requires %}'zetup >= {{ zetup.__version__ }}',
   {# {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
      {% endfor %}
    #}
