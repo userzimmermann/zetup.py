@@ -129,6 +129,10 @@ class Requirements(object):
         self._list = reqlist
         self.zfg = zfg
 
+    def __eq__(self, other):
+        return isinstance(other, Requirements) \
+          and self._list == other._list
+
     def __str__(self):
         return '\n'.join(map(str, self))
 
