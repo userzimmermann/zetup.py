@@ -26,6 +26,7 @@ from path import path as Path
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinjatools import Environment
 
+import zetup
 from zetup import Zetup
 from zetup.commands import ZetupCommandError
 
@@ -125,6 +126,7 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
             #
             # https://bitbucket.org/userzimmermann/zetup.py
             """),
+          'zetup': zetup,
           'zfg': self,
           })
         path.write_text(text.strip())
