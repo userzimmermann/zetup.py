@@ -71,14 +71,14 @@ def test_zetup_config(zfg, in_repo, in_site_packages):
     #--- REQUIRES ---
     assert zetup.__requires__ == zfg.REQUIRES
     if in_repo:
-        assert list(parse_requirements(zetup.__requires__)) == list(
+        assert list(parse_requirements(str(zetup.__requires__))) == list(
           parse_requirements((zfg_path / 'requirements.txt').text()))
 
     #--- EXTRAS ---
     for extra in zetup.__extras__:
         assert zetup.__extras__[extra] == zfg.EXTRAS[extra]
         if in_repo:
-            assert list(parse_requirements(zetup.__extras__[extra])) \
+            assert list(parse_requirements(str(zetup.__extras__[extra]))) \
               == list(parse_requirements(
                    (zfg_path / ('requirements.%s.txt' % extra))
                    .text()))
