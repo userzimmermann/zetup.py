@@ -18,11 +18,9 @@
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import sys
 import os
-from subprocess import call
 
-from zetup import Zetup
+from zetup import Zetup, call
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', '__init__.py'])
@@ -82,6 +80,4 @@ def conda(self, args):
                 '$PYTHON setup.py install'
                 '\n')
 
-    status = call(['conda', 'build', metadir])
-    if not status:
-        sys.exit(status)
+    return call(['conda', 'build', metadir])

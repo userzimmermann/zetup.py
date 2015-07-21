@@ -17,12 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-from textwrap import dedent
-from subprocess import call
-
-from path import path as Path
-
-from zetup import Zetup
+from zetup import Zetup, call
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', 'zetup_config', 'tox.ini'])
