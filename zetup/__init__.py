@@ -105,11 +105,19 @@ annotate(__name__, check_requirements=False)
 
 
 class ZetupModule(ModuleType):
-    """Custom module class for wrapping native ``zetup`` module on import.
+    """Custom module class for wrapping native ``zetup`` module on import,
+       to dynamically provide additional module members
+       based on installed dependencies.
     """
     def __init__(self):
         self.__name__ = __name__
         self.module = sys.modules[__name__]
+        try:
+            from .path import Path
+        except ImportError: #==> no path.py installed
+            pass
+        else:
+            self.__all__.append('Path')
 
     def __getattr__(self, name):
         """Just delegate to native ``zetup`` module.
