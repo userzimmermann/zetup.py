@@ -7,22 +7,10 @@ import sys
 from pkg_resources import (
   parse_requirements, get_distribution, DistributionNotFound)
 
-from path import Path
-
 import zetup
-from zetup import Zetup
+from zetup import Zetup, Path
 
 import pytest
-
-
-class Path(Path):
-    """Little Path wrapper to make samefile() work on Windows Python 2.
-    """
-    def samefile(self, other):
-        if not hasattr(self.module, 'samefile'):
-            other = Path(other).realpath().normpath().normcase()
-            return self.realpath().normpath().normcase() == other
-        return self.module.samefile(self, other)
 
 
 def test_zetup_config(zfg, in_repo, in_site_packages):

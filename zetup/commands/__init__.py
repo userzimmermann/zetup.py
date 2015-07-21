@@ -27,8 +27,7 @@ import zetup
 
 __requires__ = zetup.__extras__['commands'].checked
 
-from path import Path
-
+from zetup import Path
 from zetup.error import ZetupError
 
 

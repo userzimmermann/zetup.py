@@ -29,6 +29,7 @@ import re
 from inspect import getmembers
 
 try:
+    #TODO: zetup.Path base
     from path import Path as base
 except ImportError:
     # just reduce features

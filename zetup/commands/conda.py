@@ -20,14 +20,13 @@
 import re
 import os
 
-from zetup import Zetup, call
+from zetup import Zetup, Path, call
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', '__init__.py'])
 def conda(self, args):
     """The actual conda command action called by Command base.
     """
-    from path import path as Path
     import yaml
 
     metadir = Path('.conda')

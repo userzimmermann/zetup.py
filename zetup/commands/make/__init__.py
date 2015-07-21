@@ -21,13 +21,11 @@ import re
 from textwrap import dedent
 from glob import glob
 
-from path import path as Path
-
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinjatools import Environment
 
 import zetup
-from zetup import Zetup
+from zetup import Zetup, Path
 from zetup.commands import ZetupCommandError
 
 
