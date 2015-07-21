@@ -1,2 +1,2 @@
 path.py >= 7.0 #import path
-jinjatools >= 0.1.4
+jinjatools >= 0.1.5

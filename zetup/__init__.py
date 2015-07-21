@@ -20,6 +20,7 @@
 __all__ = ['find_zetup_config', 'Zetup',
   'ZetupError', 'ZetupConfigNotFound',
   'DistributionNotFound', 'VersionConflict',
+  'Packages', 'Package',
   'Popen', 'call']
 
 import sys
@@ -31,6 +32,7 @@ from .zetup import Zetup
 from .error import ZetupError
 from .config import ZetupConfigNotFound
 from .requires import DistributionNotFound, VersionConflict
+from .package import Packages, Package
 from .process import Popen, call
 
 
@@ -88,7 +90,10 @@ def annotate(pkgname, check_requirements=True, check_packages=True):
     mod.__distribution__ = zfg.DISTRIBUTION.find(os.path.dirname(__file__))
     mod.__description__ = zfg.DESCRIPTION
     mod.__packages__ = zfg.PACKAGES
-    if check_packages:
+    if (check_packages
+        #TODO: remove (only for backwards compatibility)
+        and isinstance(zfg.PACKAGES, Packages)
+        ):
         zfg.PACKAGES.check()
 
 
@@ -110,7 +115,7 @@ class ZetupModule(ModuleType):
     def __dir__(self):
         """Just delegate to native `zetup` module.
         """
-        return dir(self.module)
+        return list(self.__dict__) + dir(self.module)
 
     @property
     def Path(self):

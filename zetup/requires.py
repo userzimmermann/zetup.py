@@ -57,7 +57,7 @@ class VersionConflict(pkg_resources.VersionConflict):
         return text
 
 
-class Requirements(str):
+class Requirements(object):
     """Package requirements manager.
     """
     @staticmethod
@@ -95,7 +95,7 @@ class Requirements(str):
             req.impname = impname.strip()
             yield req
 
-    def __new__(cls, reqs, zfg=None):
+    def __init__(self, reqs, zfg=None):
         """Store a list of :class:`pkg_resources.Requirement` instances
            from the given requirement specs
            and additionally store them newline separated
@@ -109,27 +109,32 @@ class Requirements(str):
         """
         if isinstance(reqs, Requirements):
             txt = reqs.txt
-            reqlist = list(cls._parse(reqs.txt))
+            reqlist = list(self._parse(reqs.txt))
         elif isinstance(reqs, (str, unicode)):
             txt = reqs
-            reqlist = list(cls._parse(reqs))
+            reqlist = list(self._parse(reqs))
         else:
             txt = ''
             reqlist = []
             for req in reqs:
                 if isinstance(req, (str, unicode)):
-                    reqlist.extend(cls._parse(req))
+                    reqlist.extend(self._parse(req))
                 elif isinstance(req, Requirement):
                     reqlist.append(req)
                 else:
                     raise TypeError(type(req))
                 txt += '\n%s' % req
 
-        obj = str.__new__(cls, '\n'.join(map(str, reqlist)))
-        obj.txt = txt
-        obj._list = reqlist
-        obj.zfg = zfg
-        return obj
+        self.txt = txt
+        self._list = reqlist
+        self.zfg = zfg
+
+    def __eq__(self, other):
+        return isinstance(other, Requirements) \
+          and self._list == other._list
+
+    def __str__(self):
+        return '\n'.join(map(str, self))
 
     def check(self, raise_=True):
         """Check that all requirements are available (importable)
@@ -192,6 +197,14 @@ class Requirements(str):
         for req in self._list:
             if name in [req.key, req.unsafe_name]:
                 return req
+        raise KeyError(name)
+
+    def __delitem__(self, name):
+        """Delete a requirement by its distribution name.
+        """
+        for req in list(self._list):
+            if name in [req.key, req.unsafe_name]:
+                return self._list.remove(req)
         raise KeyError(name)
 
     def __add__(self, text):

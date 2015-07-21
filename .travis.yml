@@ -19,4 +19,4 @@ script:
   - python setup.py pytest
   - py.test test/
   - python setup.py tox
-  - tox -r -v
+  - tox -r -v -e py27,py33,py34,pypy

@@ -100,13 +100,14 @@ def load_zetup_config(path, zfg):
 
     zfg.PYTHON = config.get('python', '').split()
 
-    zfg.PACKAGES = config.get('packages', [])
+    zfg.PACKAGES = config.get('packages',
+      Packages([], root=zfg.ZETUP_DIR, zfg=zfg))
     if zfg.PACKAGES:
         # First should be the root package
-        zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR)
+        zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR, zfg=zfg)
     elif os.path.isdir(os.path.join(zfg.ZETUP_DIR, zfg.NAME)):
         # Just assume distribution name == root package name
-        zfg.PACKAGES = Packages([zfg.NAME])
+        zfg.PACKAGES = Packages([zfg.NAME], root=zfg.ZETUP_DIR, zfg=zfg)
 
     zfg.MODULES = (
       config.get('modules', '') or config.get('pymodules', '')
@@ -127,6 +128,8 @@ def load_zetup_config(path, zfg):
         elif zfg.ZETUP_CONFIG_MODULE in FALSE:
             zfg.ZETUP_CONFIG_MODULE = False
         # else it defines a custom module
+
+    zfg.ZETUP_CONFIG_HOOKS = config.get('zetupconfighooks', '').split()
 
     zfg.SETUP_HOOKS = config.get('setuphooks', '').split()
 
@@ -210,3 +213,14 @@ def load_zetup_config(path, zfg):
                 zfg.ZETUP_DATA.append(fname)
             zfg.NOTEBOOKS[name] = Notebook(
               os.path.join(zfg.ZETUP_DIR, fname))
+
+    # finally run any custom zetup config hooks
+    if zfg.ZETUP_CONFIG_HOOKS:
+        sys.path.insert(0, zfg.ZETUP_DIR)
+        for hook in zfg.ZETUP_CONFIG_HOOKS:
+            modname, funcname = hook.split(':')
+            mod = __import__(modname)
+            for subname in modname.split('.')[1:]:
+                mod = getattr(mod, subname)
+            func = getattr(mod, funcname)
+            func(zfg)

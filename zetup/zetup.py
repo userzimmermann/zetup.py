@@ -95,7 +95,7 @@ class Zetup(object):
           'keywords': self.KEYWORDS or [],
           }
         if self.EXTRAS:
-            keywords['extras_require']['all'] = self.EXTRAS['all']
+            keywords['extras_require']['all'] = str(self.EXTRAS['all'])
         if self.VERSION:
             keywords['version'] = str(self.VERSION)
         if self.PACKAGES:
