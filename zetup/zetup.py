@@ -106,7 +106,10 @@ class Zetup(object):
                     namespaces.add(main)
             if namespaces:
                 keywords['namespace_packages'] = list(namespaces)
-            keywords['packages'] = self.PACKAGES
+            keywords['packages'] = list(map(str, self.PACKAGES))
+            for pkg in self.PACKAGES:
+                if pkg._path:
+                    keywords['package_dir'][str(pkg)] = str(pkg._path)
         if self.ZETUP_CONFIG_PACKAGE:
             keywords['package_dir'][self.ZETUP_CONFIG_PACKAGE] = '.'
             keywords['package_data'][self.ZETUP_CONFIG_PACKAGE] \
