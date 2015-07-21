@@ -69,11 +69,14 @@ def find_zetup_config(pkgname):
 
 def annotate(pkgname, check_requirements=True, check_packages=True):
     """Find the zetup config for given `pkgname`
-       and add __version__, __requires__, __dist__, __description__
-       and __extras__ (if defined) to the package object.
+       and add __version__, __requires__, __dist__, __description__,
+       __packages__ and __extras__ (if defined) to the package object.
 
     - Automatically checks installed package requirements
       unless `check_requirements` is False.
+    - Automatically checks installed package files
+      unless `check_packages` is False.
+    - Returns the zetup config object.
     """
     try:
         mod = sys.modules[pkgname]
@@ -95,6 +98,7 @@ def annotate(pkgname, check_requirements=True, check_packages=True):
         and isinstance(zfg.PACKAGES, Packages)
         ):
         zfg.PACKAGES.check()
+    return zfg
 
 
 annotate(__name__, check_requirements=False)
