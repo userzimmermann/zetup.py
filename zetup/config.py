@@ -154,15 +154,15 @@ def load_zetup_config(path, zfg):
     else:
         zfg.VERSION_FILE = None
         try:
-            import hgdistver
+            import setuptools_scm
         except ImportError:
             warn(dedent("""
-              No hgdistver found.
-              Zetup needs hgdistver to get package version from repository.
+              No 'setuptools_scm' package found.
+              Zetup needs it to get project version from repository.
               """))
             zfg.VERSION = None
         else:
-            version = hgdistver.get_version(root=zfg.ZETUP_DIR)
+            version = setuptools_scm.get_version(root=zfg.ZETUP_DIR)
             # the hyphen-revision-hash part after .dev# version strings
             # results in wrong version comparisons
             # via pkg_resources.parse_version()

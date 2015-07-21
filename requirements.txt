@@ -1,2 +1,2 @@
 setuptools # >= 15.0
-hgdistver >= 0.25
+setuptools_scm
