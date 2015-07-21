@@ -3,6 +3,7 @@
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
 import sys
+from inspect import ismodule
 
 from pkg_resources import (
   parse_requirements, get_distribution, DistributionNotFound)
@@ -11,6 +12,16 @@ import zetup
 from zetup import Zetup, Path
 
 import pytest
+
+
+def test_zetup_module(zfg, in_repo, in_site_packages):
+    """Test the zetup module wrapper,
+       which dynamically provides additional members
+       based on installed dependencies.
+    """
+    assert ismodule(zetup)
+    assert zetup.__class__.__module__ == 'zetup'
+    assert set(zetup.__all__) == set(zetup.module.__all__).union(['Path'])
 
 
 def test_zetup_config(zfg, in_repo, in_site_packages):
