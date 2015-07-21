@@ -124,6 +124,10 @@ def load_zetup_config(path, zfg):
     zfg.ZETUP_CONFIG_MODULE = config.get('zetupconfigmodule', 'yes')
     if zfg.ZETUP_CONFIG_MODULE:
         if zfg.ZETUP_CONFIG_MODULE in TRUE:
+            if not zfg.PACKAGES:
+                raise ZetupError(
+                  "Can't add a default .zetup_config submodule"
+                  " if no package is defined.")
             zfg.ZETUP_CONFIG_MODULE = zfg.PACKAGES.main + '.zetup_config'
         elif zfg.ZETUP_CONFIG_MODULE in FALSE:
             zfg.ZETUP_CONFIG_MODULE = False
