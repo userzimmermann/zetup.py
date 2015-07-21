@@ -31,6 +31,4 @@ WIN = sys.platform.startswith('win')
 def pytest(self, args=None):
     """The actual pytest command action called by Command base.
     """
-    status = call(['py.test' if not WIN else 'py.test.exe'])
-    if not status:
-        sys.exit(status)
+    return call(['py.test' if not WIN else 'py.test.exe'])
