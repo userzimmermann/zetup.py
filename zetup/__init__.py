@@ -105,25 +105,25 @@ annotate(__name__, check_requirements=False)
 
 
 class ZetupModule(ModuleType):
-    """Custom module class for wrapping native `zetup` module on import.
+    """Custom module class for wrapping native ``zetup`` module on import.
     """
     def __init__(self):
         self.__name__ = __name__
         self.module = sys.modules[__name__]
 
     def __getattr__(self, name):
-        """Just delegate to native `zetup` module.
+        """Just delegate to native ``zetup`` module.
         """
         return getattr(self.module, name)
 
     def __dir__(self):
-        """Just delegate to native `zetup` module.
+        """Just delegate to native ``zetup`` module.
         """
         return list(self.__dict__) + dir(self.module)
 
     @property
     def Path(self):
-        """Provide **path.py**-wrapping `zetup.Path` class
+        """Provide **path.py**-wrapping ``zetup.Path`` class
            if **path.py** is installed.
         """
         from .path import Path
@@ -151,10 +151,11 @@ sys.modules[__name__] = ZetupModule()
 
 
 def setup_entry_point(dist, keyword, value):
-    """zetup's `entry_point` handler for `setup()` in a project's _setup.py_,
-       setting all setup keyword parameters based on zetup config.
+    """zetup's ``entry_point`` handler for ``setup()``
+       in a project's **setup.py**, setting all setup keyword parameters
+       based on zetup config.
 
-    - Activated with `setup(setup_requires=['zetup'], use_zetup=True)`
+    - Activated with ``setup(setup_requires=['zetup'], use_zetup=True)``
     """
     assert keyword == 'use_zetup'
     if not value:
