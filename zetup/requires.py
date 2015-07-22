@@ -170,7 +170,7 @@ class Requirements(object):
             except AttributeError as e_no__version__attr:
                 try: # try to get version from distribution
                     dist = get_distribution(req.key)
-                except DistributionNotFound as e:
+                except pkg_resources.DistributionNotFound as e:
                     if raise_:
                         raise VersionConflict(req, None, requirer,
                           reason="%s: %s. %s: %s" % (
