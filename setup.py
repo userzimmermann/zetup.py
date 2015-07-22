@@ -21,6 +21,9 @@ except VersionConflict:
         os.rmdir(egg_info)
         # when run via pip, the egg-info is still referenced by setuptools,
         # which would try to read the contents
+        for keys in working_set.entry_keys.values():
+            if 'zetup' in keys:
+                keys.remove('zetup')
         del working_set.by_key['zetup']
 
 
