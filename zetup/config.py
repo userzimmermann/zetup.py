@@ -23,7 +23,6 @@ import sys
 import os
 import re
 from textwrap import dedent
-from itertools import chain
 from collections import OrderedDict
 from warnings import warn
 if sys.version_info[0] == 3:
