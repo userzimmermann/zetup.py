@@ -7,14 +7,18 @@ import os
 from pkg_resources import get_distribution, working_set, VersionConflict
 
 
+def samefile(path, other):
+    return os.path.normcase(os.path.normpath(os.path.realpath(path))) \
+      == os.path.normcase(os.path.normpath(os.path.realpath(other)))
+
+
 try:
     import zetup
 except VersionConflict:
     egg_info = 'zetup.egg-info'
     dist = get_distribution('zetup')
-    if os.path.samefile(
-      dist.location, os.path.dirname(os.path.realpath(__file__))
-      ) and os.path.exists(egg_info):
+    if samefile(dist.location, os.path.dirname(os.path.realpath(__file__))) \
+      and os.path.exists(egg_info):
         print("zetup: Removing possibly outdated %s/" % egg_info)
         for fname in os.listdir(egg_info):
             os.remove(os.path.join(egg_info, fname))
