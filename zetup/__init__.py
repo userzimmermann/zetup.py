@@ -28,6 +28,12 @@ import os
 from types import ModuleType
 ## from inspect import ismodule
 
+import pkg_resources
+#HACK: happens on setup of namespace packages
+if pkg_resources.require is None:
+    # might be needed by package requirements
+    pkg_resources.require = pkg_resources.WorkingSet().require
+
 from .zetup import Zetup
 from .error import ZetupError
 from .config import ZetupConfigNotFound
