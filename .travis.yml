@@ -10,13 +10,11 @@ install:
   - pip install -r requirements.commands.txt
   - pip install -r requirements.notebook.txt
   - pip install -r requirements.pytest.txt
-  - pip install -r requirements.conda.txt
-  - pip install pyzmq tornado jsonschema
   - pip install tox
   - pip install -e .
 
 script:
   - python setup.py pytest
-  - py.test test/
+  - py.test -v test/
   - python setup.py tox
-  - tox -r -v -e py27,py33,py34,pypy
+  - tox -r -v
