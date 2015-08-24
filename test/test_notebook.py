@@ -4,7 +4,7 @@
 """
 from inspect import getmembers
 
-from IPython import nbconvert
+import nbconvert
 
 import pytest
 
