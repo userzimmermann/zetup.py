@@ -1,1 +1,1 @@
-ipython >= 3.0 #import IPython
+nbconvert >= 4.0

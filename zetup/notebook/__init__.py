@@ -45,20 +45,21 @@ def check_requirements(raise_=True):
 class Notebook(base):
 
     def __dir__(self):
-        """Return names of dynamically generatable .to_...() converter methods
-           with IPython.nbconvert.export_...() delegation.
+        """Return names of dynamically generatable
+           ``.to_...()`` converter methods
+           with ``nbconvert.export_...()`` delegation.
         """
         if not check_requirements(raise_=False):
             return []
         # import on demand to be not required for module import
-        from IPython import nbconvert
+        import nbconvert
         return ['to_' + name.split('_', 1)[1]
                 for name, member in getmembers(nbconvert)
                 if name.startswith('export_')]
 
     def __getattr__(self, name):
-        """Dynamically generate .to_...() converter methods
-           with IPython.nbconvert.export_...() delegation.
+        """Dynamically generate ``.to_...()`` converter methods
+           with ``nbconvert.export_...()`` delegation.
         """
         if not name.startswith('to_'):
             raise AttributeError(
@@ -66,7 +67,7 @@ class Notebook(base):
 
         check_requirements()
         # import on demand to be not required for module import
-        from IPython import nbconvert
+        import nbconvert
         try:
             func = getattr(nbconvert, 'export_' + name.split('_', 1)[1])
         except AttributeError as e:
@@ -89,7 +90,7 @@ class Notebook(base):
         """
         check_requirements()
         # import on demand to be not required for module import
-        from IPython import nbconvert
+        import nbconvert
         from .jinja import FILTERS, LOADER
 
         rst = nbconvert.export_rst(self,
@@ -123,7 +124,7 @@ class Notebook(base):
         """
         check_requirements()
         # import on demand to be not required for module import
-        from IPython import nbconvert
+        import nbconvert
         from .jinja import FILTERS, LOADER
 
         markdown = nbconvert.export_markdown(self,
