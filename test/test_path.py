@@ -15,7 +15,7 @@ import zetup
 def test_path():
     """Test zetup's **path.py** wrapper using ``__file__``.
     """
-    assert Path in zetup.Path.mro()
+    assert issubclass(zetup.Path, Path)
     assert zetup.Path.module is os.path
 
     # check that Path.samefile() is working if no os.path.samefile exists
