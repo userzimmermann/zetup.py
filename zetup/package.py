@@ -108,7 +108,7 @@ class Package(str):
 
     def sources(self, force_search=False):
         """Iterates :class:`zetup.package.Source` instances
-           absolute of the package's direct source *.py files
+           of the package's direct source *.py files
            (without sub-package sources).
         """
         if not force_search and self._sources:
