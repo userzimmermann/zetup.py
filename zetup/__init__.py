@@ -31,8 +31,6 @@ if pkg_resources.require is None:
     # might be needed by package requirements
     pkg_resources.require = pkg_resources.WorkingSet().require
 
-from .zetup import Zetup
-from .config import ZetupConfigNotFound
 from .modules import toplevel
 
 
@@ -58,6 +56,7 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
     if not value:
         return
 
+    from .zetup import Zetup
     zetup = Zetup() # reads config from current working directory
                     # (where setup.py is run)
     keywords = zetup.setup_keywords()
