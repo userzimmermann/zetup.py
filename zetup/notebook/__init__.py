@@ -19,11 +19,12 @@
 
 __all__ = ['Notebook']
 
-import zetup
-
-#TODO: not working because module is imported
+# TODO: not working because module is imported
 # before main zetup module is annotated
-## __requires__ = zetup.__requires__ + zetup.__extras__['notebook']
+#
+# import zetup
+#
+# __requires__ = zetup.__requires__ + zetup.__extras__['notebook']
 
 import re
 from inspect import getmembers
@@ -39,6 +40,7 @@ except ImportError:
 def check_requirements(raise_=True):
     """Check requirements for full :class:`zetup.Notebook` features.
     """
+    import zetup
     return zetup.__extras__['notebook'].check(raise_=raise_)
 
 
