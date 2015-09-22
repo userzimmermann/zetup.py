@@ -28,7 +28,7 @@ except ImportError: # fallback
     # (setuptools should at least be available after package installation)
     from distutils.core import setup, Command
 
-from .config import load_zetup_config
+from .config import load_zetup_config, ZetupConfigNotFound
 
 
 class Zetup(object):
