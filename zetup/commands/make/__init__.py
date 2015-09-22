@@ -25,7 +25,8 @@ from jinja2 import FileSystemLoader, TemplateNotFound
 from jinjatools import Environment
 
 import zetup
-from zetup import Zetup, Path
+from zetup.path import Path
+from zetup.zetup import Zetup
 from zetup.commands import ZetupCommandError
 
 
@@ -73,7 +74,7 @@ class ZetupMakeError(ZetupCommandError):
 
 
 @Zetup.command()
-def make(self, args=None, targets=None, force=False, skip_existing=False):
+def make(zfg, args=None, targets=None, force=False, skip_existing=False):
     if args:
         targets = args.targets
         force = args.force
@@ -90,20 +91,20 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
     made = Made()
     for target in targets:
         if target in ['zetup_config', 'zfg']:
-            if self.ZETUP_CONFIG_PACKAGE:
+            if zfg.ZETUP_CONFIG_PACKAGE:
                 target = '__init__.py'
-            elif self.ZETUP_CONFIG_MODULE:
+            elif zfg.ZETUP_CONFIG_MODULE:
                 target = 'package/zetup_config.py'
             else:
                 continue
-        if self.PACKAGES:
+        if zfg.PACKAGES:
             target = re.sub(
-              '^%s/' % self.PACKAGES.main, 'package/', target)
+              '^%s/' % zfg.PACKAGES.main, 'package/', target)
         path = target
-        if self.PACKAGES:
+        if zfg.PACKAGES:
             path = re.sub(
-              '^package', self.PACKAGES.main.replace(*'./'), path)
-        path = Path(self.ZETUP_DIR) / path
+              '^package', zfg.PACKAGES.main.replace(*'./'), path)
+        path = Path(zfg.ZETUP_DIR) / path
         if path.exists():
             if skip_existing:
                 print("zetup: NOT generating existing %s" % target)
@@ -125,7 +126,7 @@ def make(self, args=None, targets=None, force=False, skip_existing=False):
             # https://bitbucket.org/userzimmermann/zetup.py
             """),
           'zetup': zetup,
-          'zfg': self,
+          'zfg': zfg,
           })
         path.write_text(text.strip())
         made.append(path)

@@ -19,14 +19,15 @@
 
 import sys
 
-from zetup import Zetup, call
+from zetup.process import call
+from zetup.zetup import Zetup
 
 
 WIN = sys.platform.startswith('win')
 
 
 @Zetup.command()
-def pytest(self, args=None):
+def pytest(zfg, args=None):
     """The actual pytest command action called by Command base.
     """
     return call(['py.test' if not WIN else 'py.test.exe'])

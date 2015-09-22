@@ -19,20 +19,10 @@
 
 from __future__ import absolute_import
 
-__all__ = ['init', 'ZetupCommandError', 'ZetupMakeError']
-
 import os
 
-import zetup
-
-__requires__ = zetup.__extras__['commands'].checked
-
-from zetup import Path
-from zetup.error import ZetupError
-
-
-class ZetupCommandError(ZetupError):
-    pass
+from zetup.path import Path
+from zetup.modules import extra_toplevel
 
 
 COMMANDS = {}
@@ -59,6 +49,11 @@ def init(name, path=None):
           ])))
 
 
-# register the project-bound commands
-from . import make, run, pytest, tox, conda
-from .make import ZetupMakeError
+extra_toplevel(__name__, __all__={
+    '.error': ['ZetupCommandError'],
+    '.make': ['ZetupMakeError', 'make'],
+    '.run': ['run'],
+    '.pytest': ['pytest'],
+    '.tox': ['tox'],
+    '.conda': ['conda'],
+})

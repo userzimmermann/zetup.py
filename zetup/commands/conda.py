@@ -20,11 +20,13 @@
 import re
 import os
 
-from zetup import Zetup, Path, call
+from zetup.process import call
+from zetup.path import Path
+from zetup.zetup import Zetup
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', '__init__.py'])
-def conda(self, args):
+def conda(zfg, args):
     """The actual conda command action called by Command base.
     """
     import yaml
@@ -39,22 +41,22 @@ def conda(self, args):
         """
         return re.sub(r'([=<>]+)', r' \1', str(req))
 
-    requirements = list(map(conda_req, self.REQUIRES))
+    requirements = list(map(conda_req, zfg.REQUIRES))
     # Also add all extra requirements
     #  (conda doesn't seem to have such an extra features management):
-    for extra in self.EXTRAS.values():
+    for extra in zfg.EXTRAS.values():
         requirements.extend(map(conda_req, extra))
 
     meta = { # to be dumped to meta.yaml
       'package': {
-        'name': self.NAME,
-        'version': str(self.VERSION),
+        'name': zfg.NAME,
+        'version': str(zfg.VERSION),
         },
       'source': {
-        'fn': '%s-%s.tar.gz' % (self.NAME, self.VERSION),
+        'fn': '%s-%s.tar.gz' % (zfg.NAME, zfg.VERSION),
         # The absolute path to the sdist in dist/
         'url': 'file://%s' % os.path.realpath(os.path.join(
-          'dist', '%s-%s.tar.gz' % (self.NAME, self.VERSION)))
+          'dist', '%s-%s.tar.gz' % (zfg.NAME, zfg.VERSION)))
         },
       'requirements': {
         'build': [
@@ -66,8 +68,8 @@ def conda(self, args):
           ] + requirements,
         },
       'about': {
-        'home': self.URL,
-        'summary': self.DESCRIPTION,
+        'home': zfg.URL,
+        'summary': zfg.DESCRIPTION,
         },
       }
     with open(metafile, 'w') as f:

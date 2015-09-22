@@ -17,7 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-from zetup import Zetup, call
+from zetup.process import call
+from zetup.zetup import Zetup
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', 'zetup_config', 'tox.ini'])

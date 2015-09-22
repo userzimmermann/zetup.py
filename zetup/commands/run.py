@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-from subprocess import call
-
-from zetup import Zetup
+from zetup.process import call
+from zetup.zetup import Zetup
 
 
 @Zetup.command(depends=['all'])
-def run(self, args=None, cmd=None):
-    if args:
+def run(zfg, args=None, cmd=None):
+    if not cmd and args:
         cmd = args.cmd
     return call(cmd)
