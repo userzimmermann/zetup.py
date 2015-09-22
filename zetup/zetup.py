@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Zetup']
+__all__ = ['Zetup', 'find_zetup_config']
 
 import sys
 import os
@@ -209,51 +209,23 @@ class CommandDeco(object):
         self.zetupcls.COMMANDS.append(name)
 
 
-# If installed with pip, add all build directories and src/ subdirs
-#  of implicitly downloaded requirements
-#  to sys.path and os.environ['PYTHONPATH']
-#  to make them importable during installation:
-# sysbuildpath = os.path.join(sys.prefix, 'build')
-# try:
-#     fnames = os.listdir(sysbuildpath)
-# except OSError:
-#     pass
-# else:
-#     if 'pip-delete-this-directory.txt' in fnames:
-#         pkgpaths = []
-#         for fn in fnames:
-#             path = os.path.join(sysbuildpath, fn)
-#             if not os.path.isdir(path):
-#                 continue
-#             path = os.path.abspath(path)
-#             pkgpaths.append(path)
-
-#             srcpath = os.path.join(path, 'src')
-#             if os.path.isdir(srcpath):
-#                 pkgpaths.append(srcpath)
-
-#         for path in pkgpaths:
-#             sys.path.insert(0, path)
-
-#         PYTHONPATH = os.environ.get('PYTHONPATH')
-#         PATH = ':'.join(pkgpaths)
-#         if PYTHONPATH is None:
-#             os.environ['PYTHONPATH'] = PATH
-#         else:
-#             os.environ['PYTHONPATH'] = ':'.join([PATH, PYTHONPATH])
-
-
-# If this is a locally imported zetup.py in zetup's own repo...
-# if (NAME == 'zetup' #==> is in zetup's own package/repo
-#     and os.path.basename(__file__).startswith('zetup')
-#     #"=> was not exec()'d from setup.py
-#     and not 'zetup.zetup' in sys.modules
-#     #"=> was not imported as subpackage
-#     ):
-#     #... then fake the interface of the installed zetup package...
-#     import zetup # import itself as faked subpackage
-
-#     ## __path__ = [os.path.join(ZETUP_DIR, 'zetup')]
-#     __path__ = [ZETUP_DIR]
-#     # Exec the __init__ which gets installed in top level zetup package:
-#     exec(open('__init__.py').read().replace('from . import zetup', ''))
+def find_zetup_config(pkgname):
+    zfg_modname = pkgname + '.zetup_config'
+    try: # Already imported?
+        return sys.modules[zfg_modname]
+    except KeyError:
+        pass
+    try:
+        return __import__(zfg_modname).zetup_config
+    except ImportError:
+        pass
+    # ==> no zetup config module
+    # ==> assume package imported from source (repo)
+    # ==> load setup config from package's parent path:
+    mod = sys.modules[pkgname]
+    path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
+    try:
+        return Zetup(path)
+    except ZetupConfigNotFound as e:
+        raise ZetupConfigNotFound(
+            "No '%s.zetup_config' module and: %s" % (pkgname, e))

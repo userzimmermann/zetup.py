@@ -35,7 +35,16 @@ class ZetupCommandError(ZetupError):
     pass
 
 
-@zetup.command
+COMMANDS = {}
+
+
+def command(func):
+    """Decorator for registering basic (non-project-bound) commands.
+    """
+    COMMANDS[func.__name__] = func
+
+
+@command
 def init(name, path=None):
     path = Path(path or os.getcwd())
     with open(path / 'zetuprc', 'w') as f:

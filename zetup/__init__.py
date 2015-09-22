@@ -17,16 +17,13 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['find_zetup_config', 'Zetup',
-  'ZetupError', 'ZetupConfigNotFound',
-  'DistributionNotFound', 'VersionConflict',
-  'Packages', 'Package',
-  'Popen', 'call']
+"""zetup
+
+.. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
+"""
+from __future__ import absolute_import
 
 import sys
-import os
-from types import ModuleType
-## from inspect import ismodule
 
 import pkg_resources
 #HACK: happens on setup of namespace packages
@@ -35,137 +32,22 @@ if pkg_resources.require is None:
     pkg_resources.require = pkg_resources.WorkingSet().require
 
 from .zetup import Zetup
-from .error import ZetupError
 from .config import ZetupConfigNotFound
-from .requires import DistributionNotFound, VersionConflict
-from .package import Packages, Package
-from .process import Popen, call
+from .modules import toplevel
 
 
-COMMANDS = {}
+toplevel(__name__, __all__={
+    '.zetup': ['Zetup', 'find_zetup_config'],
+    '.error': ['ZetupError'],
+    '.config': ['ZetupConfigNotFound'],
+    '.requires': ['DistributionNotFound', 'VersionConflict'],
+    '.process': ['Popen', 'call'],
+    '.path': ['Path'],
+})
 
 
-def command(func):
-    """Decorator for registering basic (non-project-bound) commands.
-    """
-    COMMANDS[func.__name__] = func
-
-
-def find_zetup_config(pkgname):
-    zfg_modname = pkgname + '.zetup_config'
-    try: # Already imported?
-        return sys.modules[zfg_modname]
-    except KeyError:
-        pass
-    try:
-        return __import__(zfg_modname).zetup_config
-    except ImportError:
-        pass
-    # ==> no zetup config module
-    # ==> assume package imported from source (repo)
-    # ==> load setup config from package's parent path:
-    mod = sys.modules[pkgname]
-    path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
-    try:
-        return Zetup(path)
-    except ZetupConfigNotFound as e:
-        raise ZetupConfigNotFound(
-          "No '%s.zetup_config' module and: %s" % (pkgname, e))
-
-
-def annotate(pkgname, check_requirements=True, check_packages=True):
-    """Find the zetup config for given `pkgname`
-       and add __version__, __requires__, __dist__, __description__,
-       __packages__ and __extras__ (if defined) to the package object.
-
-    - Automatically checks installed package requirements
-      unless `check_requirements` is False.
-    - Automatically checks installed package files
-      unless `check_packages` is False.
-    - Returns the zetup config object.
-    """
-    try:
-        mod = sys.modules[pkgname]
-    except KeyError:
-        raise ZetupError(
-          "Package %s was not found in sys.modules" % repr(pkgname))
-    zfg = find_zetup_config(pkgname)
-    mod.__version__ = zfg.VERSION
-    mod.__requires__ = zfg.REQUIRES
-    if check_requirements:
-        zfg.REQUIRES.check()
-    if zfg.EXTRAS:
-        mod.__extras__ = zfg.EXTRAS
-    mod.__distribution__ = zfg.DISTRIBUTION.find(os.path.dirname(__file__))
-    mod.__description__ = zfg.DESCRIPTION
-    mod.__packages__ = zfg.PACKAGES
-    if (check_packages
-        #TODO: remove (only for backwards compatibility)
-        and isinstance(zfg.PACKAGES, Packages)
-        ):
-        zfg.PACKAGES.check()
-    return zfg
-
-
-annotate(__name__, check_requirements=False)
-
-
-class ZetupModule(ModuleType):
-    """Custom module class for wrapping native ``zetup`` module on import,
-       to dynamically provide additional module members
-       based on installed dependencies.
-    """
-    def __init__(self):
-        self.__name__ = __name__
-        self.module = sys.modules[__name__]
-        try:
-            from .path import Path
-        except ImportError: #==> no path.py installed
-            pass
-        else:
-            self.__all__.append('Path')
-
-    def __getattr__(self, name):
-        """Just delegate to native ``zetup`` module.
-        """
-        return getattr(self.module, name)
-
-    def __dir__(self):
-        """Just delegate to native ``zetup`` module.
-        """
-        return list(self.__dict__) + dir(self.module)
-
-    @property
-    def Path(self):
-        """Provide **path.py**-wrapping ``zetup.Path`` class
-           if **path.py** is installed.
-        """
-        from .path import Path
-        return Path
-
-# replace native zetup module with wrapper
-sys.modules[__name__] = ZetupModule()
-
-
-# # Get zetup's own config:
-# zfg = find_zetup_config(__name__)
-
-# __distribution__ = zfg.DISTRIBUTION.find(__path__[0])
-# __description__ = zfg.DESCRIPTION
-
-# __version__ = zfg.VERSION
-
-# __requires__ = zfg.REQUIRES # .checked
-# ## if ismodule(zfg): # if this is an installed zetup package:
-# ##     __requires__.check()
-
-# __extras__ = zfg.EXTRAS
-
-# ## __notebook__ = zfg.NOTEBOOKS['README']
-
-
-def setup_entry_point(dist, keyword, value):
-    """zetup's ``entry_point`` handler for ``setup()``
+def setup_entry_point(dist, keyword='use_zetup', value=True):
+    """Zetup's ``entry_point`` handler for ``setup()``
        in a project's **setup.py**, setting all setup keyword parameters
        based on zetup config.
 

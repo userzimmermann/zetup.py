@@ -52,7 +52,7 @@ args = ap.parse_args()
 def run():
     exit_status = 0 # exit status of this script
     try:
-        cmdfunc = zetup.COMMANDS[args.cmd]
+        cmdfunc = zetup.commands.COMMANDS[args.cmd]
     except KeyError:
         if args.cmd in EXTERNAL_COMMANDS:
             exit_status = call([args.cmd])
