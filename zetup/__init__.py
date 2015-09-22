@@ -43,6 +43,7 @@ toplevel(__name__, __all__={
     '.requires': ['DistributionNotFound', 'VersionConflict'],
     '.process': ['Popen', 'call'],
     '.path': ['Path'],
+    '.object': ['object', 'meta'],
 })
 
 
