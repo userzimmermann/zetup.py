@@ -196,17 +196,19 @@ class CommandDeco(object):
         """
         targets = self.make_targets
 
-        def cmdmethod(self, args=None, **kwargs):
+        def cmdmethod(zfg, args=None, **kwargs):
             if not targets:
-                return func(self, args, **kwargs)
-            with self.make(targets=targets, skip_existing=True):
-                return func(self, args, **kwargs)
+                return func(zfg, args, **kwargs)
+            from zetup.commands import make
+            with make(zfg, targets=targets, skip_existing=True):
+                return func(zfg, args, **kwargs)
 
         name = cmdmethod.__name__ = func.__name__
         cmdmethod.args = self.args
 
         setattr(self.zetupcls, name, cmdmethod)
         self.zetupcls.COMMANDS.append(name)
+        return cmdmethod
 
 
 def find_zetup_config(pkgname):
