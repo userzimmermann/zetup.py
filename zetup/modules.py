@@ -26,15 +26,15 @@ and top-level packages for extra features.
 """
 import sys
 from six import with_metaclass
-from abc import ABCMeta, ABC, abstractproperty
 from types import ModuleType
 
+from .object import object, meta
 from .annotate import annotate, annotate_extra
 
 __all__ = ['package', 'toplevel']
 
 
-class package(ModuleType):
+class package(ModuleType, object):
     """Package module object wrapper
        for clean dynamic API import from sub-modules.
     """
@@ -47,6 +47,7 @@ class package(ModuleType):
           to the names of API members defined in those sub-modules.
         - Original package module object is stored in ``self.__module__``.
         """
+        ModuleType.__init__(self, __name__)
         self.__name__ = __name__
         self.__module__ = sys.modules[__name__]
         sys.modules[__name__] = self
@@ -64,10 +65,6 @@ class package(ModuleType):
     def __getattr__(self, name):
         """Dynamically import API members from sub-modules.
         """
-        try:
-            return getattr(self.__module__, name)
-        except AttributeError:
-            pass
         if name in self.__all__:
             submodname = self.__dict__['__all__'][name]
             submod = __import__(self.__name__ + submodname, fromlist=[name])
@@ -80,12 +77,16 @@ class package(ModuleType):
             obj = getattr(submod, name)
             setattr(self, name, obj)
             return obj
-        raise AttributeError("%s has no attribute %s" % (self, repr(name)))
+        try:
+            return getattr(self.__module__, name)
+        except AttributeError:
+            raise AttributeError("%s has no attribute %s"
+                                 % (self, repr(name)))
 
     def __dir__(self):
-        """Get all API member names.
+        """Additionally get all API member names.
         """
-        return super(package, self).__dir__() + self.__all__
+        return object.__dir__(self) + self.__all__
 
 
 class toplevel(package):
@@ -106,7 +107,7 @@ class toplevel(package):
                  check_packages=check_packages)
 
 
-class extra_toplevel_meta(type):
+class extra_toplevel_meta(meta):
     def __getitem__(cls, extra):
         return type('%s[%s]' % (cls.__name__, extra), (cls, ), {
             'extra': extra,
