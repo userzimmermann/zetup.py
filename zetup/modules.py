@@ -19,14 +19,17 @@
 
 """zetup.modules
 
-(top-level) package module object wrappers.
+Module object wrappers for packages, top-level packages,
+and top-level packages for extra features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
 import sys
+from six import with_metaclass
+from abc import ABCMeta, ABC, abstractproperty
 from types import ModuleType
 
-from .annotate import annotate
+from .annotate import annotate, annotate_extra
 
 __all__ = ['package', 'toplevel']
 
@@ -101,3 +104,28 @@ class toplevel(package):
         super(toplevel, self).__init__(__name__, __all__)
         annotate(__name__, check_requirements=check_requirements,
                  check_packages=check_packages)
+
+
+class extra_toplevel_meta(type):
+    def __getitem__(cls, extra):
+        return type('%s[%s]' % (cls.__name__, extra), (cls, ), {
+            'extra': extra,
+        })
+
+
+class extra_toplevel(with_metaclass(extra_toplevel_meta, package)):
+    """Special extra feature top-level package module object wrapper
+       for clean dynamic API import from sub-modules
+       and automatic application of func:`zetup.annotate_extra`.
+    """
+    extra = None
+
+    def __init__(self, __name__, __all__, check_requirements=True):
+        """Wrap top-level package module given by its `__name__`.
+
+        - See :class:`zetup.package`
+          for details about defining the package API.
+        - See :func:`zetup.annotate_extra` for details about the extra option.
+        """
+        package.__init__(self, __name__, __all__)
+        annotate_extra(__name__, check_requirements=check_requirements)
