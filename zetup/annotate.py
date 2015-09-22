@@ -24,7 +24,7 @@ from .zetup import find_zetup_config
 from .error import ZetupError
 from .package import Packages
 
-__all__ = ['annotate']
+__all__ = ['annotate', 'annotate_extra']
 
 
 def annotate(pkgname, check_requirements=True, check_packages=True):
@@ -59,3 +59,13 @@ def annotate(pkgname, check_requirements=True, check_packages=True):
         ):
         zfg.PACKAGES.check()
     return zfg
+
+
+def annotate_extra(pkgname, check_requirements=True):
+    main, extra = pkgname.rsplit('.', 1)
+    mainmod = sys.modules[main]
+    mod = sys.modules[pkgname]
+    mod.__version__ = mainmod.__version__
+    mod.__requires__ = mainmod.__extras__[extra]
+    if check_requirements:
+        mod.__requires__.check()
