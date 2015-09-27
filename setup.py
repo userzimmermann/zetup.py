@@ -9,7 +9,7 @@ from pkg_resources import get_distribution, working_set, VersionConflict
 
 def samefile(path, other):
     return os.path.normcase(os.path.normpath(os.path.realpath(path))) \
-      == os.path.normcase(os.path.normpath(os.path.realpath(other)))
+        == os.path.normcase(os.path.normpath(os.path.realpath(other)))
 
 
 try:
@@ -34,7 +34,7 @@ except VersionConflict:
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))
 from zetup import Zetup, DistributionNotFound, VersionConflict
 try:
-    import zetup.commands
+    from zetup.commands import make, pytest, tox, conda
 except (ImportError, DistributionNotFound, VersionConflict):
     #==> no zetup commands available
     # standard setup commands work anyway
@@ -56,20 +56,15 @@ zfg = Zetup()
 
 setup = zfg.setup
 setup['package_data']['zetup.commands.make'] = [
-  'templates/*.jinja',
-  'templates/package/*.jinja',
-  ]
+    'templates/*.jinja',
+    'templates/package/*.jinja',
+]
 setup(
-  ## setup_requires=setup_req,
-  ## setup_requires=['hgdistver >= 0.25'],
-
-  ## get_version_from_scm=True,
-
-  entry_points={
-    'distutils.setup_keywords': [
-      'use_zetup = zetup:setup_entry_point',
-      ],
-    'console_scripts': [
-      'zetup = zetup.script:run',
-      ]},
-  )
+    entry_points={
+        'distutils.setup_keywords': [
+            'use_zetup = zetup:setup_entry_point',
+        ],
+        'console_scripts': [
+            'zetup = zetup.script:run',
+        ]},
+)
