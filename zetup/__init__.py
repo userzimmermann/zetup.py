@@ -42,6 +42,8 @@ toplevel(__name__, __all__={
     '.process': ['Popen', 'call'],
     '.path': ['Path'],
     '.object': ['object', 'meta'],
+    '.annotate': ['annotate'],
+    '.modules': ['package', 'toplevel', 'extra_toplevel'],
 })
 
 
