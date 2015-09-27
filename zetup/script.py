@@ -4,7 +4,7 @@
 #
 # Zimmermann's Python package setup.
 #
-# Copyright (C) 2014 Stefan Zimmermann <zimmermann.code@gmail.com>
+# Copyright (C) 2014-2015 Stefan Zimmermann <zimmermann.code@gmail.com>
 #
 # zetup.py is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -26,8 +26,7 @@ from itertools import chain
 from argparse import ArgumentParser
 import distutils.command
 
-import zetup.commands
-from zetup.commands import ZetupCommandError
+from zetup.commands import ZetupCommandError, make, pytest, tox, conda
 from zetup.process import call
 
 
