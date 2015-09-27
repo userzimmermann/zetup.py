@@ -81,4 +81,4 @@ def conda(zfg, args):
                 '$PYTHON setup.py install'
                 '\n')
 
-    return call(['conda', 'build', metadir])
+    return call(['conda', 'build', metadir], env=os.environ)

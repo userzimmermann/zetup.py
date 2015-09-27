@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from zetup.process import call
 from zetup.zetup import Zetup
 
 
 @Zetup.command(depends=['VERSION', 'setup.py', 'zetup_config', 'tox.ini'])
 def tox(self, args=None):
-    return call(['tox'])
+    return call(['tox'], env=os.environ)
