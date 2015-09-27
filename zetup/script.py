@@ -26,6 +26,7 @@ from itertools import chain
 from argparse import ArgumentParser
 import distutils.command
 
+import zetup.commands
 from zetup.commands import ZetupCommandError, make, pytest, tox, conda
 from zetup.process import call
 
@@ -34,7 +35,7 @@ EXTERNAL_COMMANDS = []
 
 COMMANDS = sorted(chain(
   distutils.command.__all__,
-  zetup.COMMANDS,
+  zetup.commands.COMMANDS,
   zetup.Zetup.COMMANDS,
   EXTERNAL_COMMANDS,
   ))
