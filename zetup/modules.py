@@ -25,7 +25,6 @@ and top-level packages for extra features.
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
 import sys
-from six import with_metaclass
 from types import ModuleType
 
 from .object import object, meta
@@ -114,7 +113,10 @@ class extra_toplevel_meta(meta):
         })
 
 
-class extra_toplevel(with_metaclass(extra_toplevel_meta, package)):
+class extra_toplevel(
+        # PY2/3 compatible way to assign metaclass
+        extra_toplevel_meta('extra_toplevel_base', (package, ), {})
+):
     """Special extra feature top-level package module object wrapper
        for clean dynamic API import from sub-modules
        and automatic application of func:`zetup.annotate_extra`.

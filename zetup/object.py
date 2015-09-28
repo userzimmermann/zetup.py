@@ -24,7 +24,6 @@ with some added features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
-from six import with_metaclass
 from itertools import chain
 
 __all__ = ['object', 'meta']
@@ -49,12 +48,19 @@ class meta(type):
                 dir(type(cls)), *(c.__dict__ for c in cls.mro()))))
 
 
-class object(with_metaclass(meta, object)):
+# PY2/3 compatible way to create class `object` with metaclass `meta`
+clsattrs = {
+    '__doc__':
     """Basic class derived from builtin ``object``,
        which adds a basic ``__dir__`` method for Python 2.
-    """
-    if not hasattr(object, '__dir__'):
-        def __dir__(self):
-            """Get all member names from instance and class level.
-            """
-            return list(set(chain(self.__dict__, dir(type(self)))))
+    """}
+if not hasattr(object, '__dir__'):
+    def __dir__(self):
+        """Get all member names from instance and class level.
+        """
+        return list(set(chain(
+            self.__dict__, *(c.__dict__ for c in type(self).mro()))))
+
+    clsattrs['__dir__'] = __dir__
+
+object = meta('object', (object, ), clsattrs)
