@@ -44,7 +44,7 @@ toplevel(__name__, __all__={
     '.object': ['object', 'meta'],
     '.annotate': ['annotate'],
     '.modules': ['package', 'toplevel', 'extra_toplevel'],
-})
+}, check_requirements=False)
 
 
 def setup_entry_point(dist, keyword='use_zetup', value=True):
