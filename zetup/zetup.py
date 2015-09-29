@@ -75,27 +75,28 @@ class Zetup(object):
         """Get a dictionary of `setup()` keywords generated from zetup config.
         """
         keywords = {
-          'name': self.NAME,
-          'description': self.DESCRIPTION,
-          'author': self.AUTHOR,
-          'author_email': self.EMAIL,
-          'url': self.URL,
-          'license': self.LICENSE,
-          'setup_requires': str(self.SETUP_REQUIRES or ''),
-          'install_requires': str(self.REQUIRES or ''),
-          'extras_require':
-            {name: str(reqs) for name, reqs in self.EXTRAS.items()},
-          # always provide empty default collections
-          # to make sure that any custom setup hooks
-          # can always directly add stuff
-          # even if no data defined in zetup config
-          'packages': [],
-          'package_dir': {},
-          'package_data': {},
-          'py_modules': self.MODULES or [],
-          'classifiers': self.CLASSIFIERS or [],
-          'keywords': self.KEYWORDS or [],
-          }
+            'name': self.NAME,
+            'description': self.DESCRIPTION,
+            'author': self.AUTHOR,
+            'author_email': self.EMAIL,
+            'url': self.URL,
+            'license': self.LICENSE,
+            'setup_requires': str(self.SETUP_REQUIRES or ''),
+            'install_requires': str(self.REQUIRES or ''),
+            'extras_require': {
+                name: str(reqs) for name, reqs in self.EXTRAS.items()},
+            # always provide empty default collections
+            # to make sure that any custom setup hooks
+            # can always directly add stuff
+            # even if no data defined in zetup config
+            'packages': [],
+            'package_dir': {},
+            'package_data': {},
+            'py_modules': self.MODULES or [],
+            'entry_points': {},
+            'classifiers': self.CLASSIFIERS or [],
+            'keywords': self.KEYWORDS or [],
+        }
         if self.EXTRAS:
             keywords['extras_require']['all'] = str(self.EXTRAS['all'])
         if self.VERSION:
@@ -116,6 +117,16 @@ class Zetup(object):
             keywords['package_dir'][self.ZETUP_CONFIG_PACKAGE] = '.'
             keywords['package_data'][self.ZETUP_CONFIG_PACKAGE] \
               = self.ZETUP_DATA
+        if self.SCRIPTS:
+            entry_points = keywords['entry_points'].setdefault(
+                'console_scripts', [])
+            for name, source in self.SCRIPTS.items():
+                entry_points.append('%s = %s' % (name, source))
+        if self.SETUP_KEYWORDS:
+            entry_points = keywords['entry_points'].setdefault(
+                'distutils.setup_keywords', [])
+            for name, source in self.SETUP_KEYWORDS.items():
+                entry_points.append('%s = %s' % (name, source))
         cmdclasses = {}
         for cmdname in self.COMMANDS:
             cmdmethod = getattr(self, cmdname)

@@ -132,6 +132,26 @@ def load_zetup_config(path, zfg):
             zfg.ZETUP_CONFIG_MODULE = False
         # else it defines a custom module
 
+    zfg.SCRIPTS = config.get('scripts')
+    if zfg.SCRIPTS:
+        lines = list(map(str.strip, zfg.SCRIPTS.split('\n')))
+        zfg.SCRIPTS = {}
+        for line in lines:
+            if not line:
+                continue
+            name, source = map(str.strip, line.split(':', 1))
+            zfg.SCRIPTS[name] = source
+
+    zfg.SETUP_KEYWORDS = config.get('setupkeywords')
+    if zfg.SETUP_KEYWORDS:
+        lines = list(map(str.strip, zfg.SETUP_KEYWORDS.split('\n')))
+        zfg.SETUP_KEYWORDS = {}
+        for line in lines:
+            if not line:
+                continue
+            name, source = map(str.strip, line.split(':', 1))
+            zfg.SETUP_KEYWORDS[name] = source
+
     zfg.ZETUP_CONFIG_HOOKS = config.get('zetupconfighooks', '').split()
 
     zfg.SETUP_HOOKS = config.get('setuphooks', '').split()
