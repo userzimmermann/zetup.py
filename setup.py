@@ -12,6 +12,7 @@ def samefile(path, other):
         == os.path.normcase(os.path.normpath(os.path.realpath(other)))
 
 
+sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))
 try:
     import zetup
 except VersionConflict:
@@ -31,7 +32,6 @@ except VersionConflict:
         del working_set.by_key['zetup']
 
 
-sys.path.insert(0, os.path.realpath(os.path.dirname(__file__)))
 from zetup import Zetup, DistributionNotFound, VersionConflict
 try:
     from zetup.commands import make, pytest, tox, conda
