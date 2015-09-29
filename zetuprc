@@ -10,6 +10,12 @@ license = LGPLv3
 
 python = 2.7 3.3 3.4 3.5
 
+scripts =
+    zetup: zetup.script:run
+
+setup keywords =
+    use_zetup: zetup:setup_entry_point
+
 classifiers =
     Development Status :: 3 - Alpha
     Intended Audience :: Developers
