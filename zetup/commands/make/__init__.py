@@ -74,10 +74,12 @@ class ZetupMakeError(ZetupCommandError):
 
 
 @Zetup.command()
-def make(zfg, args=None, targets=None, force=False, skip_existing=False):
+def make(zfg, args=None, targets=None, force=None, skip_existing=False):
     if args:
         targets = args.targets
         force = args.force
+    if force is None:
+        force = zfg.FORCE_MAKE
     if not targets:
         raise ZetupCommandError("No targets given. You can 'make all'.")
     env = Environment(loader=Loader())
@@ -90,6 +92,8 @@ def make(zfg, args=None, targets=None, force=False, skip_existing=False):
 
     made = Made()
     for target in targets:
+        if zfg.NO_MAKE and target in zfg.NO_MAKE:
+            continue
         if target in ['zetup_config', 'zfg']:
             if zfg.ZETUP_CONFIG_PACKAGE:
                 target = '__init__.py'
