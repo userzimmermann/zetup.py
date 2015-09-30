@@ -186,7 +186,7 @@ class Setup(dict):
         keywords = dict(self, **keywords)
         if 'make' in Zetup.COMMANDS:
             make_targets = ['VERSION', 'setup.py', 'zetup_config']
-            with self.zfg.make(targets=make_targets, skip_existing=True):
+            with self.zfg.make(targets=make_targets):
                 if subprocess:
                     return call([sys.executable, 'setup.py']
                                 + sys.argv[1:])
@@ -213,7 +213,7 @@ class CommandDeco(object):
             if not targets:
                 return func(zfg, args, **kwargs)
             from zetup.commands import make
-            with make(zfg, targets=targets, skip_existing=True):
+            with make(zfg, targets=targets):
                 return func(zfg, args, **kwargs)
 
         name = cmdmethod.__name__ = func.__name__
