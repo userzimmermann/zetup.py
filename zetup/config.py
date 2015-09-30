@@ -156,6 +156,19 @@ def load_zetup_config(path, zfg):
 
     zfg.SETUP_HOOKS = config.get('setuphooks', '').split()
 
+    zfg.NO_MAKE = config.get('nomake', '').split()
+
+    zfg.FORCE_MAKE = config.get('forcemake', True)
+    if zfg.FORCE_MAKE is not True:
+        if zfg.FORCE_MAKE in TRUE:
+            zfg.FORCE_MAKE = True
+        elif zfg.FORCE_MAKE in FALSE:
+            zfg.FORCE_MAKE = False
+        else:
+            raise ZetupConfigError(
+                "Invalid value for 'force make' option: %s"
+                % zfg.FORCE_MAKE)
+
     # get all non-empty classifier lines
     # (lines starting with :: are interpreted as continuation)
     zfg.CLASSIFIERS = list(filter(None, (line.strip() for line in
