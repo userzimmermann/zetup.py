@@ -16,6 +16,10 @@ scripts =
 setup keywords =
     use_zetup: zetup:setup_entry_point
 
+no make =
+    setup.py
+    tox.ini
+
 classifiers =
     Development Status :: 3 - Alpha
     Intended Audience :: Developers
