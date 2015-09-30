@@ -47,8 +47,9 @@ class Made(list):
 
     def clean(self):
         for path in self:
-            print("zetup: Removing auto-generated %s" % path)
-            path.remove()
+            if path.exists():
+                print("zetup: Removing auto-generated %s" % path)
+                path.remove()
             if path.ext == '.py':
                 compiled = []
                 path = path.splitext()[0] + '.pyc'
