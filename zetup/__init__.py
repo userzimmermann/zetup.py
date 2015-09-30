@@ -31,6 +31,10 @@ if pkg_resources.require is None:
     # might be needed by package requirements
     pkg_resources.require = pkg_resources.WorkingSet().require
 
+# explicit import makes pylint happier
+# when scanning derived metaclasses :)
+from .object import meta
+
 from .modules import toplevel
 
 
