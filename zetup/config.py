@@ -99,8 +99,8 @@ def load_zetup_config(path, zfg):
 
     zfg.PYTHON = config.get('python', '').split()
 
-    zfg.PACKAGES = config.get('packages',
-      Packages([], root=zfg.ZETUP_DIR, zfg=zfg))
+    zfg.PACKAGES = config.get(
+        'packages', Packages([], root=zfg.ZETUP_DIR, zfg=zfg))
     if zfg.PACKAGES:
         # First should be the root package
         zfg.PACKAGES = Packages(zfg.PACKAGES, root=zfg.ZETUP_DIR, zfg=zfg)
@@ -109,8 +109,8 @@ def load_zetup_config(path, zfg):
         zfg.PACKAGES = Packages([zfg.NAME], root=zfg.ZETUP_DIR, zfg=zfg)
 
     zfg.MODULES = (
-      config.get('modules', '') or config.get('pymodules', '')
-      ).split()
+        config.get('modules', '') or config.get('pymodules', '')
+    ).split()
 
     zfg.ZETUP_CONFIG_PACKAGE = config.get('zetupconfigpackage')
     if zfg.ZETUP_CONFIG_PACKAGE:
@@ -125,8 +125,8 @@ def load_zetup_config(path, zfg):
         if zfg.ZETUP_CONFIG_MODULE in TRUE:
             if not zfg.PACKAGES:
                 raise ZetupError(
-                  "Can't add a default .zetup_config submodule"
-                  " if no package is defined.")
+                    "Can't add a default .zetup_config submodule"
+                    " if no package is defined.")
             zfg.ZETUP_CONFIG_MODULE = zfg.PACKAGES.main + '.zetup_config'
         elif zfg.ZETUP_CONFIG_MODULE in FALSE:
             zfg.ZETUP_CONFIG_MODULE = False
@@ -171,15 +171,20 @@ def load_zetup_config(path, zfg):
                 "Invalid value for 'force make' option: %s"
                 % zfg.FORCE_MAKE)
 
+    zfg.TEST_COMMANDS = list(filter(None, map(
+        str.strip, config.get('testcommands', 'py.test -v test').split('\n')
+    )))
+
     # get all non-empty classifier lines
     # (lines starting with :: are interpreted as continuation)
-    zfg.CLASSIFIERS = list(filter(None, (line.strip() for line in
-      re.sub('\n\w*::', ' ::', config.get('classifiers', '').strip())
-      .split('\n'))))
+    zfg.CLASSIFIERS = list(filter(None, (
+        line.strip() for line in re.sub(
+            '\n\w*::', ' ::', config.get('classifiers', '').strip()
+        ).split('\n'))))
     zfg.CLASSIFIERS.append('Programming Language :: Python')
     for pyversion in zfg.PYTHON:
         zfg.CLASSIFIERS.append(
-          'Programming Language :: Python :: ' + pyversion)
+            'Programming Language :: Python :: ' + pyversion)
 
     zfg.KEYWORDS = config.get('keywords', '').split()
     if any(pyversion.startswith('3') for pyversion in zfg.PYTHON):
@@ -197,10 +202,10 @@ def load_zetup_config(path, zfg):
         try:
             import setuptools_scm
         except ImportError:
-            warn(dedent("""
-              No 'setuptools_scm' package found.
-              Zetup needs it to get project version from repository.
-              """))
+            warn(dedent(
+                """No 'setuptools_scm' package found.
+                   Zetup needs it to get project version from repository.
+                """))
             zfg.VERSION = None
         else:
             version = setuptools_scm.get_version(root=zfg.ZETUP_DIR)
@@ -212,12 +217,12 @@ def load_zetup_config(path, zfg):
         zfg.VERSION = Version(zfg.VERSION)
 
     zfg.DISTRIBUTION = Distribution(
-      zfg.NAME, zfg.PACKAGES.main, zfg.VERSION)
+        zfg.NAME, zfg.PACKAGES.main, zfg.VERSION)
 
     req_setup_txt = os.path.join(zfg.ZETUP_DIR, 'requirements.setup.txt')
     if os.path.exists(req_setup_txt):
         zfg.SETUP_REQUIRES = Requirements(
-          open(req_setup_txt).read(), zfg=zfg)
+            open(req_setup_txt).read(), zfg=zfg)
     else:
         zfg.SETUP_REQUIRES = None
 
@@ -240,7 +245,7 @@ def load_zetup_config(path, zfg):
             zfg.ZETUP_DATA.append(fname)
 
             zfg.EXTRAS[name] = Requirements(
-              open(os.path.join(zfg.ZETUP_DIR, fname)).read())
+                open(os.path.join(zfg.ZETUP_DIR, fname)).read())
 
     # Are there IPython notebooks?
     zfg.NOTEBOOKS = OrderedDict()
@@ -249,8 +254,8 @@ def load_zetup_config(path, zfg):
         if ext == '.ipynb':
             if name == 'README':
                 zfg.ZETUP_DATA.append(fname)
-            zfg.NOTEBOOKS[name] = Notebook(
-              os.path.join(zfg.ZETUP_DIR, fname))
+            zfg.NOTEBOOKS[name] \
+                = Notebook(os.path.join(zfg.ZETUP_DIR, fname))
 
     # finally run any custom zetup config hooks
     if zfg.ZETUP_CONFIG_HOOKS:
