@@ -34,22 +34,30 @@ from zetup.process import call
 EXTERNAL_COMMANDS = []
 
 COMMANDS = sorted(chain(
-  distutils.command.__all__,
-  zetup.commands.COMMANDS,
-  zetup.Zetup.COMMANDS,
-  EXTERNAL_COMMANDS,
-  ))
+    distutils.command.__all__,
+    zetup.commands.COMMANDS,
+    zetup.Zetup.COMMANDS,
+    EXTERNAL_COMMANDS,
+))
 
-ap = ArgumentParser()
-ap.add_argument(
-  'cmd', choices=COMMANDS,
-  help="command",
-  )
-
-args = ap.parse_args()
+PARSER = ArgumentParser()
+PARSER.add_argument(
+    'cmd', choices=COMMANDS,
+    help="command",
+)
 
 
-def run():
+def run(argv=None, cmd=None):
+    """Run the **zetup** script.
+
+    - If no `argv` is given, arguments are taken from ``sys.argv``.
+    - Optionally takes an explicit zetup `cmd` not contained in `argv`.
+    """
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if cmd:
+        argv.insert(1, str(cmd))
+    args = PARSER.parse_args(argv)
+
     exit_status = 0 # exit status of this script
     try:
         cmdfunc = zetup.commands.COMMANDS[args.cmd]
@@ -61,8 +69,8 @@ def run():
             if args.cmd in zfg.COMMANDS:
                 try:
                     exit_status = getattr(zfg, args.cmd)()
-                except ZetupCommandError as e:
-                    print("Error: %s" % e, file=sys.stderr)
+                except ZetupCommandError as exc:
+                    print("Error: %s" % exc, file=sys.stderr)
                     exit_status = 1
                 else:
                     try: # return value can be more than just a status number
@@ -75,6 +83,24 @@ def run():
         exit_status = cmdfunc()
 
     sys.exit(exit_status or 0)
+
+
+def zake(argv=None):
+    """Convenience runner for **zetup make** command.
+    """
+    run(argv, cmd='make')
+
+
+def zest(argv=None):
+    """Convenience runner for **zetup pytest** command.
+    """
+    run(argv, cmd='pytest')
+
+
+def zox(argv=None):
+    """Convenience runner for **zetup tox** command.
+    """
+    run(argv, cmd='tox')
 
 
 if __name__ == '__main__':
