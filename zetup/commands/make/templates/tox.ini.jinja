@@ -20,7 +20,14 @@
 
 {% block header %}{{ zetup_header }}{% endblock %}
 {% block tox %}[tox]
-envlist = {{ zfg.PYTHON|map('replace', '.', '')|map('prefix', 'py')|join(',') }}
+envlist = {{
+    zfg.PYTHON|map('replace', '.', '')|map('prefix', 'py')|join(',')
+}}
 {% endblock %}
 {% block testenv %}[testenv]
+deps =
+    pytest
+
+commands =
+    {{ zfg.TEST_COMMANDS|join('    \n') }}
 {% endblock %}
