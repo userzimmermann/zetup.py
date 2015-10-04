@@ -158,6 +158,8 @@ def load_zetup_config(path, zfg):
 
     zfg.NO_MAKE = config.get('nomake', '').split()
 
+    zfg.KEEP_MADE = config.get('keepmade', '').split()
+
     zfg.FORCE_MAKE = config.get('forcemake', True)
     if zfg.FORCE_MAKE is not True:
         if zfg.FORCE_MAKE in TRUE:

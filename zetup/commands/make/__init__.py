@@ -134,6 +134,7 @@ def make(zfg, args=None, targets=None, force=None, skip_existing=False):
           'zfg': zfg,
           })
         path.write_text(text.strip())
-        made.append(path)
+        if not zfg.KEEP_MADE or target not in zfg.KEEP_MADE:
+            made.append(path)
 
     return made
