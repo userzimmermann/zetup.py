@@ -99,7 +99,7 @@ class Popen(subprocess.Popen):
     def __init__(self, command, **kwargs):
         _prepare_kwargs(kwargs)
         command = _command(command, kwargs)
-        subprocess.Popen.__init__(command, **kwargs)
+        subprocess.Popen.__init__(self, command, **kwargs)
 
 
 def call(command, **kwargs):
