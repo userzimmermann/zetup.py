@@ -31,6 +31,7 @@ import sys
 import os
 from itertools import chain
 import subprocess
+from subprocess import PIPE
 
 if sys.version_info[0] == 3:
     unicode = str
@@ -40,29 +41,71 @@ if sys.version_info[0] == 3:
 # which converts a `command` arg for subprocess.Popen or .call
 # to support Windows .bat and .cmd scripts without extension
 if sys.platform.startswith('win'):
+
+    def _where(command):
+        """Try to find the executable file path of given `command`
+        using ``where.exe``.
+        """
+        out = subprocess.Popen(
+            ['where.exe', command], stdout=PIPE, stderr=PIPE,
+            universal_newlines=True
+        ).communicate()
+        if not out[0]:
+            raise FileNotFoundError("Can't find executable %s"
+                                    % repr(command))
+        return out[0].split('\n', 1)[0].strip()
+
     try:
-        # find script path with win32api.FindExecutable()
+        # find executable path with win32api.FindExecutable()
         # if pywin32 is installed
         import win32api
+        import pywintypes
     except ImportError:
-        # otherwise run through cmd.exe /c (same as shell=True)
+        # otherwise find executable path with where.exe
         def _command(command, kwargs):
             if kwargs.get('shell'):
                 return command
             if isinstance(command, (str, unicode)):
-                return "cmd /c " + command
-            return chain(('cmd', '/c'), command)
+                try:
+                    command, args = command.split(None, 1)
+                except ValueError:
+                    args = ''
+                path = _where(command)
+                return args and " ".join((path, args)) or path
+            # else command is sequence
+            args = iter(command)
+            command = next(args)
+            path = _where(command)
+            return chain([path], args)
     else:
+        # have pywin32
+        def _find(command):
+            """Try to find the executable file path of given `command`
+               using ``win32api.FindExecutable()``.
+            """
+            try:
+                status, path = win32api.FindExecutable(command)
+            except pywintypes.error:
+                # try again with where.exe
+                # (FindExecutable fails for commands with dots)
+                return _where(command)
+            return path
+
         def _command(command, kwargs):
             if kwargs.get('shell'):
                 return command
             if isinstance(command, (str, unicode)):
-                command, args = command.split(None, 1)
-                status, path = win32api.FindExecutable(command)
-                return " ".join((path, args))
-            command = iter(command)
-            status, path = win32api.FindExecutable(next(command))
-            return chain((path, ), command)
+                try:
+                    command, args = command.split(None, 1)
+                except ValueError:
+                    args = ''
+                path = _find(command)
+                return args and " ".join((path, args)) or path
+            # else command is sequence
+            args = iter(command)
+            command = next(args)
+            path = _find(command)
+            return chain([path], args)
 
 else: # no Windows ==> just pass through
     def _command(command, kwargs):
