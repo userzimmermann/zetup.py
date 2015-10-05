@@ -28,11 +28,14 @@ import os
 from zetup.process import call
 from zetup.zetup import Zetup
 
+from zetup.commands.dev import dev
+
 
 @Zetup.command()
 def test(zfg, args=None):
     """Run configured ``test commands``.
     """
+    dev(zfg)  # first (re)install project in develop mode
     for command in zfg.TEST_COMMANDS:
         print("zetup: Running %s" % repr(command))
         status = call(command, env=os.environ)
