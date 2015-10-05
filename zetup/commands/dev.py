@@ -73,4 +73,7 @@ def dev(zfg, args=None):
             print("zetup: Removing %s%s" % (egg_info, os.path.sep))
             egg_info.rmtree()
     # finally (re)install project in develop mode (and return pip status code)
-    return pip.main(['install', '--editable', zfg.ZETUP_DIR])
+    source = str(zfg.ZETUP_DIR)
+    if zfg.EXTRAS:
+        source += '[all]'
+    return pip.main(['install', '--editable', source])
