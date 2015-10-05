@@ -53,6 +53,7 @@ extra_toplevel(__name__, __all__={
     '.error': ['ZetupCommandError'],
     '.make': ['ZetupMakeError', 'make'],
     '.run': ['run'],
+    '.dev': ['dev'],
     '.pytest': ['pytest'],
     '.tox': ['tox'],
     '.conda': ['conda'],

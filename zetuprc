@@ -13,6 +13,7 @@ python = 2.7 3.3 3.4 3.5
 scripts =
     zetup: zetup.script:run
     zake:  zetup.script:zake
+    zev:  zetup.script:zev
     zest:  zetup.script:zest
     zox:   zetup.script:zox
 

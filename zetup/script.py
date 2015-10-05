@@ -27,7 +27,7 @@ from argparse import ArgumentParser
 import distutils.command
 
 import zetup.commands
-from zetup.commands import ZetupCommandError, make, pytest, tox, conda
+from zetup.commands import ZetupCommandError, make, dev, pytest, tox, conda
 from zetup.process import call
 
 
@@ -89,6 +89,12 @@ def zake(argv=None):
     """Convenience runner for **zetup make** command.
     """
     run(argv, cmd='make')
+
+
+def zev(argv=None):
+    """Convenience runner for **zetup dev** command.
+    """
+    run(argv, cmd='dev')
 
 
 def zest(argv=None):
