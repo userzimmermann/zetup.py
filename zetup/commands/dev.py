@@ -23,16 +23,9 @@ Defines ``zetup dev`` command.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
-import sys
-import os
-
-import pkg_resources
 import pip
 
-from path import Path
-
 from zetup.zetup import Zetup
-from zetup.conda import conda
 
 from zetup.commands.del_ import del_
 
