@@ -61,27 +61,28 @@ def run(argv=None, cmd=None):
 
     exit_status = 0 # exit status of this script
     try:
-        cmdfunc = zetup.commands.COMMANDS[args.cmd]
-    except KeyError:
-        if args.cmd in EXTERNAL_COMMANDS:
-            exit_status = call([args.cmd])
-        else:
-            zfg = zetup.Zetup()
-            if args.cmd in zfg.COMMANDS:
-                try:
-                    exit_status = getattr(zfg, args.cmd)()
-                except ZetupCommandError as exc:
-                    print("Error: %s" % exc, file=sys.stderr)
-                    exit_status = 1
-                else:
-                    try: # return value can be more than just a status number
-                        exit_status = exit_status.status
-                    except AttributeError:
-                        pass
-            else: # ==> standard setup command
-                zfg(subprocess=True)
+        zfg = zetup.Zetup()
+    except ZetupConfigNotFound as no_zfg:
+        try:
+            cmdfunc = zetup.commands.COMMANDS[args.cmd]
+        except KeyError:
+            raise no_zfg
     else:
+        if args.cmd in zfg.COMMANDS:
+            cmdfunc = getattr(zfg, args.cmd)
+        else: # ==> standard setup command
+            sys.exit(zfg(subprocess=True))
+
+    try:
         exit_status = cmdfunc()
+    except ZetupCommandError as exc:
+        print("Error: %s" % exc, file=sys.stderr)
+        exit_status = 1
+    else:
+        try: # return value can be more than just a status number
+            exit_status = exit_status.status
+        except AttributeError:
+            pass
 
     sys.exit(exit_status or 0)
 
