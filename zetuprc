@@ -13,7 +13,7 @@ python = 2.7 3.3 3.4 3.5
 scripts =
     zetup: zetup.script:run
     zake:  zetup.script:zake
-    zev:  zetup.script:zev
+    zev:   zetup.script:zev
     zest:  zetup.script:zest
     zox:   zetup.script:zox
 
@@ -28,7 +28,7 @@ classifiers =
     Development Status :: 3 - Alpha
     Intended Audience :: Developers
     License :: OSI Approved
-    :: GNU Library or Lesser General Public License (LGPL)
+      :: GNU Library or Lesser General Public License (LGPL)
     Operating System :: OS Independent
     Topic :: Software Development
     Topic :: Utilities
