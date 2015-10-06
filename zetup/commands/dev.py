@@ -34,6 +34,8 @@ from path import Path
 from zetup.zetup import Zetup
 from zetup.conda import conda
 
+from zetup.commands.del_ import del_
+
 __all__ = ['dev']
 
 
@@ -42,37 +44,8 @@ def dev(zfg, args=None):
     """Install project in develop mode.
     """
     # first remove any current project installation
-    try:  # check for conda
-        conda_info = conda.info()
-    except OSError:  # ==> no conda
-        pass
-    else:
-        # are we in a conda environment?
-        if any(Path(conda_info[key]).samefile(sys.prefix)
-               for key in ['root_prefix', 'default_prefix']
-        # and is project installed via conda?
-        ) and conda.list('--no-pip', '--full-name', zfg.NAME):
-            # then also remove it via conda
-            status = conda.remove(zfg.NAME, json=False)
-            if status:  # ==> error
-                return status
-    # is there some project (develop) install (left) to be removed via pip?
-    while True:
-        try:
-            # always use a refreshed working set
-            # (interface to installed python package distributions)
-            dist = pkg_resources.WorkingSet().by_key[zfg.NAME]
-        except KeyError:  # ==> nothing left to uninstall
-            break
-        status = pip.main(['uninstall', zfg.NAME, '--yes'])
-        if status:  # ==> error
-            return status
-        if Path(dist.location).samefile(zfg.ZETUP_DIR):
-            # pip doesn't remove local .egg-info/ dirs of develop installs
-            egg_info = Path(dist._provider.egg_info).realpath()
-            print("zetup: Removing %s%s" % (egg_info, os.path.sep))
-            egg_info.rmtree()
-    # finally (re)install project in develop mode (and return pip status code)
+    del_(zfg)
+    # then (re)install project in develop mode (and return pip status code)
     source = str(zfg.ZETUP_DIR)
     if zfg.EXTRAS:
         source += '[all]'
