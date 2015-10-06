@@ -20,6 +20,7 @@
 from __future__ import absolute_import
 
 import os
+from functools import partial
 
 from zetup.path import Path
 from zetup.modules import extra_toplevel
@@ -28,10 +29,17 @@ from zetup.modules import extra_toplevel
 COMMANDS = {}
 
 
-def command(func):
+def command(func=None, name=None):
     """Decorator for registering basic (non-project-bound) commands.
     """
-    COMMANDS[func.__name__] = func
+    if func is None:
+        if name:
+            return partial(command, name=name)
+        raise TypeError(
+            "zetup.command.command() decorator "
+            "takes at least a function or a name argument.")
+    COMMANDS[name or func.__name__] = func
+    return func
 
 
 @command
