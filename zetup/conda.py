@@ -23,6 +23,8 @@ Provides a convenience ``conda`` interface to external conda executable.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+from __future__ import absolute_import
+
 import os
 from subprocess import PIPE
 import json
