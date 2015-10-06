@@ -28,7 +28,7 @@ import distutils.command
 
 import zetup.commands
 from zetup.commands import ZetupCommandError, \
-    make, dev, test, pytest, tox, conda
+    make, dev, del_, test, pytest, tox, conda
 from zetup.process import call
 
 
@@ -97,6 +97,12 @@ def zev(argv=None):
     """Convenience runner for **zetup dev** command.
     """
     run(argv, cmd='dev')
+
+
+def zel(argv=None):
+    """Convenience runner for **zetup del** command.
+    """
+    run(argv, cmd='del')
 
 
 def zest(argv=None):
