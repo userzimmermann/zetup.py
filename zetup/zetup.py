@@ -167,8 +167,8 @@ class Zetup(object):
     COMMANDS = []
 
     @classmethod
-    def command(cls, args=None, depends=None):
-        return CommandDeco(cls, args, depends)
+    def command(cls, name=None, args=None, depends=None):
+        return CommandDeco(cls, name, args, depends)
 
 
 class Setup(dict):
@@ -196,8 +196,9 @@ class Setup(dict):
 
 
 class CommandDeco(object):
-    def __init__(self, zetupcls, args=None, depends=None):
+    def __init__(self, zetupcls, name=None, args=None, depends=None):
         self.zetupcls = zetupcls
+        self.name = name
         self.args = args
         self.make_targets = depends and list(depends)
 
@@ -216,7 +217,7 @@ class CommandDeco(object):
             with make(zfg, targets=targets):
                 return func(zfg, args, **kwargs)
 
-        name = cmdmethod.__name__ = func.__name__
+        name = cmdmethod.__name__ = self.name or func.__name__
         cmdmethod.args = self.args
 
         setattr(self.zetupcls, name, cmdmethod)
