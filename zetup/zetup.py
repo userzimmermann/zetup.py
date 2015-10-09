@@ -170,6 +170,12 @@ class Zetup(object):
     def command(cls, name=None, args=None, depends=None):
         return CommandDeco(cls, name, args, depends)
 
+    def __repr__(self):
+        """Show class name, dist name, and project path.
+        """
+        return "<%s: %s (%s)>" % (
+            type(self).__name__, self.NAME, self.ZETUP_DIR)
+
 
 class Setup(dict):
     def __init__(self, zfg):
@@ -177,10 +183,10 @@ class Setup(dict):
         self.zfg = zfg
 
     def __call__(self, subprocess=False, **keywords):
-        """Run `setup()` with generated keywords from zetup config
+        """Run ``setup()`` with generated keywords from zetup config
            and custom override `keywords`.
 
-        - If `subprocess` is True, run python setup.py with sys.argv
+        - If `subprocess` is True, run ``python setup.py`` with ``sys.argv``
           (see :meth:`Zetup.__call__` for details)
         """
         keywords = dict(self, **keywords)
@@ -203,10 +209,10 @@ class CommandDeco(object):
         self.make_targets = depends and list(depends)
 
     def __call__(self, func):
-        """Add a command function as method to :class:`Zetup`
+        """Add a command function as method to :class:`zetup.Zetup`
            and store its name in `cls.COMMANDS`.
 
-        - Used in `zetup.commands.*` to sparate command implementations.
+        - Used in ``zetup.commands.*`` to sparate command implementations.
         """
         targets = self.make_targets
 
