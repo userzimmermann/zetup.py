@@ -216,8 +216,7 @@ def load_zetup_config(path, zfg):
     if zfg.VERSION:
         zfg.VERSION = Version(zfg.VERSION)
 
-    zfg.DISTRIBUTION = Distribution(
-        zfg.NAME, zfg.PACKAGES.main, zfg.VERSION)
+    zfg.DISTRIBUTION = Distribution(zfg)
 
     req_setup_txt = os.path.join(zfg.ZETUP_DIR, 'requirements.setup.txt')
     if os.path.exists(req_setup_txt):

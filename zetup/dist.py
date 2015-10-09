@@ -30,15 +30,20 @@ class Distribution(str):
     """Simple proxy to get a pkg_resources.Distribution instance
        matching the given name and :class:`Version` instance.
     """
-    def __new__(cls, name, pkg, version):
-        return str.__new__(cls, name)
+    def __new__(cls, zfg):
+        return str.__new__(cls, zfg.NAME)
 
-    def __init__(self, name, pkg, version):
+    def __init__(self, zfg):
         """Initialize with distribution `name`, top level `pkg` name
            and `version` string.
         """
-        self.pkg = pkg
-        self.version = Version(version)
+        self.zfg = zfg
+
+    @property
+    def version(self):
+        """Get version from zetup config as :class:`zetup.Version` instance.
+        """
+        return self.zfg.VERSION and Version(self.zfg.VERSION)
 
     def find(self, modpath, raise_=True):
         """Try to find the distribution and check version.
@@ -64,13 +69,13 @@ class Distribution(str):
         if dist.parsed_version != self.version.parsed:
             if raise_:
                 raise VersionConflict(
-                  "Version of distribution %s"
-                  " doesn't match %s.__version__ %s."
-                  % (dist, self.pkg, self.version))
+                    "Version of distribution %s "
+                    "doesn't match version %s from %s. "
+                    % (repr(dist), self.version, self.zfg) +
+                    "Please reinstall %s." % repr(self.zfg.NAME))
             return None
         return dist
 
     @property
     def py(self):
-        return '%s(%s, %s, %s)' % (type(self).__name__,
-          repr(str(self)), repr(str(self.pkg)), repr(str(self.version)))
+        return '%s(zfg)' % (type(self).__name__)
