@@ -30,6 +30,7 @@ import zetup.commands
 from zetup.commands import ZetupCommandError, \
     make, dev, del_, test, pytest, tox, conda
 from zetup.process import call
+from zetup.zetup import ZetupConfigNotFound
 
 
 EXTERNAL_COMMANDS = []
