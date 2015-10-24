@@ -87,6 +87,12 @@ class package(ModuleType, object):
         """
         return object.__dir__(self) + self.__all__
 
+    def __repr__(self):
+        """Create module-style representation.
+        """
+        return "<%s %s from %s>" % (
+            type(self).__name__, repr(self.__name__), repr(self.__file__))
+
 
 class toplevel(package):
     """Special top-level package module object wrapper
