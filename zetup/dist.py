@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Distribution']
+from __future__ import absolute_import
 
 import os
 
@@ -26,6 +26,8 @@ from pkg_resources import (
   get_distribution, DistributionNotFound, VersionConflict)
 
 from .version import Version
+
+__all__ = ['Distribution']
 
 
 class Distribution(str):
