@@ -57,7 +57,7 @@ class Conda(object):
             args.insert(0, self.command)
         if options.get('json', True):
             return json.loads(Popen(
-                ['conda', '--json'] + args, env=os.environ,
+                ['conda'] + args + ['--json'], env=os.environ,
                 stdout=PIPE, universal_newlines=True
             ).communicate()[0])
         return call(['conda'] + args, env=os.environ)
