@@ -26,6 +26,7 @@ and top-level packages for extra features.
 """
 import sys
 from types import ModuleType
+from itertools import chain
 
 from .object import object, meta
 from .annotate import annotate, annotate_extra
@@ -37,7 +38,7 @@ class package(ModuleType, object):
     """Package module object wrapper
        for clean dynamic API import from sub-modules.
     """
-    def __init__(self, __name__, __all__):
+    def __init__(self, __name__, __all__=None):
         """Wrap package module given by its `__name__`.
 
         - Replaces module object in ``sys.modules``.
@@ -51,15 +52,18 @@ class package(ModuleType, object):
         self.__module__ = sys.modules[__name__]
         sys.modules[__name__] = self
         self.__dict__['__all__'] = {}
-        for submodname, members in __all__.items():
-            self.__dict__['__all__'].update(
-                (name, submodname) for name in members)
+        if __all__ is not None:
+            for submodname, members in dict(__all__).items():
+                self.__dict__['__all__'].update(
+                    (name, submodname) for name in members)
 
     @property
     def __all__(self):
         """Get API member name list.
         """
-        return list(self.__dict__['__all__'])
+        return list(set(chain(
+            getattr(self.__module__, '__all__', []),
+            self.__dict__['__all__'])))
 
     def __getattr__(self, name):
         """Dynamically import API members from sub-modules.
@@ -99,7 +103,7 @@ class toplevel(package):
        for clean dynamic API import from sub-modules
        and automatic application of func:`zetup.annotate`.
     """
-    def __init__(self, __name__, __all__, check_requirements=True,
+    def __init__(self, __name__, __all__=None, check_requirements=True,
                  check_packages=True):
         """Wrap top-level package module given by its `__name__`.
 
