@@ -23,6 +23,7 @@ __all__ = ['Zetup', 'find_zetup_config']
 
 import sys
 import os
+from importlib import import_module
 from subprocess import call
 try:
     from setuptools import setup, Command
@@ -238,7 +239,7 @@ def find_zetup_config(pkgname):
     except KeyError:
         pass
     try:
-        return __import__(zfg_modname).zetup_config
+        return import_module(zfg_modname)
     except ImportError:
         pass
     # ==> no zetup config module
