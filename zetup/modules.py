@@ -66,9 +66,11 @@ class package(ModuleType, object):
             self.__dict__['__all__'])))
 
     def __getattr__(self, name):
-        """Dynamically import API members from sub-modules.
+        """Dynamically access API from wrapped module
+           or import extra API members.
         """
-        if name in self.__all__:
+        # first try to get it from package's extra api
+        if name in self.__dict__['__all__']:
             submodname = self.__dict__['__all__'][name]
             submod = __import__(self.__name__ + submodname, fromlist=[name])
             submodname = submodname.lstrip('.')
@@ -80,11 +82,18 @@ class package(ModuleType, object):
             obj = getattr(submod, name)
             setattr(self, name, obj)
             return obj
+
+        # then try to get attr from wrapper module
         try:
             return getattr(self.__module__, name)
         except AttributeError:
-            raise AttributeError("%s has no attribute %s"
-                                 % (self, repr(name)))
+            if name in getattr(self.__module__, '__all__', []):
+                raise AttributeError(
+                    "%s has no attribute %s although listed in __all__"
+                    % (repr(self.__module__), repr(name)))
+            else:
+                raise AttributeError("%s has no attribute %s"
+                                     % (repr(self), repr(name)))
 
     def __dir__(self):
         """Additionally get all API member names.
@@ -95,7 +104,8 @@ class package(ModuleType, object):
         """Create module-style representation.
         """
         return "<%s %s from %s>" % (
-            type(self).__name__, repr(self.__name__), repr(self.__file__))
+            type(self).__name__, repr(self.__name__),
+            repr(self.__module__.__file__))
 
 
 class toplevel(package):
