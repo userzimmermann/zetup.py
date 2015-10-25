@@ -38,6 +38,6 @@ def test(zfg, args=None):
     dev(zfg)  # first (re)install project in develop mode
     for command in zfg.TEST_COMMANDS:
         print("zetup: Running %s" % repr(command))
-        status = call(command, env=os.environ)
+        status = call(command, shell=True, env=os.environ)
         if status:  # ==> error
             return status
