@@ -246,6 +246,9 @@ def find_zetup_config(pkgname):
     # ==> load setup config from package's parent path:
     mod = sys.modules[pkgname]
     path = os.path.dirname(os.path.dirname(os.path.realpath(mod.__file__)))
+    for _ in range(pkgname.count('.')):
+        # move further up the dir tree for every prefix (namespace) package
+        path = os.path.dirname(path)
     try:
         return Zetup(path)
     except ZetupConfigNotFound as e:
