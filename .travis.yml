@@ -1,3 +1,5 @@
+sudo: false
+
 language: python
 python:
   - '2.7'
@@ -11,6 +13,7 @@ install:
   - pip install -r requirements.notebook.txt
   - pip install -r requirements.pytest.txt
   - pip install tox
+  - pip uninstall zetup --yes
   - pip install -e .
 
 script:
