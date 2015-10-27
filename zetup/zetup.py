@@ -59,10 +59,12 @@ class Zetup(object):
         """Get the zetup config as Python code for writing to a .py module.
         """
         def items():
+            # always start with project name
+            yield "NAME = %s" % (repr(self.config['NAME']))
             for name, value in self.config.items():
                 if name in [
-                  'NOTEBOOKS',
-                  ] or name.startswith('ZETUP') or name.endswith('FILE'):
+                        'NAME', 'NOTEBOOKS',
+                ] or name.startswith('ZETUP') or name.endswith('FILE'):
                     continue
                 try:
                     py = value.py
