@@ -14,7 +14,7 @@ install:
   - pip install tox
 
 script:
-  - python setup.py pytest
+  - # python setup.py pytest
   - py.test -v test/
-  - python setup.py tox
+  - # python setup.py tox
   - tox -r -v
