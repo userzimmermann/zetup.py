@@ -115,10 +115,10 @@ class ExtraTemplateLoader(BaseLoader):
       }
 
     def get_source(self, env, template):
-        try:
-            return self.templates[template], template, True
-        except KeyError:
+        if template not in self.templates:
             raise TemplateNotFound(template)
+        # must return (template text, template name, up_to_date() function)
+        return self.templates[template], template, lambda: True
 
 
 LOADER = ExtraTemplateLoader()
