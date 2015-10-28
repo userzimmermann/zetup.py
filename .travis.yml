@@ -8,13 +8,10 @@ python:
   - pypy
 
 install:
+  - pip install pip setuptools --upgrade
   - pip install -r requirements.txt
-  - pip install -r requirements.commands.txt
-  - pip install -r requirements.notebook.txt
-  - pip install -r requirements.pytest.txt
+  - pip install -e .[all]
   - pip install tox
-  - pip uninstall zetup --yes
-  - pip install -e .
 
 script:
   - python setup.py pytest
