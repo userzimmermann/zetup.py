@@ -12,11 +12,6 @@ python = 2.7 3.3 3.4 3.5
 
 scripts =
     zetup: zetup.script:run
-    zake:  zetup.script:zake
-    zev:   zetup.script:zev
-    zel:   zetup.script:zel
-    zest:  zetup.script:zest
-    zox:   zetup.script:zox
 
 setup keywords =
     use_zetup: zetup:setup_entry_point
