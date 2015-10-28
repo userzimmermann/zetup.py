@@ -57,7 +57,7 @@ class ExtraTemplateLoader(BaseLoader):
 
         .. code:: python
 
-        {% if cell.outputs %}
+        {% if cell.outputs and not cell.source.startswith(('%', '!')) %}
         {{ cell.source | add_prompts(cont='>>> ') | indent }}
         {% else %}
         {{ cell.source | indent }}
@@ -72,7 +72,7 @@ class ExtraTemplateLoader(BaseLoader):
 
 
         {% block data_text scoped %}
-        {{ output.text | indent }}
+        {{ output.data['text/plain'] | indent}}
         {% endblock data_text %}
 
 
@@ -87,11 +87,13 @@ class ExtraTemplateLoader(BaseLoader):
 
         {% block input %}
         ```python
-        {% if cell.outputs %}
+        {% if cell.outputs and not cell.source.startswith(('%', '!')) %}
         {{ cell.source | add_prompts(cont='>>> ') }}
         {% else %}
         {{ cell.source }}
+        {% if not cell.outputs %}
         ```
+        {% endif %}
         {% endif %}
         {% endblock input %}
 
@@ -103,7 +105,7 @@ class ExtraTemplateLoader(BaseLoader):
 
 
         {% block data_text scoped %}
-        {{ output.text }}
+        {{ output.data['text/plain'] }}
         ```
         {% endblock data_text %}
 
