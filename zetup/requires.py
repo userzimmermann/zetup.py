@@ -207,16 +207,18 @@ class Requirements(object):
                 return self._list.remove(req)
         raise KeyError(name)
 
-    def __add__(self, text):
+    def __add__(self, reqs):
         """Return a new :class:`Requirements` instance
-           with additional requirements from `text`.
+           with additional `reqs` from string
+           or another :class:`Requirements` instance.
         """
+        if isinstance(reqs, Requirements):
+            reqs = reqs.txt
         return type(self)('%s\n%s' % (
           # For simplicity:
           #  Just create explicit #import hints for every requirement:
           ## '\n'.join('%s #import %s' % (req, req.impname) for req in self),
-          self.txt,
-          text))
+          self.txt, reqs))
 
     @property
     def py(self):
