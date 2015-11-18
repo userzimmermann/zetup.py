@@ -31,24 +31,38 @@ if pkg_resources.require is None:
     # might be needed by package requirements
     pkg_resources.require = pkg_resources.WorkingSet().require
 
-# explicit import makes pylint happier
-# when scanning derived metaclasses :)
-from .object import meta
 
-from .modules import toplevel
+from .zetup import Zetup, find_zetup_config
+from .error import ZetupError
+from .config import ZetupConfigNotFound
+from .requires import DistributionNotFound, VersionConflict
+from .process import Popen, call
+from .object import object, meta
+from .annotate import annotate
+from .modules import package, toplevel, extra_toplevel
+# import notebook subpackage for defining extra_toplevel below
+from . import notebook
 
 
-toplevel(__name__, __all__={
-    '.zetup': ['Zetup', 'find_zetup_config'],
-    '.error': ['ZetupError'],
-    '.config': ['ZetupConfigNotFound'],
-    '.requires': ['DistributionNotFound', 'VersionConflict'],
-    '.process': ['Popen', 'call'],
-    '.path': ['Path'],
-    '.object': ['object', 'meta'],
-    '.annotate': ['annotate'],
-    '.modules': ['package', 'toplevel', 'extra_toplevel'],
-}, check_requirements=False)
+zetup = toplevel(__name__, [
+    'Zetup', 'find_zetup_config',
+    'ZetupError', 'ZetupConfigNotFound',
+    'DistributionNotFound', 'VersionConflict',
+    'Popen', 'call',
+    'object', 'meta',
+    'annotate', 'package', 'toplevel', 'extra_toplevel',
+], check_requirements=False)
+
+# can't be defined in .notebook subpackage
+# because .notebook is also needed to load zetup's own config
+# which is required for making extra_toplevel instantiation work
+extra_toplevel(zetup, notebook.__name__, [
+    'Notebook',
+], check_requirements=False)
+# since actual .notebook subpackage was imported before
+# a manually setting of the subpackage attribute
+# on the zetup toplevel wrapper is needed
+sys.modules[__name__].notebook = sys.modules[notebook.__name__]
 
 
 def setup_entry_point(dist, keyword='use_zetup', value=True):
