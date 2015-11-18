@@ -20,6 +20,7 @@
 import sys
 import os
 
+from .object import object
 from .zetup import find_zetup_config
 from .error import ZetupError
 from .package import Packages
@@ -61,11 +62,24 @@ def annotate(pkgname, check_requirements=True, check_packages=True):
     return zfg
 
 
-def annotate_extra(pkgname, check_requirements=True):
-    main, extra = pkgname.rsplit('.', 1)
-    mainmod = sys.modules[main]
-    mod = sys.modules[pkgname]
-    mod.__version__ = mainmod.__version__
-    mod.__requires__ = mainmod.__extras__[extra]
-    if check_requirements:
-        mod.__requires__.check()
+class annotate_extra(object):
+    def __init__(self, extra=None):
+        self.extra = extra
+
+    def __getitem__(self, extra):
+        return type(self)(extra)
+
+    def __call__(self, toplevel, pkgname, check_requirements=True):
+        if self.extra is None:
+            extra = pkgname.rsplit('.', 1)[1]
+        else:
+            extra = self.extra
+        mod = sys.modules[pkgname]
+        mod.__version__ = toplevel.__version__
+        mod.__requires__ \
+            = toplevel.__requires__ + toplevel.__extras__[extra]
+        if check_requirements:
+            mod.__requires__.check()
+
+
+annotate_extra = annotate_extra()
