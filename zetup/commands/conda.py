@@ -20,8 +20,9 @@
 import re
 import os
 
+from path import Path
+
 from zetup.process import call
-from zetup.path import Path
 from zetup.zetup import Zetup
 
 
