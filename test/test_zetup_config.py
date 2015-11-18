@@ -1,4 +1,4 @@
-"""Test the zetup package.
+"""Test the zetup config management on zetup package's own config.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
@@ -9,25 +9,19 @@ from inspect import ismodule
 from pkg_resources import (
   parse_requirements, get_distribution, DistributionNotFound)
 
+from path import Path
+
 import zetup
-from zetup import Zetup, Path
+from zetup import Zetup
 
 import pytest
 
 
-def test_zetup_config(zfg, in_repo, in_site_packages):
-    """Test the zetup config management on zetup package's own config.
-    """
-    #--- NAME ---
+def test_name(zfg):
     assert zfg.NAME == 'zetup'
 
-    pkg_path = Path(zetup.__path__[0]).realpath()
 
-    if in_site_packages:
-        zfg_path = Path(zfg.__file__).realpath().dirname()
-    else:
-        zfg_path = Path(zfg.ZETUP_DIR).realpath()
-
+def test_zetup_config(zfg, zfg_path, pkg_path, in_repo, in_site_packages):
     if in_site_packages:
         assert zfg.__name__ == 'zetup.zetup_config'
         assert zfg_path == pkg_path # / 'zetup_config'
@@ -38,10 +32,12 @@ def test_zetup_config(zfg, in_repo, in_site_packages):
         assert isinstance(zfg, Zetup)
         assert zfg_path == pkg_path.dirname()
 
-    #--- DESCRIPTION ---
+
+def test_description(zfg):
     assert zetup.__description__ == zfg.DESCRIPTION
 
-    #--- DISTRIBUTION ---
+
+def test_distribution(zfg, pkg_path, in_repo, in_site_packages):
     try:
         dist = get_distribution('zetup')
     except DistributionNotFound:
@@ -55,16 +51,19 @@ def test_zetup_config(zfg, in_repo, in_site_packages):
     assert zetup.__distribution__ == zfg.DISTRIBUTION.find(pkg_path) \
       == dist
 
-    #--- VERSION ---
+
+def test_version(zfg):
     assert zetup.__version__ == zfg.VERSION
 
-    #--- REQUIRES ---
+
+def test_requires(zfg, zfg_path, in_repo, in_site_packages):
     assert zetup.__requires__ == zfg.REQUIRES
     if in_repo:
         assert list(parse_requirements(str(zetup.__requires__))) == list(
           parse_requirements((zfg_path / 'requirements.txt').text()))
 
-    #--- EXTRAS ---
+
+def test_extras(zfg, zfg_path, in_repo, in_site_packages):
     for extra in zetup.__extras__:
         assert zetup.__extras__[extra] == zfg.EXTRAS[extra]
         if in_repo:
@@ -73,9 +72,11 @@ def test_zetup_config(zfg, in_repo, in_site_packages):
                    (zfg_path / ('requirements.%s.txt' % extra))
                    .text()))
 
-    #--- PYTHON ---
+
+def test_python(zfg):
     assert ('%s.%s' % sys.version_info[:2]) in zfg.PYTHON
 
-    #--- CLASSIFIERS ---
+
+def test_classifiers(zfg):
     assert all('Programming Language :: Python :: %s' % version
                for version in zfg.PYTHON)
