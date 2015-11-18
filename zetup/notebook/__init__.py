@@ -36,6 +36,8 @@ except ImportError:
     # just reduce features
     base = str
 
+from zetup.object import object
+
 
 def check_requirements(raise_=True):
     """Check requirements for full :class:`zetup.Notebook` features.
@@ -44,7 +46,7 @@ def check_requirements(raise_=True):
     return zetup.__extras__['notebook'].check(raise_=raise_)
 
 
-class Notebook(base):
+class Notebook(object, base):
 
     def __dir__(self):
         """Return names of dynamically generatable
