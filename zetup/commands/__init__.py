@@ -18,33 +18,33 @@
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import
-
 import os
-from functools import partial
 
-from zetup.path import Path
+from path import Path
+
+import zetup
 from zetup.modules import extra_toplevel
 
+from .command import COMMANDS, command
+from .error import ZetupCommandError
+from .make import ZetupMakeError, make
+from .run import run
+from .dev import dev
+from .pytest import pytest
+from .tox import tox
+from .conda import conda
 
-COMMANDS = {}
-
-
-def command(func=None, name=None):
-    """Decorator for registering basic (non-project-bound) commands.
-    """
-    if func is None:
-        if name:
-            return partial(command, name=name)
-        raise TypeError(
-            "zetup.command.command() decorator "
-            "takes at least a function or a name argument.")
-    COMMANDS[name or func.__name__] = func
-    return func
+extra_toplevel['commands'](zetup, __name__, [
+    'ZetupCommandError', 'ZetupMakeError',
+    'init', 'make', 'run', 'dev', 'pytest', 'tox', 'conda',
+])
 
 
 @command
 def init(name, path=None):
-    path = Path(path or os.getcwd())
+    """Initialize a new Zetup project in current directory or `path`.
+    """
+    path = Path(path if path is not None else os.getcwd())
     with open(path / 'zetuprc', 'w') as f:
         f.write("[%s]\n\n%s\n" % (name, "\n".join("%s =" % key for key in [
           'description',
@@ -55,14 +55,3 @@ def init(name, path=None):
           'classifiers',
           'keywords',
           ])))
-
-
-extra_toplevel(__name__, __all__={
-    '.error': ['ZetupCommandError'],
-    '.make': ['ZetupMakeError', 'make'],
-    '.run': ['run'],
-    '.dev': ['dev'],
-    '.pytest': ['pytest'],
-    '.tox': ['tox'],
-    '.conda': ['conda'],
-})
