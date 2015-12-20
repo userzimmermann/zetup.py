@@ -103,6 +103,21 @@ class Package(str):
     def path(self):
         """The absolute path of the package.
         """
+        if not os.path.exists(self.root):
+            raise RuntimeError(
+                "Given root directory for package %s does not exist: %s"
+                % (repr(str(self)), self.root))
+
+        if not os.path.isdir(self.root):
+            if self.root.endswith('.egg'):
+                raise NotImplementedError(
+                    "Can't lookup paths of package %s in .egg: %s"
+                    % (repr(str(self)), self.root))
+
+            raise RuntimeError(
+                "Given root path for package %s is not a directory: %s"
+                % (repr(str(self)), self.root))
+
         return os.path.realpath(os.path.join(self.root or '.',
           self._path or os.path.join(*self.split('.'))))
 
@@ -201,6 +216,10 @@ class Package(str):
               % (repr(self), repr(name)))
 
     def check(self, raise_=True):
+        #TODO
+        if self.root.endswith('.egg') and not os.path.isdir(self.root):
+            return True
+
         if self._sources is not None:
             expected = set(self._sources)
             found = set(self.sources(force_search=True))
@@ -325,6 +344,10 @@ class Packages(object):
         return next(iter(self))
 
     def check(self, raise_=True):
+        #TODO
+        if self.root.endswith('.egg') and not os.path.isdir(self.root):
+            return True
+
         for pkg in self:
             pkg.check(raise_=raise_)
 
