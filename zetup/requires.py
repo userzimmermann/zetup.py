@@ -215,10 +215,10 @@ class Requirements(object):
         if isinstance(reqs, Requirements):
             reqs = reqs.txt
         return type(self)('%s\n%s' % (
-          # For simplicity:
-          #  Just create explicit #import hints for every requirement:
-          ## '\n'.join('%s #import %s' % (req, req.impname) for req in self),
-          self.txt, reqs))
+            # For simplicity:
+            # Just create explicit #import hints for every requirement:
+            # '\n'.join('%s #import %s' % (req, req.impname) for req in self),
+            self.txt, reqs), zfg=self.zfg)
 
     @property
     def py(self):
