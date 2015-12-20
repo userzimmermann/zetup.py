@@ -57,7 +57,7 @@ def notebook(zfg, in_repo, in_site_packages):
     """
     if in_site_packages:
         # notebooks aren't installed
-        assert not zfg.NOTEBOOKS
+        assert 'NOTEBOOKS' not in dir(zfg)
         return None
 
     return zfg.NOTEBOOKS['README']
