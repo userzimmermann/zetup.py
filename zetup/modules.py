@@ -55,9 +55,10 @@ class package(ModuleType, object):
           to the names of API members defined in those (sub-)modules.
         - Original package module object is stored in :attr:``.__module__``.
         """
-        self.__module__ = mod = sys.modules[name]
+        mod = sys.modules[name]
         ModuleType.__init__(self, name, mod.__doc__)
         self.__name__ = name
+        self.__module__ = mod
         sys.modules[name] = self
         self.__dict__['__all__'] = api \
             = dict.fromkeys(api) if api is not None else {}
@@ -79,6 +80,17 @@ class package(ModuleType, object):
             getattr(self.__module__, '__all__', ()),
             (name for name in self.__dict__['__all__']
              if not isinstance(name, deprecated)))))
+
+    def __setattr__(self, name, value):
+        """Prevent submodules from being added as attributes
+           to avoid unnecessary ``dir()`` pollution.
+        """
+        if ismodule(value) and (
+                value.__name__ == '%s.%s' % (self.__name__, name)
+                and not isinstance(value, package)
+        ):
+            return
+        object.__setattr__(self, name, value)
 
     def __getattr__(self, name):
         """Dynamically access API from wrapped module
@@ -114,8 +126,11 @@ class package(ModuleType, object):
                     "%s has no attribute %s although listed in __all__"
                     % (repr(self.__module__), repr(name)))
             else:
-                raise AttributeError("%s has no attribute %s"
-                                     % (repr(self), repr(name)))
+                try:
+                    return sys.modules['%s.%s' % (self.__name__, name)]
+                except KeyError:
+                    raise AttributeError("%s has no attribute %s"
+                                         % (repr(self), repr(name)))
 
     def __dir__(self):
         """Additionally get all API member names.
