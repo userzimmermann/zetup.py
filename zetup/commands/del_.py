@@ -32,7 +32,7 @@ import pip
 from path import Path
 
 from zetup.zetup import Zetup
-from zetup.commands import command
+from zetup.commands.command import command
 from zetup.conda import conda
 
 __all__ = ['del_']
