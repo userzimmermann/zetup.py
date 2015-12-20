@@ -68,7 +68,8 @@ def del_(zfg, args=None):
         status = pip.main(['uninstall', zfg.NAME, '--yes'])
         if status:  # ==> error
             return status
-        if Path(dist.location).samefile(zfg.ZETUP_DIR):
+        root = Path(dist.location)
+        if root.exists() and root.samefile(zfg.ZETUP_DIR):
             # pip doesn't remove local .egg-info/ dirs of develop installs
             egg_info = Path(dist._provider.egg_info).realpath()
             print("zetup: Removing %s%s" % (egg_info, os.path.sep))
