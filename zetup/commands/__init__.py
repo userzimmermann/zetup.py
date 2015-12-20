@@ -20,10 +20,15 @@
 from __future__ import absolute_import
 import os
 
-from path import Path
-
 import zetup
 from zetup.modules import extra_toplevel
+
+extra_toplevel['commands'](zetup, __name__, [
+    'ZetupCommandError', 'ZetupMakeError',
+    'init', 'make', 'run', 'dev', 'pytest', 'tox', 'conda',
+])
+
+from path import Path
 
 from .command import COMMANDS, command
 from .error import ZetupCommandError
@@ -33,11 +38,6 @@ from .dev import dev
 from .pytest import pytest
 from .tox import tox
 from .conda import conda
-
-extra_toplevel['commands'](zetup, __name__, [
-    'ZetupCommandError', 'ZetupMakeError',
-    'init', 'make', 'run', 'dev', 'pytest', 'tox', 'conda',
-])
 
 
 @command
