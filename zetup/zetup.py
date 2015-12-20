@@ -222,7 +222,7 @@ class CommandDeco(object):
         def cmdmethod(zfg, args=None, **kwargs):
             if not targets:
                 return func(zfg, args, **kwargs)
-            from zetup.commands import make
+            from zetup.commands.make import make
             with make(zfg, targets=targets):
                 return func(zfg, args, **kwargs)
 
