@@ -21,11 +21,12 @@
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+__all__ = ['ZetupCommandError']
 
 from zetup.error import ZetupError
 
-__all__ = ['ZetupCommandError']
-
 
 class ZetupCommandError(ZetupError):
-    pass
+    """Base class for exceptions raised by zetup command functions.
+    """
+    __module__ = __package__
