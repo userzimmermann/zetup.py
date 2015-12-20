@@ -20,7 +20,9 @@ except VersionConflict:
     dist = get_distribution('zetup')
     if samefile(dist.location, os.path.dirname(os.path.realpath(__file__))) \
       and os.path.exists(egg_info):
-        print("zetup: Removing possibly outdated %s/" % egg_info)
+        print("zetup: Removing possibly outdated %s/" % egg_info,
+              # don't pollute stdout
+              file=sys.stderr)
         for fname in os.listdir(egg_info):
             os.remove(os.path.join(egg_info, fname))
         os.rmdir(egg_info)
