@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ['Requirements']
+__all__ = ['Requirements', 'DistributionNotFound', 'VersionConflict']
 
 import sys
 if sys.version_info[0] == 3:
@@ -25,8 +25,8 @@ if sys.version_info[0] == 3:
 import re
 
 import pkg_resources
-from pkg_resources import (
-  parse_requirements, Requirement, get_distribution)
+from pkg_resources import \
+    parse_requirements, Requirement, get_distribution
 
 
 class DistributionNotFound(pkg_resources.DistributionNotFound):
