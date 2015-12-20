@@ -51,30 +51,35 @@ class ExtraTemplateLoader(BaseLoader):
       'bitbucket_rst': dedent("""
         {%- extends 'rst.tpl' -%}
 
-
         {% block input %}
-        {%- if cell.source.strip() -%}
-
+        {% if cell.source.strip() -%}
+        {% if not cell.source.startswith(('%', '!')) -%}
         .. code:: python
+        {%- else -%}
+        {% if cell.source.startswith('%%file') -%}
+        .. code:: {{ cell.source.split('\\n')[0].rsplit('.', 1)[1] }}
+        {%- else -%}
+        .. code::
+        {%- endif %}
+        {%- endif %}
 
-        {% if cell.outputs and not cell.source.startswith(('%', '!')) %}
+        {% if cell.outputs and not cell.source.startswith(('%', '!')) -%}
         {{ cell.source | add_prompts(cont='>>> ') | indent }}
-        {% else %}
+        {%- else -%}
         {{ cell.source | indent }}
-        {% endif %}
-        {%- endif -%}
+        {%- endif %}
+        {%- endif %}
         {% endblock input %}
 
+        {% block stream -%}
+        .. code::
 
-        {% block stream %}
         {{ output.text | indent }}
-        {% endblock stream %}
+        {%- endblock stream %}
 
-
-        {% block data_text scoped %}
-        {{ output.data['text/plain'] | indent}}
-        {% endblock data_text %}
-
+        {% block data_text scoped -%}
+        {{ output.data['text/plain'] | indent }}
+        {%- endblock data_text %}
 
         {% block markdowncell scoped %}
         {{ super() | bitbucket_rst_links }}
@@ -84,31 +89,40 @@ class ExtraTemplateLoader(BaseLoader):
       'github_markdown': dedent("""
         {%- extends 'markdown.tpl' -%}
 
-
         {% block input %}
+        {% if cell.source.strip() %}
+        {% if not cell.source.startswith(('%', '!')) -%}
         ```python
-        {% if cell.outputs and not cell.source.startswith(('%', '!')) %}
-        {{ cell.source | add_prompts(cont='>>> ') }}
-        {% else %}
-        {{ cell.source }}
-        {% if not cell.outputs %}
+        {%- else -%}
+        {% if cell.source.startswith('%%file') -%}
+        ```{{ cell.source.split('\\n')[0].rsplit('.', 1)[1] }}
+        {%- else -%}
         ```
-        {% endif %}
-        {% endif %}
+        {%- endif %}
+        {%- endif %}
+        {% if cell.outputs and not cell.source.startswith(('%', '!')) -%}
+        {{ cell.source | add_prompts(cont='>>> ') }}
+        {%- else -%}
+        {{ cell.source }}
+        {% if not cell.outputs -%}
+        ```
+        {%- endif %}
+        {%- endif %}
+        {%- endif %}
         {% endblock input %}
 
+        {% block stream -%}
+        ```
 
-        {% block stream %}
+        ```
         {{ output.text }}
         ```
-        {% endblock stream %}
+        {%- endblock stream %}
 
-
-        {% block data_text scoped %}
+        {% block data_text scoped -%}
         {{ output.data['text/plain'] }}
         ```
-        {% endblock data_text %}
-
+        {%- endblock data_text %}
 
         {% block markdowncell scoped %}
         {{ super() | github_markdown_links }}
