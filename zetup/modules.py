@@ -37,6 +37,9 @@ __all__ = ['package', 'toplevel']
 
 
 class deprecated(str):
+    """Simple ``str`` class wrapper for marking a
+       :class:`zetup.package` api member (alias) name as deprecated.
+    """
     def __repr__(self):
         return "deprecated(%s)" % str.__repr__(self)
 
