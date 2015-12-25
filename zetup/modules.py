@@ -48,15 +48,24 @@ class package(ModuleType, object):
     """Package module object wrapper
        for clean dynamic API import from sub-modules.
     """
-    def __init__(self, name, api=None, aliases=None,
-                 deprecated_aliases=None):
-        """Wrap package module given by its `name` and `api` member list.
+    __module__ = __package__
 
-        - Replaces original module object in ``sys.modules``.
-        - Define the package API by passing a ``dict`` to `all`,
-          which maps module names or own sub-modules (with leading dot)
-          to the names of API members defined in those (sub-)modules.
-        - Original package module object is stored in :attr:``.__module__``.
+    def __init__(
+            self, name, __all__=None,
+            aliases=None, deprecated_aliases=None,
+            __getitem__=None, __iter__=None, __call__=None
+    ):
+        """Wraps a package module given by its `name`.
+
+        - Original package module object is replaced in ``sys.modules``
+          and stored in :attr:``.__module__``.
+        - Optional `__all__` list defines the package API.
+        - Optional `aliases` and `deprecated_aliases`
+          map alternative names to API names.
+        - `__getitem__`, `__iter__`, and `__call__` features
+          can be added to the package wrapper
+          by providing handler functions or other callable objects
+          (which are not called with a 'self' argument).
         """
         mod = sys.modules[name]
         ModuleType.__init__(self, name, mod.__doc__)
@@ -64,7 +73,7 @@ class package(ModuleType, object):
         self.__module__ = mod
         sys.modules[name] = self
         self.__dict__['__all__'] = api \
-            = dict.fromkeys(api) if api is not None else {}
+            = dict.fromkeys(__all__) if __all__ is not None else {}
         if aliases is not None:
             api.update(aliases)
         if deprecated_aliases is not None:
@@ -74,6 +83,46 @@ class package(ModuleType, object):
         #     for submodname, members in dict(__all__).items():
         #         self.__dict__['__all__'].update(
         #             (name, submodname) for name in members)
+        cls = type(self)
+        cls.__getitem__.funcs[self] = __getitem__
+        cls.__iter__.funcs[self] = __iter__
+        cls.__call__.funcs[self] = __call__
+
+    def __getitem__(self, key):
+        cls = type(self)
+        func = cls.__getitem__.funcs.get(self)
+        if func is None:
+            raise TypeError(
+                "%s is not subscriptable. "
+                "Instantiate %s with __getitem__=<func> to change that."
+                % (repr(self), repr(cls)))
+        return func(key)
+
+    __getitem__.funcs = {}
+
+    def __iter__(self):
+        cls = type(self)
+        func = cls.__iter__.funcs.get(self)
+        if func is None:
+            raise TypeError(
+                "%s is not iterable. "
+                "Instantiate %s with __iter__=<func> to change that."
+                % (repr(self), repr(cls)))
+        return func()
+
+    __iter__.funcs = {}
+
+    def __call__(self, *args, **kwargs):
+        cls = type(self)
+        func = cls.__call__.funcs.get(self)
+        if func is None:
+            raise TypeError(
+                "%s is not callable. "
+                "Instantiate %s with __call__=<func> to change that."
+                % (repr(self), repr(cls)))
+        return func(*args, **kwargs)
+
+    __call__.funcs = {}
 
     @property
     def __all__(self):
@@ -168,21 +217,30 @@ class toplevel(package):
        for clean dynamic API import from sub-modules
        and automatic application of func:`zetup.annotate`.
     """
-    def __init__(self, name, api=None,
-                 aliases=None, deprecated_aliases=None,
-                 check_requirements=True, check_packages=True):
+    __module__ = __package__
+
+    def __init__(
+            self, name, __all__=None,
+            aliases=None, deprecated_aliases=None,
+            check_requirements=True, check_packages=True,
+            __getitem__=None, __iter__=None, __call__=None
+    ):
         """Wrap top-level package module given by its `name`
            and `api` member list.
 
         - See :class:`zetup.package`
-          for details about defining the package API.
+          for details about defining the package API and special features.
         - See :func:`zetup.annotate` for details about the check options.
         """
         super(toplevel, self).__init__(
-            name, api, aliases=aliases,
-            deprecated_aliases=deprecated_aliases)
-        annotate(name, check_requirements=check_requirements,
-                 check_packages=check_packages)
+            name, __all__,
+            aliases=aliases, deprecated_aliases=deprecated_aliases,
+            __getitem__=__getitem__, __iter__=__iter__, __call__=__call__
+        )
+        zfg = annotate(name, check_requirements=check_requirements,
+                       check_packages=check_packages)
+        self.__package__ = pkg = zfg.PACKAGES[name]
+        pkg.zetup_config = zfg
 
 
 class extra_toplevel_meta(meta):
@@ -204,19 +262,26 @@ class extra_toplevel(
        for clean dynamic API import from sub-modules
        and automatic application of func:`zetup.annotate_extra`.
     """
-    def __init__(self, toplevel, name, api=None,
-                 aliases=None, deprecated_aliases=None,
-                 check_requirements=True):
+    __module__ = __package__
+
+    def __init__(
+            self, toplevel, name, __all__=None,
+            aliases=None, deprecated_aliases=None,
+            check_requirements=True,
+            __getitem__=None, __iter__=None, __call__=None
+    ):
         """Wrap top-level package module given by its `name`
            and `api` member list.
 
         - See :class:`zetup.package`
-          for details about defining the package API.
-        - See :func:`zetup.annotate_extra` for details about the extra option.
+          for details about defining the package API and special features.
+        - See :func:`zetup.annotate_extra` for details about the check option.
         """
         super(extra_toplevel, self).__init__(
-            name, api, aliases=aliases,
-            deprecated_aliases=deprecated_aliases)
+            name, __all__,
+            aliases=aliases, deprecated_aliases=deprecated_aliases,
+            __getitem__=__getitem__, __iter__=__iter__, __call__=__call__
+        )
         extra = type(self).extra
         annotate_extra[extra](
             toplevel, name, check_requirements=check_requirements)
