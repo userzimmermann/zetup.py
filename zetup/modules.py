@@ -28,13 +28,15 @@ __all__ = ['package', 'toplevel']
 
 import sys
 from warnings import warn
+from importlib import import_module
 from inspect import ismodule
 from types import ModuleType
 from itertools import chain
 
-from zetup.object import object, meta
-from zetup.annotate import annotate, annotate_extra
-from zetup.doc import AutoDocScopeModule
+import zetup
+from .object import object, meta
+from .annotate import annotate, annotate_extra
+from .doc import AutoDocScopeModule
 
 
 class deprecated(str):
@@ -143,6 +145,9 @@ class package(ModuleType, object):
                 and not isinstance(value, package)
         ):
             return
+        from .classpackage import classpackage
+        if isinstance(value, classpackage):
+            value = getattr(value, name)
         object.__setattr__(self, name, value)
 
     def __getattr__(self, name):
@@ -180,10 +185,15 @@ class package(ModuleType, object):
                     % (repr(self.__module__), repr(name)))
             else:
                 try:
-                    return sys.modules['%s.%s' % (self.__name__, name)]
-                except KeyError:
+                    mod = import_module('%s.%s' % (self.__name__, name))
+                except ImportError as exc:
                     raise AttributeError("%s has no attribute %s"
                                          % (repr(self), repr(name)))
+                if isinstance(mod, zetup.classpackage):
+                    classobj = getattr(mod, name)
+                    setattr(self, name, classobj)
+                    return classobj
+                return mod
 
     def __dir__(self):
         """Additionally get all API member names.
