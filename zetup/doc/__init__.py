@@ -37,17 +37,19 @@ class AutoDocScopeModule(ModuleType):
 
     def __init__(self, name, scope):
         ModuleType.__init__(self, scope.__name__)
-        self.scope = scope
+        modclass = type(self)
 
-    @property
-    def __doc__(self):
-        return self.scope.__doc__
+        class Module(type(self)):
 
-    def __getattr__(self, name):
-        return getattr(self.scope, name)
+            def __getattribute__(self, name):
+                if name in ['__class__', '__path__']:
+                    return modclass.__getattribute__(self, name)
+                return getattr(scope, name)
 
-    def __repr__(self):
-        return "<%s for %s>" % (type(self).__name__, repr(self.scope))
+            def __repr__(self):
+                return "<%s for %s>" % (modclass.__name__, repr(scope))
+
+        self.__class__ = Module
 
 
 class AutoDocScopeImporter(object):
