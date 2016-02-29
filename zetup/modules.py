@@ -24,16 +24,17 @@ and top-level packages for extra features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+__all__ = ['package', 'toplevel']
+
 import sys
 from warnings import warn
 from inspect import ismodule
 from types import ModuleType
 from itertools import chain
 
-from .object import object, meta
-from .annotate import annotate, annotate_extra
-
-__all__ = ['package', 'toplevel']
+from zetup.object import object, meta
+from zetup.annotate import annotate, annotate_extra
+from zetup.doc import AutoDocScopeModule
 
 
 class deprecated(str):
@@ -137,7 +138,7 @@ class package(ModuleType, object):
         """Prevent submodules from being added as attributes
            to avoid unnecessary ``dir()`` pollution.
         """
-        if ismodule(value) and (
+        if isinstance(value, AutoDocScopeModule) or ismodule(value) and (
                 value.__name__ == '%s.%s' % (self.__name__, name)
                 and not isinstance(value, package)
         ):
