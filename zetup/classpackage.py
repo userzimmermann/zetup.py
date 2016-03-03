@@ -19,7 +19,7 @@
 
 """zetup.classpackage
 
-* Defines :class:`zetup.classpackage`
+Defines :class:`zetup.classpackage`
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
@@ -31,40 +31,102 @@ from .modules import package
 
 
 class classpackage(package):
-    """Subpackage module wrapper for auto-importing a class from a subpackage
-    if class is named after subpackage and subpackage name is defined
-    as API member of parent package.
+    """Sub-package module wrapper, auto-importing a class definition
+    from that sub-package and supporting class member definitions
+    in separate sub-modules, if:
+
+    * The class is named after the sub-package.
+    * The class is a sub-class of :class:`zetup.object`.
+    * The sub-package name is defined as API member of parent
+      :class:`zetup.package` instance.
+    * Sub-module names are listed via ``membermodules=`` argument
+      and members in those sub-modules are decorated
+      with class method :func:`zetup.object.member`.
+
+    **package/__init__.py** ::
+
+       import zetup
+       zetup.package(__name__, ['Class', ...])
+
+    **package/Class/__init__.py** ::
+
+       import zetup
+       zetup.classpackage(__name__, membermodules=['methods', ...])
+
+       class Class:
+           def __init__(self, ...):
+               ...
+           ...
+
+    **package/Class/methods.py** ::
+
+       from . import Class
+
+       @Class.member
+       def method(self, ...):
+           ...
+
+    >>> import package
+    >>> package.Class
+    <class package.Class>
+    >>> package.Class.method
+    <function package.Class.method>
     """
     __module__ = __package__
 
     def __init__(self, pkgname, membermodules=None):
         """Created with ``__name__`` of the subpackage defining the class
-        and on optional list of `membermodules`,
-        which contain additional class members named after those submodules.
+        and the optional list of `membermodules` to automatically import
+        (sub-modules defining additional class members).
         """
-        clsname = pkgname.rsplit('.', 1)[-1]
-        package.__init__(self, pkgname, [clsname])
-        self.membermodules = membermodules
+        parentpkgname, classname = pkgname.rsplit('.', 1)
+        super(classpackage, self).__init__(pkgname, [classname])
 
-    def __getattr__(self, name):
-        """Automatically import all ``.membermodules``
-        and add contained class members to class object
-        if it is requested the first time.
-        """
-        obj = package.__getattr__(self, name)
-        clsname = self.__all__[0]
-        if name == clsname:
-            pkgname = obj.__module__ = self.__name__.rsplit('.', 1)[0]
-            if self.membermodules is not None:
-                for membername in self.membermodules:
-                    mod = import_module('%s.%s' % (
-                        self.__name__, membername))
-                    member = getattr(mod, membername)
-                    member.__module__ = pkgname
-                    member.__qualname__ = '%s.%s' % (
-                        obj.__name__, membername)
-                    setattr(obj, membername, member)
-            # store class object as classpackage attribute
-            # to avoid __getattr__ getting called again
-            setattr(self, clsname, obj)
-        return obj
+        pkgcls = type(self)
+        pkgdict = self.__dict__
+
+        def load_class():
+            """Get the actual class object from this class package
+            and automatically import all defined ``membermodules``.
+            """
+            classobj = pkgcls.__getattr__(self, classname)
+            classobj.__module__ = parentpkgname
+            if membermodules is not None:
+                for modname in membermodules:
+                    mod = import_module('%s.%s' % (pkgname, modname))
+            return classobj
+
+        class package(type(self)):
+            """Help tools like sphinx ``.. autoclass::`` doc generator
+            by delegating (almost) all attributes to the actual class object.
+
+            * ``.. autoclass:: package.Class`` first looks up
+              ``package.Class`` in imported modules and therefore
+              doesn't get the actual class object itself.
+            """
+            def __getattribute__(self, name):
+                if name == classname:
+                    # get the actual class object
+                    try:
+                        return pkgdict[classname]
+                    except KeyError:
+                        # only load once
+                        classobj = pkgdict[classname] = load_class()
+                        return classobj
+                # only take these few special attributes
+                # from the classpackage instance itself
+                if name in [
+                        '__name__', '__all__',  '__module__', '__path__',
+                        '__class__', '__dict__',
+                ]:
+                    return pkgcls.__getattribute__(self, name)
+                # and take all other attributes from the class object
+                # (by first recursively calling this __getattribute__)
+                return getattr(getattr(self, classname), name)
+
+            def __repr__(self):
+                return "<%s for %s from %s>" % (
+                    pkgcls.__name__, repr(getattr(self, classname)),
+                    repr(self.__file__))
+
+        self.__class__ = package
