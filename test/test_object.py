@@ -18,7 +18,10 @@ class TestMeta(object):
     def test_dir(self):
         # check that dir(meta) returns the same as dir(type)
         # (with added '__dir__' in PY2)
-        assert set(dir(zetup.meta)) == set(dir(type)).union(['__dir__'])
+        assert set(dir(zetup.meta)) == set(dir(type)).union([
+            '__dir__',
+            'member', 'metamember',
+        ])
         # and that there are no duplicate names
         assert sorted(dir(zetup.meta)) == sorted(set(dir(zetup.meta)))
 
@@ -35,7 +38,9 @@ class TestObject(object):
         # which in this case are all members from builtin object and type
         # and the added '__dir__' in PY2 (and auto-added '__weakref__')
         assert set(dir(zetup.object)) == set(chain(dir(object), dir(type), [
-            '__dir__', '__weakref__']))
+            '__dir__', '__weakref__',
+            'member', 'metamember',
+        ]))
         # and that there are no duplicate names
         assert sorted(dir(zetup.object)) == sorted(set(dir(zetup.object)))
 
