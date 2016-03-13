@@ -24,6 +24,8 @@ and top-level packages for extra features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+from __future__ import absolute_import
+
 __all__ = ['package', 'toplevel']
 
 import sys

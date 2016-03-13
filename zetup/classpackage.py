@@ -23,6 +23,8 @@ Defines :class:`zetup.classpackage`
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+from __future__ import absolute_import
+
 __all__ = ['classpackage']
 
 from importlib import import_module
