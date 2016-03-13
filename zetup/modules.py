@@ -24,16 +24,21 @@ and top-level packages for extra features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+from __future__ import absolute_import
+
+__all__ = ['package', 'toplevel']
+
 import sys
 from warnings import warn
+from importlib import import_module
 from inspect import ismodule
 from types import ModuleType
 from itertools import chain
 
+import zetup
 from .object import object, meta
 from .annotate import annotate, annotate_extra
-
-__all__ = ['package', 'toplevel']
+from .doc import AutoDocScopeModule
 
 
 class deprecated(str):
@@ -137,11 +142,14 @@ class package(ModuleType, object):
         """Prevent submodules from being added as attributes
            to avoid unnecessary ``dir()`` pollution.
         """
-        if ismodule(value) and (
+        if isinstance(value, AutoDocScopeModule) or ismodule(value) and (
                 value.__name__ == '%s.%s' % (self.__name__, name)
                 and not isinstance(value, package)
         ):
             return
+        from .classpackage import classpackage
+        if isinstance(value, classpackage):
+            value = getattr(value, name)
         object.__setattr__(self, name, value)
 
     def __getattr__(self, name):
@@ -179,10 +187,15 @@ class package(ModuleType, object):
                     % (repr(self.__module__), repr(name)))
             else:
                 try:
-                    return sys.modules['%s.%s' % (self.__name__, name)]
-                except KeyError:
+                    mod = import_module('%s.%s' % (self.__name__, name))
+                except ImportError as exc:
                     raise AttributeError("%s has no attribute %s"
                                          % (repr(self), repr(name)))
+                if isinstance(mod, zetup.classpackage):
+                    classobj = getattr(mod, name)
+                    setattr(self, name, classobj)
+                    return classobj
+                return mod
 
     def __dir__(self):
         """Additionally get all API member names.
