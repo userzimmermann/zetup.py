@@ -91,7 +91,7 @@ class classpackage(package):
             """Get the actual class object from this class package
             and automatically import all defined ``membermodules``.
             """
-            classobj = pkgcls.__getattr__(self, classname)
+            classobj = pkgcls.__getattribute__(self, classname)
             classobj.__module__ = parentpkgname
             if membermodules is not None:
                 for modname in membermodules:
