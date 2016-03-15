@@ -1,7 +1,7 @@
 [zetup]
 
 description =
-    Zimmermann's Python package setup
+    Zimmermann's Extensible Tools for Unified Project setups
 
 author = Stefan Zimmermann <zimmermann.code@gmail.com>
 url = https://bitbucket.org/userzimmermann/zetup.py
@@ -30,4 +30,9 @@ classifiers =
     Topic :: Utilities
 
 keywords =
-    setup
+    zetup project tools config ini setup
+    requirements extras
+    packages package toplevel
+    object meta
+    subprocess process popen call
+    python3

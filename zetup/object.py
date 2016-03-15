@@ -47,6 +47,67 @@ class meta(type):
             return list(set(chain(
                 dir(type(cls)), *(c.__dict__ for c in cls.mro()))))
 
+    @classmethod
+    def metamember(mcs, obj):
+        """Decorator for adding `obj` as a member
+        to the metaclass of this class ::
+
+           class Meta(zetup.meta):
+               ...
+
+           class Class(zetup.object, metaclass=Meta):
+               ...
+
+           @Class.metamember
+           def method(cls, ...):
+               ...
+
+        >>> Meta.method
+        <function Meta.method>
+        >>> Class.method
+        <bound method Meta.method of Class>
+        """
+        if isinstance(obj, property):
+            name = obj.fget.__name__
+        else:
+            try:
+                name = obj.__name__
+            except AttributeError:
+                name = obj.__func__.__name__
+            else:
+                obj.__qualname__ = '%s.%s' % (
+                    getattr(mcs, '__qualname__', mcs.__name__),
+                    obj.__name__)
+        setattr(mcs, name, obj)
+        return obj
+
+    def member(cls, obj):
+        """Decorator for adding `obj` as a member to this class ::
+
+           class Class(zetup.object):
+               ...
+
+           @Class.member
+           def method(self, ...):
+               ...
+
+        >>> Class.method
+        <function Class.method>
+        """
+        if isinstance(obj, property):
+            name = obj.fget.__name__
+        else:
+            try:
+                name = obj.__name__
+            except AttributeError:
+                name = obj.__func__.__name__
+            else:
+                obj.__qualname__ = '%s.%s' % (
+                    getattr(cls, '__qualname__', cls.__name__),
+                    obj.__name__)
+        setattr(cls, name, obj)
+        return obj
+
 
 # PY2/3 compatible way to create class `object` with metaclass `meta`
 clsattrs = {

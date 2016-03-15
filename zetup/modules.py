@@ -24,17 +24,21 @@ and top-level packages for extra features.
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
+from __future__ import absolute_import
+
 __all__ = ['package', 'toplevel']
 
 import sys
 from warnings import warn
+from importlib import import_module
 from inspect import ismodule
 from types import ModuleType
 from itertools import chain
 
-from zetup.object import object, meta
-from zetup.annotate import annotate, annotate_extra
-from zetup.doc import AutoDocScopeModule
+import zetup
+from .object import object, meta
+from .annotate import annotate, annotate_extra
+from .doc import AutoDocScopeModule
 
 
 class deprecated(str):
@@ -143,26 +147,22 @@ class package(ModuleType, object):
                 and not isinstance(value, package)
         ):
             return
+        from .classpackage import classpackage
+        if isinstance(value, classpackage):
+            value = getattr(value, name)
         object.__setattr__(self, name, value)
 
-    def __getattr__(self, name):
+    def __getattribute__(self, name):
         """Dynamically access API from wrapped module
            or import extra API members.
         """
-        # # first try to get it from package's extra api
-        # if name in self.__dict__['__all__']:
-        #     submodname = self.__dict__['__all__'][name]
-        #     submod = __import__(self.__name__ + submodname, fromlist=[name])
-        #     submodname = submodname.lstrip('.')
-        #     # was sub-module added to self.__dict__ during __import__?
-        #     if submodname in self.__dict__:
-        #         # ==> move it to original module object to keep API clean
-        #         self.__module__.__dict__[submodname] \
-        #             = self.__dict__.pop(submodname)
-        #     obj = getattr(submod, name)
-        #     setattr(self, name, obj)
-        #     return obj
+        if name.startswith('__'):
+            try:
+                return object.__getattribute__(self, name)
+            except AttributeError:
+                pass
 
+        # check if name is defined as alias
         realname = self.__dict__['__all__'].get(name)
         if realname is not None:
             if isinstance(name, deprecated):
@@ -170,20 +170,28 @@ class package(ModuleType, object):
                      % (self.__name__, name, self.__name__, realname),
                      DeprecationWarning)
             name = realname
-        # # then try to get attr from wrapper module
-        try:
-            return getattr(self.__module__, name)
-        except AttributeError:
-            if name in getattr(self.__module__, '__all__', ()):
-                raise AttributeError(
-                    "%s has no attribute %s although listed in __all__"
-                    % (repr(self.__module__), repr(name)))
-            else:
-                try:
-                    return sys.modules['%s.%s' % (self.__name__, name)]
-                except KeyError:
-                    raise AttributeError("%s has no attribute %s"
-                                         % (repr(self), repr(name)))
+
+        try:  # first try to get attr from wrapper module
+            obj = self.__dict__[name]
+        except KeyError:
+            try: # then from wrapped original module
+                return getattr(self.__module__, name)
+            except AttributeError:
+                if name in getattr(self.__module__, '__all__', ()):
+                    raise AttributeError(
+                        "%s has no attribute %s although listed in __all__"
+                        % (repr(self.__module__), repr(name)))
+            try: # and finally try to find a matching submodule
+                obj = import_module('%s.%s' % (self.__name__, name))
+            except ImportError as exc:
+                raise AttributeError("%s has no attribute %s"
+                                     % (repr(self), repr(name)))
+
+        if isinstance(obj, zetup.classpackage):
+            classobj = getattr(obj, name)
+            setattr(self, name, classobj)
+            return classobj
+        return obj
 
     def __dir__(self):
         """Additionally get all API member names.
