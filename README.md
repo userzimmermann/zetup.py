@@ -1,6 +1,6 @@
 
 
-# Zetup
+# ZETUP
 
 
 
@@ -18,18 +18,19 @@
 
 
 
-[![](https://travis-ci.org/userzimmermann/zetup.py.svg?branch=master)](
+[![](https://travis-ci.org/zimmermanncode/zetup.svg?branch=master)](
   https://travis-ci.org/userzimmermann/zetup.py)
 [![Build status](https://ci.appveyor.com/api/projects/status/3wm8jnisoft5x7qr?svg=true)](
   https://ci.appveyor.com/project/userzimmermann/zetup-py)
 
 
 
-## Zimmermann's Python Package Setup
+## Zimmermann's Extensible Tools for Unified Project setups
 
 
 
-* https://bitbucket.org/userzimmermann/zetup.py
-* https://github.com/userzimmermann/zetup.py
+* https://bitbucket.org/zimmermanncode/zetup
+* https://github.com/zimmermanncode/zetup
+* https://gitlab.com/zimmermanncode/zetup
 * https://www.openhub.net/p/python-zetup
 
