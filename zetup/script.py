@@ -26,19 +26,19 @@ from itertools import chain
 from argparse import ArgumentParser
 import distutils.command
 
-import zetup.commands
-from zetup.commands import ZetupCommandError, \
-    make, dev, del_, test, pytest, tox, conda
+from pkg_resources import get_distribution
+
 from zetup.process import call
 from zetup.zetup import ZetupConfigNotFound
+from zetup.commands import ZetupCommandError
+import zetup.commands
 
 
 EXTERNAL_COMMANDS = []
 
 COMMANDS = sorted(chain(
     distutils.command.__all__,
-    zetup.commands.COMMANDS,
-    zetup.Zetup.COMMANDS,
+    zetup.commands, zetup.Zetup.COMMANDS,
     EXTERNAL_COMMANDS,
 ))
 
@@ -55,6 +55,8 @@ def run(argv=None, cmd=None):
     - If no `argv` is given, arguments are taken from ``sys.argv``.
     - Optionally takes an explicit zetup `cmd` not contained in `argv`.
     """
+    print(repr(get_distribution('zetup')))
+
     argv = sys.argv[1:] if argv is None else list(argv)
     if cmd:
         argv.insert(1, str(cmd))
@@ -65,7 +67,7 @@ def run(argv=None, cmd=None):
         zfg = zetup.Zetup()
     except ZetupConfigNotFound as no_zfg:
         try:
-            cmdfunc = zetup.commands.COMMANDS[args.cmd]
+            cmdfunc = zetup.commands[args.cmd]
         except KeyError:
             raise no_zfg
     else:
@@ -86,36 +88,6 @@ def run(argv=None, cmd=None):
             pass
 
     sys.exit(exit_status or 0)
-
-
-def zake(argv=None):
-    """Convenience runner for **zetup make** command.
-    """
-    run(argv, cmd='make')
-
-
-def zev(argv=None):
-    """Convenience runner for **zetup dev** command.
-    """
-    run(argv, cmd='dev')
-
-
-def zel(argv=None):
-    """Convenience runner for **zetup del** command.
-    """
-    run(argv, cmd='del')
-
-
-def zest(argv=None):
-    """Convenience runner for **zetup test** command.
-    """
-    run(argv, cmd='test')
-
-
-def zox(argv=None):
-    """Convenience runner for **zetup tox** command.
-    """
-    run(argv, cmd='tox')
 
 
 if __name__ == '__main__':
