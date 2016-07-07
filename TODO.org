@@ -1,0 +1,18 @@
+* TODO Create zetup.classpackage
+
+- Module object wrapper derived from zetup.package
+- Class with same name as module is automatically imported from module if defined as API member in parent package.
+- Class members can be defined in separate submodules.
+- Members in submodules must have same name as submodule.
+- Member submodules get automatically imported and members added to class.
+- Member submodules are defined via membermodules arg.
+- Handles class and init tests defined in package and member tests defined in submodules.
+
+#+BEGIN_SRC python
+
+__import__('zetup').classpackage(__name__, membermodules=[
+    'member',
+    '...',
+])
+
+#+END_SRC
