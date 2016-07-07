@@ -15,3 +15,8 @@
 
 ^\.venv/
 ^\.conda/
+
+\.sln$
+\.suo$
+\.pyproj$
+^\.vs/
