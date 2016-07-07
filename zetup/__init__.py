@@ -17,20 +17,26 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-"""zetup
+"""zetup.api
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
 from __future__ import absolute_import
 
 import sys
+import os
+
+# search sys.path for other packages using modeled namespace
+for path in (os.path.join(p, 'zetup') for p in sys.path):
+    if os.path.isdir(path):
+        __path__.append(os.path.realpath(path))
+del path
 
 import pkg_resources
 #HACK: happens on setup of namespace packages
 if pkg_resources.require is None:
     # might be needed by package requirements
     pkg_resources.require = pkg_resources.WorkingSet().require
-
 
 from .zetup import Zetup, find_zetup_config
 from .error import ZetupError
