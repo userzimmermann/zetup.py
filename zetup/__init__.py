@@ -40,6 +40,7 @@ from .process import Popen, call
 from .object import object, meta
 from .annotate import annotate
 from .modules import package, toplevel, extra_toplevel
+from .classpackage import classpackage
 # import notebook subpackage for defining extra_toplevel below
 from . import notebook
 
