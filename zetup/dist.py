@@ -100,8 +100,8 @@ class Distribution(str):
                     print('zetup:', message)
                     # then automatically reinstall zetup in develop mode
                     print('zetup: Reinstalling in develop mode...')
-                    import zetup.commands.dev
-                    self.zfg.dev()
+                    import zetup.commands
+                    zetup.commands['dev'](self.zfg)
                     # reset setuptools distribution cache
                     pkg_resources.working_set = pkg_resources.WorkingSet(
                         pkg_resources.working_set.entries)

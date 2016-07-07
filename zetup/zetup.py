@@ -1,6 +1,6 @@
 # zetup.py
 #
-# Zimmermann's Python package setup.
+# Management commands for Zimmermann's Python package setup
 #
 # Copyright (C) 2014-2015 Stefan Zimmermann <zimmermann.code@gmail.com>
 #
@@ -222,8 +222,8 @@ class CommandDeco(object):
         def cmdmethod(zfg, args=None, **kwargs):
             if not targets:
                 return func(zfg, args, **kwargs)
-            from zetup.commands.make import make
-            with make(zfg, targets=targets):
+            import zetup.commands
+            with zetup.commands['make'](zfg, targets=targets):
                 return func(zfg, args, **kwargs)
 
         name = cmdmethod.__name__ = self.name or func.__name__
