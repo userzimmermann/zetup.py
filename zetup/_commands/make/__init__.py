@@ -29,13 +29,15 @@ from jinja2 import FileSystemLoader, TemplateNotFound
 from jinjatools import Environment
 
 import zetup
+import zetup.templates.jinja
 from zetup.zetup import Zetup
 from zetup.commands import ZetupCommandError
 
 
 class Loader(FileSystemLoader):
     def __init__(self):
-        self.templates_dir = Path(__path__[0]) / 'templates'
+        self.templates_dir \
+            = Path(zetup.templates.jinja.__file__).realpath().dirname()
         super(Loader, self).__init__(self.templates_dir)
 
     def get_source(self, env, target):
