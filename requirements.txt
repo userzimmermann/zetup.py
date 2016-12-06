@@ -1,2 +1,2 @@
-setuptools # >= 15.0
-setuptools_scm
+# setuptools
+setuptools_scm >= 1.15
