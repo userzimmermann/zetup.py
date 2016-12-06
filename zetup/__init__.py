@@ -82,12 +82,13 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
                     # (where setup.py is run)
     keywords = zetup.setup_keywords()
     for name, value in keywords.items():
-        # Generally, setting stuff on dist.metadata is enough
-        # (and necessary), but *pip* only works correct
-        # if stuff is also set directly on dist object
-        # (seems to read at least packages list somehow from there):
-        for obj in [dist, dist.metadata]:
-            setattr(obj, name, value)
+        # Generally, setting stuff on dist.metadata is enough (and necessary)
+        setattr(dist.metadata, name, value)
+        # but *pip* only works correct
+        # if some stuff is also set directly on dist object
+        # (seems to read at least package infos somehow from there):
+        if name.startswith('package') or name.endswith('requires'):
+            setattr(dist, name, value)
 
     # finally run any custom setup hooks defined in project's zetup config,
     # but first check setup requirements
