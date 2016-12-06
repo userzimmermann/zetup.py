@@ -20,7 +20,7 @@
 
 {% block header %}{{ zetup_header }}{% endblock %}
 
-{% block imports %}
+{%- block imports %}
 from __future__ import print_function
 
 import sys
@@ -33,15 +33,9 @@ except ImportError:
 {% endblock %}
 
 SETUP_REQUIRES = [
-  {% block setup_requires %}'zetup >= {{ zetup.__version__ }}',
-  {# {% for req in zfg.SETUP_REQUIRES or [] %}'{{ req }}',
-     {% endfor %}
-   #}
-  ] + (os.path.exists('requirements.setup.txt')
-       and [line for line in map(str.strip, open('requirements.setup.txt'))
-            if line and not line.startswith('#')]
-       or []) + [
-  {% endblock %}]
+    {% block setup_requires %}'zetup >= {{ zetup.__version__ }}',
+    {%- endblock %}
+]
 
 {% block pre_setup %}
 try:
@@ -60,9 +54,27 @@ else:
 
     installer = Distribution().fetch_build_egg
 
-    # don't pollute stdout
-    stdout = sys.__stdout__
-    sys.stdout = sys.__stdout__ = sys.__stderr__
+    # don't pollute stdout. first backup
+    __stdout__ = sys.__stdout__
+    stdout = sys.stdout
+    # then redirect to stderr...
+
+    class StdErrWrapper(object):
+        # on windows, directly assigning stderr to stdout
+        # often leads to a detached stderr buffer in the end
+
+        def __getattr__(self, name):
+            return getattr(sys.__stderr__, name)
+
+        def detach(self):
+            # so don't let stderr's buffer get stolen
+            return self
+
+        def __del__(self):
+            # and also don't let __getattr__ fetch stderr's __del__
+            pass
+
+    sys.stdout = sys.__stdout__ = StdErrWrapper()
 
     def resolve(requirements, parent=None):
         for req in requirements:
@@ -82,15 +94,20 @@ else:
             resolve(map(str, dist.requires(extras=extras or ())), qualreq)
 
     resolve(SETUP_REQUIRES)
-    sys.stdout = sys.__stdout__ = stdout
+    zfg = __import__('zetup').Zetup()
+
+    resolve(zfg.SETUP_REQUIRES or [])
+
+    sys.__stdout__ = __stdout__
+    sys.stdout = stdout
 {% endblock %}
 
-dist = setup(
-  {% block setup_keywords %}
-  setup_requires=SETUP_REQUIRES,
+dist = zfg.setup(
+    {%- block setup_keywords %}
+    setup_requires=SETUP_REQUIRES + (zfg.SETUP_REQUIRES or []),
 
-  use_zetup=True,
-  {% endblock %}
-  )
+    use_zetup=True,
+    {%- endblock %}
+)
 
 {% block post_setup %}{% endblock %}
