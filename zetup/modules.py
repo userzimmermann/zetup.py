@@ -139,8 +139,9 @@ class package(ModuleType, object):
              if not isinstance(name, deprecated)))))
 
     def __setattr__(self, name, value):
-        """Prevent submodules from being added as attributes
-           to avoid unnecessary ``dir()`` pollution.
+        """
+        Prevent submodules from being added as attributes to avoid
+        unnecessary ``dir()`` pollution.
         """
         if isinstance(value, AutoDocScopeModule) or ismodule(value) and (
                 value.__name__ == '%s.%s' % (self.__name__, name)
@@ -171,12 +172,12 @@ class package(ModuleType, object):
                      DeprecationWarning)
             name = realname
 
-        try:  # first try to get attr from wrapper module
-            obj = self.__dict__[name]
-        except KeyError:
-            try: # then from wrapped original module
-                return getattr(self.__module__, name)
-            except AttributeError:
+        try:  # first try to get attr from wrapped original module
+            return getattr(self.__module__, name)
+        except AttributeError:
+            try: # then from wrapper module
+                obj = self.__dict__[name]
+            except KeyError:
                 if name in getattr(self.__module__, '__all__', ()):
                     raise AttributeError(
                         "%s has no attribute %s although listed in __all__"
