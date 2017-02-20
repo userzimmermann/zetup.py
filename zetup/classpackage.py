@@ -119,7 +119,7 @@ class classpackage(package):
                 # from the classpackage instance itself
                 if name in [
                         '__name__', '__all__',  '__module__', '__path__',
-                        '__class__', '__dict__',
+                        '__file__', '__class__', '__dict__',
                 ]:
                     return pkgcls.__getattribute__(self, name)
                 # and take all other attributes from the class object
