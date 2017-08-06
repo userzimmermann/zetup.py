@@ -196,8 +196,10 @@ def load_zetup_config(path, zfg):
 
     zfg.VERSION_FILE = os.path.join(zfg.ZETUP_DIR, 'VERSION')
     if os.path.exists(zfg.VERSION_FILE):
+        zfg.in_repo = False
         zfg.VERSION = open(zfg.VERSION_FILE).read().strip()
     else:
+        zfg.in_repo = True
         zfg.VERSION_FILE = None
         try:
             import setuptools_scm
