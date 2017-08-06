@@ -60,8 +60,8 @@ class Made(list):
                 path = path.splitext()[0] + '.pyc'
                 if path.exists():
                     compiled.append(path)
-                compiled += glob(path.dirname() / '__pycache__'
-                                 / path.namebase + '.*.pyc')
+                compiled += glob(path.dirname() / '__pycache__' /
+                                 path.namebase + '.*.pyc')
                 for path in map(Path, compiled):
                     print("zetup: Removing compiled %s" % path,
                           # don't pollute stdout
@@ -72,6 +72,9 @@ class Made(list):
         return self
 
     def __exit__(self, *exc_info):
+        self.clean()
+
+    def __del__(self):
         self.clean()
 
 
