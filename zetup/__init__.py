@@ -67,26 +67,26 @@ sys.modules[__name__].notebook = sys.modules[notebook.__name__]
 
 
 def setup_entry_point(dist, keyword='use_zetup', value=True):
-    """Zetup's ``entry_point`` handler for ``setup()``
-       in a project's **setup.py**, setting all setup keyword parameters
-       based on zetup config.
+    """
+    Zetup's ``entry_point`` handler for the ``setup()`` process in a project's
+    **setup.py**, setting all setup keyword parameters based on zetup config
 
-    - Activated with ``setup(setup_requires=['zetup'], use_zetup=True)``
+    Activated with ``setup(setup_requires=['zetup'], use_zetup=True)``
     """
     assert keyword == 'use_zetup'
     if not value:
         return
 
     from .zetup import Zetup
-    zetup = Zetup() # reads config from current working directory
-                    # (where setup.py is run)
+    # read config from current working directory (where setup.py is run)
+    zetup = Zetup()
     keywords = zetup.setup_keywords()
     for name, value in keywords.items():
-        # Generally, setting stuff on dist.metadata is enough (and necessary)
+        # generally, setting stuff on dist.metadata is enough (and necessary)
         setattr(dist.metadata, name, value)
-        # but *pip* only works correct
-        # if some stuff is also set directly on dist object
-        # (seems to read at least package infos somehow from there):
+        # but *pip* only works correct if some stuff is also set directly on
+        # dist object (pip seems to read at least package infos somehow from
+        # there)
         if name.startswith('package') or name.endswith('requires'):
             setattr(dist, name, value)
 
@@ -103,3 +103,15 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
                 mod = getattr(mod, subname)
             func = getattr(mod, funcname)
             func(dist)
+
+    if not zetup.in_repo:
+        # ==> setup was run from distribution ==> no files need to be made
+        return
+
+    import zetup.commands as _
+
+    # make necessary files and store make result globally, so that files are
+    # removed on exit via Made.__del__
+    global MADE
+    make_targets = ['VERSION', 'setup.py', 'zetup_config']
+    MADE = zetup.make(targets=make_targets)
