@@ -49,7 +49,7 @@ from . import notebook
 zetup = toplevel(__name__, [
     'Zetup', 'find_zetup_config',
     'ZetupError', 'ZetupConfigNotFound',
-    'DistributionNotFound', 'VersionConflict',
+    'resolve', 'DistributionNotFound', 'VersionConflict',
     'Popen', 'call',
     'object', 'meta',
     'annotate', 'package', 'toplevel', 'extra_toplevel',
