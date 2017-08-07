@@ -38,6 +38,7 @@ from .extras import Extras
 from .dist import Distribution
 from .package import Packages
 from .notebook import Notebook
+from .resolve import resolve
 from .error import ZetupError
 
 
@@ -258,7 +259,11 @@ def load_zetup_config(path, zfg):
             zfg.NOTEBOOKS[name] \
                 = Notebook(os.path.join(zfg.ZETUP_DIR, fname))
 
-    # finally run any custom zetup config hooks
+    # finally resolve setup requirements...
+    if zfg.SETUP_REQUIRES:
+        resolve(zfg.SETUP_REQUIRES)
+
+    # ... and run any custom zetup config hooks
     if zfg.ZETUP_CONFIG_HOOKS:
         sys.path.insert(0, zfg.ZETUP_DIR)
         for hook in zfg.ZETUP_CONFIG_HOOKS:
