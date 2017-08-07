@@ -17,14 +17,13 @@ class TestNotebook(object):
             # notebooks aren't installed
             assert notebook is None
             return
-        # check if all IPython.nbconvert.export_...() converters
-        # are exposed to the notebook instance as to_...() methods
-        for name, obj in getmembers(nbconvert):
-            if name.startswith('export_'):
-                converter = getattr(notebook, 'to_' + name.split('_', 1)[1])
-                assert callable(converter)
+        # check if all nbconvert exporters are exposed to the notebook
+        # instance as to_...() methods
+        for name in nbconvert.get_export_names():
+            converter = getattr(notebook, 'to_' + name)
+            assert callable(converter)
         # and if the conversion actually works by testing with markdown export
-        assert nbconvert.export_markdown(notebook)[0] \
+        assert nbconvert.MarkdownExporter().from_filename(notebook)[0] \
             == notebook.to_markdown()
 
     def test_getattr(self, notebook, in_site_packages):
