@@ -87,7 +87,7 @@ def resolve(requirements):
             try:
                 dist = get_distribution(req)
             except (DistributionNotFound, VersionConflict):
-                dist = installer(req)
+                dist = INSTALLER(req)
                 sys.path.insert(0, dist.location)
                 working_set.add_entry(dist.location)
             print(repr(dist))
