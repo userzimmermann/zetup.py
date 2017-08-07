@@ -8,7 +8,7 @@ url = https://bitbucket.org/userzimmermann/zetup.py
 
 license = LGPLv3
 
-python = 2.7 3.3 3.4 3.5
+python = 2.7 3.3 3.4 3.5 3.6
 
 scripts =
     zetup: zetup.script:run
