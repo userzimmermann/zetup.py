@@ -19,3 +19,9 @@ script:
   - py.test -v test/
   - # python setup.py tox
   - tox -r -v
+
+deploy:
+  provider: pypi
+  user: userzimmermann
+  password:
+    secure: j8c8NmuibI2CEyxhrF/RQbTVqbKxWxHJDBs466n7dHqTLbvZRTRH2PgXadWtn9Dxomn5hZi8qAMIiQOQTVZ8CJdZ1CGa6gsVlaF2AKGLY++O58q84EpujMgZNTGfr6dhIDAPpSe49LGnJbKIINgKTwcHVTKOlzfVqK/IMfWoC5NqYzb4yig+APLfTM49BaE+hfNpEDCXN9QRnFMEm4MIj+QsN4hIS2JNxb/8MKQzzXTboG9ALG3FSoChy6QqmN+Bpf2mnU8f7L9SlW/tnqeei+TXrhqEDhfh04En56XAKzIHvLyjdt17WsQCdoyWyBjWBT5Qn+5QbVndEIf2cKO+7Izkk25HXZ1RN04RjpLDgrU8XPag56kF80EkQYvyQ7xv3OAoj8DlGsvmGeF3/+bGvxFYktFOKlEP7TouENBxrZh05SSdZAW6ux9ifDCMnJ0u43PYPOpbPIJzajhPIwPX8LzoqEuRGgoqvEcW/fnsU7BKX4jnUYACuI6yWYgAOp+QLVm17qqSFHlHT+MV61lxxxaqs6y3UdAADqYCVNuY7CRPc68n0D6uC775hDyyd8qCGU7LTXfWZurvvg7CYEW0Y0QcjCopgyJNSIO8WjwbqNwqwpwA9HMi5hOVQhBRL0yBmU6Xop1bEgGgvXKm2EClOTS+JTuJcFtaFDK05eAv49g=
