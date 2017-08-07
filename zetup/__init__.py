@@ -91,10 +91,7 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
         if name.startswith('package') or name.endswith('requires'):
             setattr(dist, name, value)
 
-    # finally run any custom setup hooks defined in project's zetup config,
-    # but first resolve setup requirements
-    if zetup.SETUP_REQUIRES:
-        resolve(zetup.SETUP_REQUIRES)
+    # finally run any custom setup hooks defined in project's zetup config
     if zetup.SETUP_HOOKS:
         sys.path.insert(0, '.')
         for hook in zetup.SETUP_HOOKS:
