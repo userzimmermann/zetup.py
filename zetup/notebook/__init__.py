@@ -57,9 +57,8 @@ class Notebook(object, base):
             return []
         # import on demand to be not required for module import
         import nbconvert
-        return ['to_' + name.split('_', 1)[1]
-                for name, member in getmembers(nbconvert)
-                if name.startswith('export_')]
+        return super(Notebook, self).__dir__() + [
+            'to_' + name for name in nbconvert.get_export_names()]
 
     def __getattr__(self, name):
         """Dynamically generate ``.to_...()`` converter methods
@@ -73,14 +72,14 @@ class Notebook(object, base):
         # import on demand to be not required for module import
         import nbconvert
         try:
-            func = getattr(nbconvert, 'export_' + name.split('_', 1)[1])
-        except AttributeError as e:
+            exportercls = nbconvert.get_exporter(name.split('_', 1)[1])
+        except ValueError as e:
             raise AttributeError(
               "%s instance has no converter method %s (%s: %s)"
               % (type(self), repr(name), type(e).__name__, e))
 
         def method():
-            result = func(self)
+            result = exportercls().from_filename(self)
             return result[0] # only the actual text
 
         method.__name__ = name
@@ -97,12 +96,12 @@ class Notebook(object, base):
         import nbconvert
         from .jinja import FILTERS, LOADER
 
-        rst = nbconvert.export_rst(self,
-          filters=FILTERS, extra_loaders=[LOADER],
-          # Not a real file,
-          #  will be loaded from string by LOADER:
-          template_file='bitbucket_rst',
-          )[0]
+        exporter = nbconvert.RSTExporter()
+        exporter.filters = FILTERS
+        exporter.extra_loaders = [LOADER]
+        # not a real file. will be loaded from string by LOADER
+        exporter.template_file = 'bitbucket_rst'
+        rst = exporter.from_filename(self)[0]
         # bitbucket_rst template puts code cell input and output
         #  in single blocks, but can't prevent empty lines in between
         #==> Remove them:
@@ -131,12 +130,12 @@ class Notebook(object, base):
         import nbconvert
         from .jinja import FILTERS, LOADER
 
-        markdown = nbconvert.export_markdown(self,
-          filters=FILTERS, extra_loaders=[LOADER],
-          # Not a real file,
-          #  will be loaded from string by LOADER:
-          template_file='github_markdown',
-          )[0]
+        exporter = nbconvert.MarkdownExporter()
+        exporter.filters = FILTERS
+        exporter.extra_loaders = [LOADER]
+        # not a real file. will be loaded from string by LOADER
+        exporter.template_file = 'github_markdown'
+        markdown = exporter.from_filename(self)[0]
         # github_markdown template puts code cell input and output
         #  in single blocks, but can't prevent empty lines in between
         #==> Remove them:
