@@ -36,6 +36,7 @@ from .zetup import Zetup, find_zetup_config
 from .error import ZetupError
 from .config import ZetupConfigNotFound
 from .requires import DistributionNotFound, VersionConflict
+from .resolve import resolve
 from .process import Popen, call
 from .object import object, meta
 from .annotate import annotate
@@ -91,9 +92,9 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
             setattr(dist, name, value)
 
     # finally run any custom setup hooks defined in project's zetup config,
-    # but first check setup requirements
+    # but first resolve setup requirements
     if zetup.SETUP_REQUIRES:
-        zetup.SETUP_REQUIRES.check()
+        resolve(zetup.SETUP_REQUIRES)
     if zetup.SETUP_HOOKS:
         sys.path.insert(0, '.')
         for hook in zetup.SETUP_HOOKS:
@@ -108,6 +109,8 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
         # ==> setup was run from distribution ==> no files need to be made
         return
 
+    # resolve requirements for zetup make
+    resolve(['zetup[commands]>={}'.format(__import__('zetup').__version__)])
     import zetup.commands as _
 
     # make necessary files and store make result globally, so that files are
