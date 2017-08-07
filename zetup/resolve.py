@@ -94,7 +94,9 @@ def resolve(requirements):
             extras = re.match(r'[^#\[]*\[([^#\]]*)\]', req)
             if extras:
                 extras = list(map(str.strip, extras.group(1).split(',')))
-            _resolve(map(str, dist.requires(extras=extras or ())), qualreq)
+            _resolve((str(req).split(';')[0]
+                      for req in dist.requires(extras=extras or ())),
+                     qualreq)
 
     _resolve(requirements)
     # ... and finally restore stdout
