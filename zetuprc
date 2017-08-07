@@ -1,10 +1,10 @@
 [zetup]
 
 description =
-    Zimmermann's Extensible Tools for Unified Project setups
+    Zimmermann's Extensible Tools for Unified Project_setups
 
-author = Stefan Zimmermann <zimmermann.code@gmail.com>
-url = https://bitbucket.org/userzimmermann/zetup.py
+author = Stefan Zimmermann <user@zimmermann.co>
+url = https://github.com/zimmermanncode/zetup
 
 license = LGPLv3
 
