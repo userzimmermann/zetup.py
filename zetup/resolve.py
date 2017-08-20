@@ -98,7 +98,7 @@ def resolve(requirements):
                       for req in dist.requires(extras=extras or ())),
                      qualreq)
 
-    _resolve(requirements)
+    _resolve((str(req).split(';')[0] for req in requirements))
     # ... and finally restore stdout
     sys.__stdout__ = __stdout__
     sys.stdout = stdout
