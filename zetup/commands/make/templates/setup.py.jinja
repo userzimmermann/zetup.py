@@ -104,8 +104,8 @@ else:
 
 dist = zfg.setup(
     {%- block setup_keywords %}
-    setup_requires=SETUP_REQUIRES + (
-        [str(req) for req in zfg.SETUP_REQUIRES] or []),
+    setup_requires=SETUP_REQUIRES + [
+        str(req) for req in zfg.SETUP_REQUIRES or ()],
 
     use_zetup=True,
     {%- endblock %}
