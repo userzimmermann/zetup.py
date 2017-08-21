@@ -96,7 +96,7 @@ else:
     resolve(SETUP_REQUIRES)
     zfg = __import__('zetup').Zetup()
 
-    resolve((str(req).split(';')[0] for req in zfg.SETUP_REQUIRES) or [])
+    resolve(str(req).split(';')[0] for req in zfg.SETUP_REQUIRES or [])
 
     sys.__stdout__ = __stdout__
     sys.stdout = stdout
