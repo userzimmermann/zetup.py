@@ -58,7 +58,7 @@ except (ImportError, DistributionNotFound, VersionConflict):
 
 
 zfg = Zetup()
-zetup.requires.Requirements('setuptools >= 27.0', zfg=zfg).check()
+zetup.requires.Requirements('setuptools >= 36.2', zfg=zfg).check()
 
 setup = zfg.setup
 setup['package_data']['zetup.commands.make'] = [
