@@ -46,6 +46,9 @@ if sys.platform.startswith('win'):
         """Try to find the executable file path of given `command`
         using ``where.exe``.
         """
+        if os.path.isabs(command):
+            return command
+
         out = subprocess.Popen(
             ['where.exe', command], stdout=PIPE, stderr=PIPE,
             universal_newlines=True
