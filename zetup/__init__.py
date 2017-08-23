@@ -91,6 +91,18 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
         if name.startswith('package') or name.endswith('requires'):
             setattr(dist, name, value)
 
+    if zetup.in_repo:
+        # resolve requirements for zetup make
+        resolve(['zetup[commands]>={}'.format(
+            __import__('zetup').__version__)])
+        import zetup.commands as _
+
+        # make necessary files and store make result globally, so that files are
+        # removed on exit via Made.__del__
+        global MADE
+        make_targets = ['VERSION', 'setup.py', 'zetup_config']
+        MADE = zetup.make(targets=make_targets)
+
     # finally run any custom setup hooks defined in project's zetup config
     if zetup.SETUP_HOOKS:
         sys.path.insert(0, '.')
@@ -101,17 +113,3 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
                 mod = getattr(mod, subname)
             func = getattr(mod, funcname)
             func(dist)
-
-    if not zetup.in_repo:
-        # ==> setup was run from distribution ==> no files need to be made
-        return
-
-    # resolve requirements for zetup make
-    resolve(['zetup[commands]>={}'.format(__import__('zetup').__version__)])
-    import zetup.commands as _
-
-    # make necessary files and store make result globally, so that files are
-    # removed on exit via Made.__del__
-    global MADE
-    make_targets = ['VERSION', 'setup.py', 'zetup_config']
-    MADE = zetup.make(targets=make_targets)
