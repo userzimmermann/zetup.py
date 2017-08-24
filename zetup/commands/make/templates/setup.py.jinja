@@ -111,4 +111,6 @@ dist = zfg.setup(
     {%- endblock %}
 )
 
-{% block post_setup %}{% endblock %}
+{% block post_setup %}
+del dist.zetup_made
+{% endblock %}
