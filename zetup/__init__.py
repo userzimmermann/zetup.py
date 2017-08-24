@@ -97,11 +97,10 @@ def setup_entry_point(dist, keyword='use_zetup', value=True):
             __import__('zetup').__version__)])
         import zetup.commands as _
 
-        # make necessary files and store make result globally, so that files are
-        # removed on exit via Made.__del__
-        global MADE
+        # make necessary files and store make result in distribution object,
+        # so that files can be removed by del dist.zetup_made after setup()
         make_targets = ['VERSION', 'setup.py', 'zetup_config']
-        MADE = zetup.make(targets=make_targets)
+        dist.zetup_made = zetup.make(targets=make_targets)
 
     # finally run any custom setup hooks defined in project's zetup config
     if zetup.SETUP_HOOKS:
