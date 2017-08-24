@@ -200,8 +200,12 @@ class Setup(dict):
                     return call([sys.executable, 'setup.py']
                                 + sys.argv[1:])
 
-                return setup(**keywords)
-        return setup(**keywords)
+                dist = setup(**keywords)
+        else:
+            dist = setup(**keywords)
+        # to be always able to del dist.zetup_made in setup.py
+        dist.zetup_made = None
+        return dist
 
 
 class CommandDeco(object):
