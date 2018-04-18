@@ -17,10 +17,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with zetup.py. If not, see <http://www.gnu.org/licenses/>.
 
-"""zetup.modules
+"""
+zetup.modules
 
-Module object wrappers for packages, top-level packages,
-and top-level packages for extra features.
+Module object wrappers for packages, top-level packages, and top-level
+packages for extra features
 
 .. moduleauthor:: Stefan Zimmermann <zimmermann.code@gmail.com>
 """
@@ -42,16 +43,20 @@ from .doc import AutoDocScopeModule
 
 
 class deprecated(str):
-    """Simple ``str`` class wrapper for marking a
-       :class:`zetup.package` api member (alias) name as deprecated.
+    """
+    Simple ``str`` class wrapper for indicating deprecation.
+
+    Marks a :class:`zetup.package` API member (alias) name as deprecated
     """
     def __repr__(self):
         return "deprecated(%s)" % str.__repr__(self)
 
 
 class package(ModuleType, object):
-    """Package module object wrapper
-       for clean dynamic API import from sub-modules.
+    """
+    Package module object wrapper.
+
+    For clean dynamic API import from sub-modules
     """
     __module__ = __package__
 
@@ -60,17 +65,20 @@ class package(ModuleType, object):
             aliases=None, deprecated_aliases=None,
             __getitem__=None, __iter__=None, __call__=None
     ):
-        """Wraps a package module given by its `name`.
+        """
+        Wraps a package module given by `name`.
 
-        - Original package module object is replaced in ``sys.modules``
-          and stored in :attr:``.__module__``.
-        - Optional `__all__` list defines the package API.
-        - Optional `aliases` and `deprecated_aliases`
-          map alternative names to API names.
-        - `__getitem__`, `__iter__`, and `__call__` features
-          can be added to the package wrapper
-          by providing handler functions or other callable objects
-          (which are not called with a 'self' argument).
+        Original package module object is replaced in ``sys.modules`` and
+        stored in :attr:``.__module__``
+
+        Optional `__all__` list defines the package API
+
+        Optional `aliases` and `deprecated_aliases` map alternative names to
+        API names
+
+        `__getitem__`, `__iter__`, and `__call__` features can be added to the
+        package wrapper by providing handler functions or other callable
+        objects (which are not called with a ``self`` argument)
         """
         mod = sys.modules[name]
         ModuleType.__init__(self, name, mod.__doc__)
@@ -131,7 +139,8 @@ class package(ModuleType, object):
 
     @property
     def __all__(self):
-        """Get API member name list (without deprecated aliases).
+        """
+        Get API names list (without deprecated aliases).
         """
         return list(set(chain(
             getattr(self.__module__, '__all__', ()),
@@ -140,8 +149,9 @@ class package(ModuleType, object):
 
     def __setattr__(self, name, value):
         """
-        Prevent submodules from being added as attributes to avoid
-        unnecessary ``dir()`` pollution.
+        Prevent submodules from being added as attributes.
+
+        To avoid unnecessary ``dir()`` pollution
         """
         if isinstance(value, AutoDocScopeModule) or ismodule(value) and (
                 value.__name__ == '%s.%s' % (self.__name__, name)
@@ -154,8 +164,8 @@ class package(ModuleType, object):
         object.__setattr__(self, name, value)
 
     def __getattribute__(self, name):
-        """Dynamically access API from wrapped module
-           or import extra API members.
+        """
+        Dynamically access API from wrapped module or import extra API.
         """
         if name.startswith('__'):
             try:
@@ -195,13 +205,15 @@ class package(ModuleType, object):
         return obj
 
     def __dir__(self):
-        """Additionally get all API member names.
+        """
+        Additionally get all API member names
         """
         def exclude():
-            """Get names of submodules which were implicitly added
-               to this package wrapper's ``__dict__``
-               by ``from .submodule import ...`` statements in wrapped module
-               following the wrapper instantiation.
+            """
+            Get names of submodules implicitly added to ``__dict__``.
+
+            Which happens on ``from .submodule import ...`` statements in
+            wrapped module following the wrapper instantiation
             """
             for name, obj in self.__dict__.items():
                 if name.startswith('__'):
@@ -215,7 +227,8 @@ class package(ModuleType, object):
             self.__all__))
 
     def __repr__(self):
-        """Create module-style representation.
+        """
+        Create module-style representation
         """
         return "<%s %s from %s>" % (
             type(self).__name__, repr(self.__name__),
@@ -223,9 +236,11 @@ class package(ModuleType, object):
 
 
 class toplevel(package):
-    """Special top-level package module object wrapper
-       for clean dynamic API import from sub-modules
-       and automatic application of func:`zetup.annotate`.
+    """
+    Special top-level package module object wrapper.
+
+    For clean dynamic API import from sub-modules and automatic application
+    of func:`zetup.annotate`
     """
     __module__ = __package__
 
@@ -233,14 +248,14 @@ class toplevel(package):
             self, name, __all__=None,
             aliases=None, deprecated_aliases=None,
             check_requirements=True, check_packages=True,
-            __getitem__=None, __iter__=None, __call__=None
-    ):
-        """Wrap top-level package module given by its `name`
-           and `api` member list.
+            __getitem__=None, __iter__=None, __call__=None):
+        """
+        Wrap top-level package module given by `name` and `api` list.
 
-        - See :class:`zetup.package`
-          for details about defining the package API and special features.
-        - See :func:`zetup.annotate` for details about the check options.
+        See :class:`zetup.package` for details about defining the package
+        API and special features
+
+        See :func:`zetup.annotate` for details about the check options
         """
         super(toplevel, self).__init__(
             name, __all__,
@@ -268,9 +283,11 @@ class extra_toplevel(
         # PY2/3 compatible way to assign metaclass
         extra_toplevel_meta('extra_toplevel_base', (package, ), {})
 ):
-    """Special extra feature top-level package module object wrapper
-       for clean dynamic API import from sub-modules
-       and automatic application of func:`zetup.annotate_extra`.
+    """
+    Special extra feature top-level package module object wrapper.
+
+    For clean dynamic API import from sub-modules and automatic application
+    of func:`zetup.annotate_extra`
     """
     __module__ = __package__
 
@@ -280,12 +297,13 @@ class extra_toplevel(
             check_requirements=True,
             __getitem__=None, __iter__=None, __call__=None
     ):
-        """Wrap top-level package module given by its `name`
-           and `api` member list.
+        """
+        Wrap top-level package module given by `name` and `api` list.
 
-        - See :class:`zetup.package`
-          for details about defining the package API and special features.
-        - See :func:`zetup.annotate_extra` for details about the check option.
+        See :class:`zetup.package` for details about defining the package
+        API and special features
+
+        See :func:`zetup.annotate_extra` for details about the check option
         """
         super(extra_toplevel, self).__init__(
             name, __all__,

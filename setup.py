@@ -8,7 +8,8 @@ from pkg_resources import get_distribution, working_set, VersionConflict
 
 
 def samefile(path, other):
-    """Workaround for missing ``os.path.samefile`` in Windows Python 2.7
+    """
+    Workaround for missing ``os.path.samefile`` in Windows Python 2.7.
     """
     return os.path.normcase(os.path.normpath(os.path.realpath(path))) \
         == os.path.normcase(os.path.normpath(os.path.realpath(other)))
