@@ -25,6 +25,12 @@ from textwrap import dedent
 from jinja2 import BaseLoader, TemplateNotFound
 
 
+def smart_prompts(source, prompt='>>> ', cont='... '):
+    return '\n'.join(
+        (not re.match(r'^\s', line) and prompt or cont) + line
+        for line in source.split('\n'))
+
+
 def bitbucket_rst_links(rst):
     return re.sub(
       r'<#[0-9.-]+([^>]+)>',
@@ -41,9 +47,10 @@ def github_markdown_links(markdown):
 
 
 FILTERS = {
-  'bitbucket_rst_links': bitbucket_rst_links,
-  'github_markdown_links': github_markdown_links,
-  }
+    'smart_prompts': smart_prompts,
+    'bitbucket_rst_links': bitbucket_rst_links,
+    'github_markdown_links': github_markdown_links,
+}
 
 
 class ExtraTemplateLoader(BaseLoader):
@@ -64,9 +71,9 @@ class ExtraTemplateLoader(BaseLoader):
         {%- endif %}
 
         {% if cell.outputs and not cell.source.startswith(('%', '!')) -%}
-        {{ cell.source | add_prompts(cont='>>> ') | indent }}
+        {{ cell.source | smart_prompts | indent }}
         {%- else -%}
-        {{ cell.source | indent }}
+        {{ cell.source | smart_prompts | indent }}
         {%- endif %}
         {%- endif %}
         {% endblock input %}
@@ -101,9 +108,9 @@ class ExtraTemplateLoader(BaseLoader):
         {%- endif %}
         {%- endif %}
         {% if cell.outputs and not cell.source.startswith(('%', '!')) -%}
-        {{ cell.source | add_prompts(cont='>>> ') }}
+        {{ cell.source | smart_prompts }}
         {%- else -%}
-        {{ cell.source }}
+        {{ cell.source | smart_prompts }}
         {% if not cell.outputs -%}
         ```
         {%- endif %}
