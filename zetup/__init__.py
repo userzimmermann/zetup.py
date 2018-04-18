@@ -26,10 +26,9 @@ from __future__ import absolute_import
 import sys
 
 import pkg_resources
-#HACK: happens on setup of namespace packages
-if pkg_resources.require is None:
-    # might be needed by package requirements
-    pkg_resources.require = pkg_resources.WorkingSet().require
+# pkg_resources might not be fully populated yet during setup of namespaces
+pkg_resources.iter_entry_points = pkg_resources.WorkingSet().iter_entry_points
+pkg_resources.require = pkg_resources.WorkingSet().require
 
 
 from .zetup import Zetup, find_zetup_config
