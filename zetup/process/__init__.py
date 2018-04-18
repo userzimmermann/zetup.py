@@ -43,10 +43,12 @@ if sys.version_info[0] == 3:
 if sys.platform.startswith('win'):
 
     def _where(command):
-        """Try to find the executable file path of given `command`
-        using ``where.exe``.
         """
-        if os.path.isabs(command):
+        Try to find the executable file path of given `command` using
+        ``where.exe``.
+        """
+        # just accept commands with any absolute or relative directory prefix
+        if os.path.dirname(command):
             return command
 
         out = subprocess.Popen(
